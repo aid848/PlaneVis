@@ -19,7 +19,35 @@
 <script src="js/usMap.js"></script>
 <script src="js/phases.js"></script>
 <script src="js/main.js"></script>
+<script src="js/controls.js"></script>
 
+<!--todo hide control panel until loaded and hide when switching to other view with attributes-->
+<div id="control_panel" class="control_panel">
+    <div id="dropdown-group">
+        <select name="Primary attribute" id="primary-selector" class="control-select">
+            <option value="make">Make</option>
+            <option value="injury-severity">Injury Severity</option>
+        </select>
+        <br>
+        <select name="Secondary attribute" id="secondary-selector" class="control-select">
+            <option value="fatalities">Fatalities</option>
+            <option value="avg-aircraft-dmg">Average aircraft damage</option>
+            <option value="num-accidents">Number of accidents</option>
+        </select>
+    </div>
+    <div id="date_slider"></div>
+    <div id="checkbox-group">
+        <input type="checkbox" id="commercial-box" class="controlbox" name="commercial-box">
+        <label for="commercial-box">Commercial</label>
+        <br>
+        <input type="checkbox" id="private-box" class="controlbox" name="private-box">
+        <label for="private-box">Private</label>
+        <br>
+        <input type="checkbox" id="amateur-box" class="controlbox" name="amateur-box">
+        <label for="amateur-box">Amateur-built</label>
+    </div>
+
+</div>
 
 </body>
 </html>

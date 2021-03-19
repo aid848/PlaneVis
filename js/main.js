@@ -1,133 +1,69 @@
-let data, scatterPlot, barChart, lexisChart, countries;
-let genderFilter = [];
-let scatterFilter = [];
-let lastSelected;
+let joined_data, ac_data,ntsb_data
 
 /**
- * Load data from CSV file asynchronously and render charts
+ * Load data from CSV files asynchronously
  */
-d3.csv('data/leaderlist.csv').then(_data => {
-  data = _data;
-  // Convert columns to numerical values
-  data.forEach(d => {
-    Object.keys(d).forEach(attr => {
-      if (attr == 'pcgdp') {
-        d[attr] = (d[attr] == 'NA') ? null : +d[attr];
-      } else if (attr != 'country' && attr != 'leader' && attr != 'gender') {
-        d[attr] = +d[attr];
-      }
-    });
-  });
 
-  data.sort((a,b) => a.label - b.label);
+const joined_data_p = d3.csv('data/joinTable.csv')
+const ac_data_p = d3.csv('data/airline_accidents_new.csv')
+const ntsb_data_p = d3.csv('data/ntsb_aviation_data_new.csv')
 
-  //init default label
-  countries = "oecd";
+// default values for data filters
+let primary_selector = "make"
+let secondary_selector = "fatalities"
+let checkboxes = [false,false,false]// TODO refactor to map // commercial, private, amateur
 
-  //Initialize Views
-  lexisChart = new LexisChart({
-    parentElement: '#lexischart',
-  }, data);
 
-    barChart = new BarChart({
-        parentElement: '#barchart',
-    }, data);
-
-    scatterPlot = new ScatterPlot({
-        parentElement: '#scatterplot',
-    }, data);
+// TODO setup dispatchers
+const control_panel_dispatcher = d3.dispatch('control_filter')
 
 
 
-  //filter initial data
-  filterData();
-
-  //Todo: Listen to events and update views
-
-  d3.select('#country-selector').on('change', function() {
-    countries = d3.select(this).property('value');
-    filterData();
-  });
-
-});
-
-function filterData(sourceView) {
-
-    //filter for country selection
-    let countryFiltered = data.filter((d) => {
-      return d[countries] === 1;
-    });
-
-    let lexisFiltered = countryFiltered;
-
-    //filter for gender
-    if (genderFilter.length !== 0) {
-        countryFiltered.forEach(
-            d => {
-                    if(genderFilter.includes(d.gender)){
-                         d.opaque = 1;
-                    } else {
-                        d.opaque = 0;
-                    }
-            });
-        //filter for lexis chart
-        lexisFiltered = countryFiltered.filter(d => genderFilter.includes(d.gender));
-
-    } else {
-        countryFiltered.forEach(
-            d => {
-                d.opaque = 1;
-            });
-    }
+// Render vis elements after data is all loaded
+Promise.all([joined_data_p,ac_data_p,ntsb_data_p]).then((data) => {
+    joined_data = data[0] // should we just use this for the main view?
+    ac_data = data[1]
+    ntsb_data = data[2]
 
 
-    if(scatterFilter.length !== 0){
-        lexisFiltered.forEach(
-            d => {
-                if(lastSelected === d.id){
-                    d.label = 0;
-                    d.selected = 0;
-                }
-                if(scatterFilter.includes(d.id)){
-                    d.label = 1;
-                    d.selected = 1;
 
-                }
-            });
-        lastSelected = scatterFilter[0];
+    // data formatting
+    let timeParser = d3.timeParse("%Y-%m-%d")
+    joined_data.forEach((ele)=> {
+        // console.log(ele['Event Date_ac'])
+        ele['Event Date_ac'] = timeParser(ele['Event Date_ac'])
+    })
 
+    console.log(joined_data)
+    // vis element instantiation
+    const control_panel = new Controls(joined_data,'#date_slider',control_panel_dispatcher)
 
-    } else {
-        lexisFiltered.forEach(
-            d => {
-                if(lastSelected === d.id){
-                    d.label = 0;
-                    d.selected = 0;
+    d3.selectAll('input.controlbox').on('click',function(){
+        console.log(this.name)
+        console.log(this.checked)
+        switch (this.name){  // TODO refactor to map and just change value in map
+            case 'commercial-box':
+                checkboxes[0] = this.checked
+                break;
+            case 'private-box':
+                checkboxes[1] = this.checked
+                break;
+            case 'amateur-box':
+                checkboxes[2] = this.checked
+                break;
+            default:
+        }
+        console.log(checkboxes)
+        // todo filtering here and update vis views
+    })
 
-                }
-            });
-    }
-
-    lexisChart.data = lexisFiltered;
-    barChart.data = countryFiltered;
-    scatterPlot.data = countryFiltered;
-
-    if(sourceView === "scatter") {
-        lexisChart.updateVis();
-        scatterPlot.updateVis();
-    } else {
-        lexisChart.updateVis();
-        barChart.updateVis();
-        scatterPlot.updateVis();
-    }
-}
+    d3.selectAll('select.control-select').on('change', function (){
+        console.log(d3.select(this).property("value"))
+        // todo filtering here and update vis views
+    })
 
 
-/*
- * Todo:
- * - initialize views
- * - filter data
- * - listen to events and update views
- */
+})
+
 
 
