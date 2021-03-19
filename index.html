@@ -1,25 +1,52 @@
 <!DOCTYPE html>
-<html>
+
 <head>
-    <title>The Historical Factors of Plane Disasters in the U.S.</title>
+    <title>D3 Interactive Scatter Plot</title>
     <link rel="icon" href="data:;base64,iVBORwOKGO=" />
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-<div id="container">
-</div>
-</div>
 
-<div id="tooltip"></div>
+<h2 id='title'>United States Map</h2>
+<div id='us-map-section'>
+    <svg id='canvas'>
 
+    </svg>
+    <div id='rightSide'>
+        <div id='tooltip'>
+
+        </div>
+        <svg id='legend'>
+            <g>
+                <rect x="10" y="0" width="40" height="40" fill="tomato"></rect>
+                <text x="60" y="20" fill="white">Less than 15%</text>
+            </g>
+            <g>
+                <rect x="10" y="40" width="40" height="40" fill="orange"></rect>
+                <text x="60" y="60" fill="white">15% than 30%</text>
+            </g>
+            <g>
+                <rect x="10" y="80" width="40" height="40" fill="lightgreen"></rect>
+                <text x="60" y="100" fill="white">30% to 45%</text>
+            </g>
+            <g>
+                <rect x="10" y="120" width="40" height="40" fill="limegreen"></rect>
+                <text x="60" y="140" fill="white">More than 45%</text>
+            </g>
+        </svg>
+        <div id='description'>Percentage of adults age 25 and older with a bachelor's degree or higher (2010-2014). Source: <a href='https://www.ers.usda.gov/data-products/county-level-data-sets/download-data.aspx'>USDA Economic Research Service</a></div>
+
+    </div>
+
+</div>
 <script src="js/d3.v6.min.js"></script>
-<script src="js/makes.js"></script>
-<script src="js/models.js"></script>
-<script src="js/stackedBarGraph.js"></script>
-<script src="js/usMap.js"></script>
-<script src="js/phases.js"></script>
+<script src="https://unpkg.com/topojson@3.0.2/dist/topojson.js"></script>
 <script src="js/main.js"></script>
+<script src="js/usMap.js"></script>
 
 
 </body>
+
 </html>
