@@ -39,7 +39,7 @@ class Controls{
 
         vis.brush = d3.brushX().extent([[0,0], [vis.width, vis.height]])
 
-        vis.brushGroup = g.append("g").attr("class", "brush")
+        vis.brushGroup = vis.chartArea.append("g").attr("class", "brush")
 
 
         this.updateVis()
