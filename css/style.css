@@ -1,90 +1,46 @@
-* {
-    font-family: "Source Sans Pro", sans-serif;
-}
-
-.control-panel{
-    position: absolute;
-}
-
-html,
 body {
-    min-height: 100%;
+    font-family: Helvetica, sans-serif;
+    background: #fafcff;
 }
 
-body {
-    background-color: #2a2d2d;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: #fdf1e7;
-    margin: none;
+.geo-path {
+    fill: #cfdecd;
 }
-
-svg {
-    background-color: #305555;
-    /*box-shadow: 0px 3px 15px rgba(0,0,0,0.2); */
-    /*border-radius: 5px; */
-    padding: 10px;
-    border-radius: 5px;
+.geo-boundary-path {
+    stroke: #fff;
+    fill: none;
+    stroke-width: 0.4;
 }
-
-#us-map {
-    min-height: 600px;
-    min-width: 950px;
+.geo-symbol {
+    fill: #3e5e79;
+    fill-opacity: 0.9;
 }
-
-.county:hover {
-    fill: black;
+.geo-symbol:hover {
+    fill-opacity: 1;
 }
-
-g {
-    color: #fdf1e7;
+.geo-label {
+    font-size: .7rem;
+    font-weight: 500;
+}
+.geo-visitor-label {
+    font-weight: 700;
+    font-size: .75rem;
 }
 
 #tooltip {
-    visibility: hidden;
-    height: auto;
-    width: auto;
-    margin-top: 2px;
-    color: #fdf1e7;
-    font-size: 24px;
-    margin-bottom: 5px;
+    position: absolute;
+    display: none;
+    background: #fff;
+    box-shadow: 3px 3px 3px 0px rgb(92 92 92 / 0.5);
+    border: 1px solid #ddd;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px;
+    min-width: 160px;
+    color: #333;
 }
-
-#legend {
-    color: rgb(56, 58, 74);
-    font-size: 18px;
-    text-align: center;
-    min-height: 150px;
-    max-width: 180px;
-    margin-top: 40px;
-    margin-bottom: 40px;
-}
-
-#title {
-    font-size: 28px;
-    color: #fdf1e7;
-    text-transform: uppercase;
-    margin-top: 10px;
-    margin-bottom: 30px;
-}
-
-#description a {
-    text-decoration: none;
-    color: #fdf1e7;
-    text-align: center;
-}
-
-#container {
-    display: flex;
-    align-items: center;
-    width: 100%;
-}
-
-#rightSide {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-left: 50px;
+.tooltip-title {
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
 }
