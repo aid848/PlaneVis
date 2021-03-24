@@ -2,8 +2,10 @@
     font-family: "Source Sans Pro", sans-serif;
 }
 
-.control-panel{
-    position: absolute;
+.control_panel{
+    /*position: absolute;*/
+    background-color: blue;
+    border: 10px solid black;
 }
 
 html,
@@ -18,7 +20,7 @@ body {
     justify-content: center;
     align-items: center;
     color: #fdf1e7;
-    margin: none;
+    /*margin: none;*/
 }
 
 svg {

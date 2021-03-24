@@ -13,7 +13,7 @@ ac_data_p = d3.csv('data/airline_accidents_new.csv')
 ntsb_data_p = d3.csv('data/ntsb_aviation_data_new.csv')
 
 // default values for data filters
-let primary_selector = "make"
+let primary_selector = "Make_ac"
 let secondary_selector = "fatalities"
 let checkboxes = [false,false,false]// TODO refactor to map // commercial, private, amateur
 
@@ -26,14 +26,14 @@ const control_panel_dispatcher = d3.dispatch('control_filter')
 // Render vis elements after data is all loaded
 Promise.all([joined_data_p,ac_data_p,ntsb_data_p]).then((data) => {
     joined_data = data[0] // should we just use this for the main view?
-    ac_data = data[1]
-    ntsb_data = data[2]
+    const full_data = Array.from(data[0]) // copy of full data
+    // ac_data = data[1]
+    // ntsb_data = data[2]
 
     // Create Map
     d3.json(mapUrL).then((_mapData) => {
         mapData = _mapData;
-        mapData = topojson.feature(mapData, mapData.objects.states)
-            .features;
+        mapData = topojson.feature(mapData, mapData.objects.states).features;
         console.log("Map Data");
         console.log(mapData);
         usMap = new USMap({parentElement: '#us-map'}, joined_data, mapData);
@@ -47,9 +47,12 @@ Promise.all([joined_data_p,ac_data_p,ntsb_data_p]).then((data) => {
             ele['Event Date_ac'] = timeParser(ele['Event Date_ac'])
         })
 
-        console.log(joined_data)
+
+
         // vis element instantiation
         const control_panel = new Controls(joined_data, '#date_slider', control_panel_dispatcher)
+        const overview = new Overview(joined_data,'#overview',control_panel_dispatcher,primary_selector)
+        const detail = new Detail(joined_data,'#detail',control_panel_dispatcher,secondary_selector)
 
         d3.selectAll('input.controlbox').on('click', function () {
             console.log(this.name)
