@@ -10,7 +10,7 @@ Promise.all([
         d.visitors = +d.visitors;
     })
 
-    const geoMap = new GeoMap({
+    const usMap = new UsMap({
         parentElement: '#map'
     }, data[0], data[1]);
 })

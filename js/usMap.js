@@ -1,5 +1,5 @@
-class GeoMap {
 
+class UsMap {
     /**
      * Class constructor with basic configuration
      * @param {Object}
@@ -50,19 +50,32 @@ class GeoMap {
         vis.symbolScale = d3.scaleSqrt()
             .range([4, 25]);
 
+        vis.hexbin = d3.hexbin().extent([[0, 0], [width, height]]).radius(10);
+        vis.hexbin.x(d => vis.projection([d.Longitude,d.Latitude])[0]);
+        vis.hexbin.y(d => vis.projection([d.Longitude,d.Latitude])[1]);
+
+
         vis.updateVis();
     }
 
     updateVis() {
         let vis = this;
 
-        vis.symbolScale.domain(d3.extent(vis.data, d => d.visitors));
-
-        console.log(vis.data);
 
         vis.data = vis.data.filter(d =>
             vis.projection([d.Longitude,d.Latitude]) != null
         );
+        console.log(vis.data)
+
+        vis.data = vis.hexbin(vis.data)
+            .map(d => (d.totalInjuries = d3.sum(d, d => d["Total Uninjured"]), d))
+            .sort((a, b) => b.length - a.length);
+        console.log(vis.data);
+
+        vis.color = d3.scaleSequential(d3.extent(vis.data, d => d.totalInjuries), d3.interpolateOrRd);
+        vis.radius = d3.scaleSqrt([0, d3.max(vis.data, d => d.length)], [0, vis.hexbin.radius() * Math.SQRT2]);
+        console.log(vis.radius(10));
+
         vis.renderVis();
     }
 
@@ -83,53 +96,16 @@ class GeoMap {
             .join('path')
             .attr('class', 'geo-boundary-path')
             .attr('d', vis.geoPath);
-console.log(vis.data);
-        // Append symbols
-        const geoSymbols = vis.chart.selectAll('.geo-symbol')
-            .data(vis.data)
-            .join('circle')
-            .attr('class', 'geo-symbol')
-            .attr('r', "5px")
-            .attr('cx', d => vis.projection([d.Longitude,d.Latitude])[0])
-            .attr('cy', d => vis.projection([d.Longitude,d.Latitude])[1]);
 
-                        // Tooltip event listeners
-                    geoSymbols
-                    .on('mousemove', (event,d) => {
-                    d3.select('#tooltip')
-                    .style('display', 'block')
-                    .style('left', `${event.pageX + vis.config.tooltipPadding}px`)
-                    .style('top', `${event.pageY + vis.config.tooltipPadding}px`)
-                    .html(`
-              <div class="tooltip-title">${d.name}</div>
-              <div>${d.country}&nbsp; | &nbsp;${d.visitors} mio. visitors</div>
-            `);
-            })
-            .on('mouseleave', () => {
-                d3.select('#tooltip').style('display', 'none');
-            });
-
-        // Append text labels to show the titles of all sights
-        const geoSymbolLabels = vis.chart.selectAll('.geo-label')
+        // Append hexbin
+        vis.svg.append("g")
+            .selectAll("path")
             .data(vis.data)
-            .join('text')
-            .attr('class', 'geo-label')
-            .attr('dy', '.35em')
-            .attr('text-anchor', 'middle')
-            .attr('x', d => vis.projection([d.Longitude,d.Latitude])[0])
-            .attr('y', d => vis.projection([d.Longitude,d.Latitude])[1])
-            .text(d => d.name);
+            .join("path")
+            .attr("transform", d => `translate(${d.x},${d.y})`)
+            .attr("d", d => vis.hexbin.hexagon(vis.radius(d.length)))
+            .attr("fill", d => vis.color(d.totalInjuries))
+            .attr("stroke", d => d3.lab(vis.color(d.totalInjuries)).darker())
 
-        // Append text labels with the number of visitors for two sights (to be used as a legend)
-        const geoSymbolVisitorLabels = vis.chart.selectAll('.geo-visitor-label')
-            .data(vis.data)
-            .join('text')
-            .filter(d => d.showLabel)
-            .attr('class', 'geo-visitor-label')
-            .attr('dy', '.35em')
-            .attr('text-anchor', 'middle')
-            .attr('x', d => vis.projection([d.Longitude,d.Latitude])[0])
-            .attr('y', d => (vis.projection([d.Longitude,d.Latitude])[1] + vis.symbolScale(d.visitors) + 12))
-            .text(d => `${d.visitors} mio. visitors`);
     }
 }

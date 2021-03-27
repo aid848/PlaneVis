@@ -4,7 +4,7 @@ body {
 }
 
 .geo-path {
-    fill: #cfdecd;
+    fill: grey;
 }
 .geo-boundary-path {
     stroke: #fff;
