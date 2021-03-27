@@ -35,7 +35,7 @@ class Controls{
 
         // axis
         vis.xAxis = d3.axisBottom(vis.xScale).tickFormat(d => d).tickSize(1)
-        vis.yAxis = d3.axisLeft(vis.yScale)//.tickSize(-vis.width);
+        vis.yAxis = d3.axisLeft(vis.yScale)
 
         // axis groups
         vis.xAxisGroup = vis.chartArea.append("g").attr("class", "axis x-axis")
@@ -43,10 +43,12 @@ class Controls{
 
         vis.brush = d3.brushX().on('end', function(){
             // todo put guard against null selection
-            console.log(vis.xScale.invert(d3.brushSelection(this)[0]))
-            console.log(vis.xScale.invert(d3.brushSelection(this)[1]))
+            // console.log(vis.xScale.invert(d3.brushSelection(this)[0]))
+            // console.log(vis.xScale.invert(d3.brushSelection(this)[1]))
+            let dates = [vis.xScale.invert(d3.brushSelection(this)[0]),vis.xScale.invert(d3.brushSelection(this)[1])]
             // todo round and move selector
             // todo on brush call dispatcher to re-filter data
+            control_panel_dispatcher.call('control_filter', {date:dates})
         })
         this.updateVis()
     }
@@ -67,12 +69,8 @@ class Controls{
             if(ele.length < smallest)
                 smallest = ele.length
         })
-        console.log([d3.min(vis.data_dates.keys()),d3.max(vis.data_dates.keys())])
-
         vis.xScale.domain([d3.min(vis.data_dates.keys()),d3.max(vis.data_dates.keys())])
         vis.yScale.domain([0,largest])
-        // console.log(smallest)
-        // console.log(largest)
         vis.renderVis()
     }
     renderVis(){
@@ -91,10 +89,6 @@ class Controls{
                 return vis.height + vis.padding - vis.yScale(d[1].length)
             })
             .attr('y', d => vis.padding + vis.yScale(d[1].length))
-
-
-
-
 
 
         // TODO fix extent to not include dates

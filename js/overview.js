@@ -7,11 +7,11 @@ class Overview{
         this.dispatcher = _dispatcher
         this.width = 1080
         this.height = this.width/2
-        this.maxCircleSize = 30
-        this.minCircleSize = 5
+        this.maxCircleSize = 100
+        this.minCircleSize = 30
         this.padding = 5
         this.groupBy = _grouping
-        this.maxElements = 100
+        this.maxElements = 50
         this.initVis()
     }
     initVis(){
@@ -44,8 +44,7 @@ class Overview{
 
         vis.dataGrouped = d3.groups(vis.data, (d) => d[vis.groupBy])
         vis.dataGrouped = vis.dataGrouped.sort(((a, b) => a[1].length - b[1].length)).reverse().slice(0,vis.maxElements)
-        console.log(vis.dataGrouped)
-        vis.radiusScale.domain([0,200]) // todo use min and max
+        vis.radiusScale.domain([vis.dataGrouped[vis.maxElements-1][1].length,vis.dataGrouped[0][1].length]) // todo use min and max
         vis.renderVis()
     }
     renderVis(){
@@ -58,29 +57,55 @@ class Overview{
             .join('g')
             .attr('class','node')
             .attr('transform', `translate(${vis.width/2},${vis.height/2})`)
+            .on('click', function (){
+                // TODO call dispatcher
+                console.log(this)
+            })
+            .on('mouseover', function (){
+                // TODO do classed hover and show tooltip
+            })
 
 
         vis.circles = vis.node.append('circle')
-            .attr('r', d => vis.radiusScale(d[0].length))
+            .attr('r', d => vis.radiusScale(d[1].length))
             .attr('fill','red')
 
         vis.node
             .append('text')
-            .text("hi")
+            .attr("text-anchor", "middle")
+            .style("font-size", function(d) {
+                let r = d3.select(this.parentNode.querySelector('circle')).attr('r')
+                let len = d[0].length
+                return Math.min( r/3, r*2 / len) + "px"; }) // TODO come up with better formula?
+            .text(d => {return d[0]})
 
         // todo repel nodes more strongly
         // todo put bounding box
         vis.sim = d3.forceSimulation(vis.dataGrouped)
             .force("x", d3.forceX(vis.width/2).strength(0.01))
-            .force("y", d3.forceY(vis.height/2).strength(0.02))
-            .force("center", d3.forceCenter().x(vis.width * .5).y(vis.height * .5))
-            .force('charge', d3.forceManyBody().strength(-10))
+            .force("y", d3.forceY(vis.height/2).strength(0.01))
+            .force("center", d3.forceCenter().x(vis.width * .5).y(vis.height * .5).strength(0.2))
+            .force('charge', d3.forceManyBody().strength(-5))
+            .force('collide', d3.forceCollide(function(d) {return vis.radiusScale(d[1].length)}).iterations(2).strength(1.0))
             .on("tick", function () {
                 vis.node.enter()
                     .append('g')
                     .merge(vis.node)
                     .attr('transform', function (d){
-                        return `translate(${d.x},${d.y})`
+                        let x = d.x
+                        let y = d.y
+                        let rad = vis.radiusScale(d[1].length)
+                        if(x > vis.width-vis.padding-rad){
+                            x = vis.width-vis.padding-rad
+                        }else if(x - vis.padding - rad < 0){
+                            x = vis.padding + rad
+                        }
+                        if(y > vis.height-vis.padding-rad){
+                            y = vis.height-vis.padding-rad
+                        }else if(y - vis.padding - rad < 0){
+                            y = vis.padding + rad
+                        }
+                        return `translate(${x},${y})`
                     })
                     .call(d3.drag() // call specific function when circle is dragged
                     .on("start", d=> vis.dragStart(d,vis.sim))

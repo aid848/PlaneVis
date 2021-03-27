@@ -2,16 +2,16 @@ import pandas as pd
 import numpy as np
 
 # Read files
-ac = pd.read_csv("airline_accidents.csv",low_memory=False) #Accident Number
+ac = pd.read_csv("airline_accidents.csv",engine='python') #Accident Number
 
-na = pd.read_csv("ntsb_aviation_data.csv",low_memory=False) # NTSB_RPRT_NBR
+na = pd.read_csv("ntsb_aviation_data.csv",engine='python') # NTSB_RPRT_NBR
 
 
 
 # filter unused attributes
 
 # AC
-ac_columns = ['Accident Number','Amateur Built','Aircraft Damage','Location','Airport Name','Country','Latitude','Longitude','Model','Make','Broad Phase of Flight','Registration Number','Event Date','Injury Severity','Total Fatal Injuries', 'Total Serious Injuries','Total Minor Injuries','Total Uninjured', 'Engine Type', 'Number of Engines']
+ac_columns = ['Accident Number','Amateur Built','Aircraft Damage','Location','Airport Name','Country','Latitude','Longitude','Model','Make','Broad Phase of Flight','Registration Number','Event Date','Injury Severity','Total Fatal Injuries', 'Total Serious Injuries','Total Minor Injuries','Total Uninjured', 'Engine Type', 'Number of Engines','Purpose of Flight']
 ac = ac[ac_columns]
 for col in ac_columns: # remove annoying trailing space in columns
     ac[col] = [a.strip() for a in ac[col]] 
