@@ -1,70 +1,111 @@
-class USMap {
+
+class UsMap {
     /**
-     * Class constructor with basic chart configuration
+     * Class constructor with basic configuration
      * @param {Object}
      * @param {Array}
-     * @param {Array}
-     * @param {Array}
-     *
      */
-    constructor(_config, _crashData, _statesData) {
+    constructor(_config, _geoData, _data) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: _config.containerWidth || 600,
-            containerHeight: _config.containerHeight || 400,
-            margin: _config.margin || { top: 25, right: 20, bottom: 20, left: 35 },
-            tooltipPadding: _config.tooltipPadding || 15
-
-        };
-        this.crashData = _crashData;
-        this.statesData = _statesData;
+            containerWidth: _config.containerWidth || 800,
+            containerHeight: _config.containerHeight || 500,
+            margin: _config.margin || {top: 0, right: 0, bottom: 0, left: 0},
+            tooltipPadding: 10
+        }
+        this.geoData = _geoData;
+        this.data = _data;
         this.initVis();
     }
+
+    /**
+     * We initialize scales/axes and append static elements, such as axis titles.
+     */
     initVis() {
         let vis = this;
-        vis.updateVis()
+        let width = vis.config.containerWidth;
+        let height = vis.config.containerHeight;
+        // Calculate inner chart size. Margin specifies the space around the actual chart.
+        vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
+        vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
+
+        // Define size of SVG drawing area
+        vis.svg = d3.select(vis.config.parentElement).append('svg')
+            .attr('width', vis.config.containerWidth)
+            .attr('height', vis.config.containerHeight);
+
+        // Append group element that will contain our actual chart
+        // and position it according to the given margin config
+        vis.chart = vis.svg.append('g')
+            .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
+
+        // Defines the scale and translate of the projection so that the geometry fits within the SVG area
+        // We crop Antartica because it takes up a lot of space that is not needed for our data
+        vis.projection = d3.geoAlbersUsa()
+            . translate([width/2, height/2])    // translate to center of screen
+            .scale([1000]);
+
+        vis.geoPath = d3.geoPath().projection(vis.projection);
+
+        vis.symbolScale = d3.scaleSqrt()
+            .range([4, 25]);
+
+        vis.hexbin = d3.hexbin().extent([[0, 0], [width, height]]).radius(10);
+        vis.hexbin.x(d => vis.projection([d.Longitude,d.Latitude])[0]);
+        vis.hexbin.y(d => vis.projection([d.Longitude,d.Latitude])[1]);
+
+
+        vis.updateVis();
     }
 
-    updateVis(){
+    updateVis() {
         let vis = this;
-        vis.renderVis()
+
+        console.log(vis.data)
+
+        vis.data = vis.data.filter(d =>
+            vis.projection([d.Longitude,d.Latitude]) != null
+        );
+
+        vis.data = vis.hexbin(vis.data)
+            .map(d => (d.totalInjuries = d3.sum(d, d => d["Total Uninjured"]), d))
+            .sort((a, b) => b.length - a.length);
+        console.log(vis.data);
+
+        vis.color = d3.scaleSequential(d3.extent(vis.data, d => d.totalInjuries), d3.interpolateOrRd);
+        vis.radius = d3.scaleSqrt([0, d3.max(vis.data, d => d.length)], [0, vis.hexbin.radius() * Math.SQRT2]);
+        console.log(vis.radius(10));
+
+        vis.renderVis();
     }
+
 
     renderVis() {
-            let vis = this;
-            let usMap = d3.select("#us-map");
-            let tooltip = d3.select("#tooltip");
-            usMap
-                .selectAll("path")
-                .data(vis.statesData)
-                .enter()
-                .append("path")
-                .attr("d", d3.geoPath())
-                .attr("class", "state")
-                .attr("fill", "white")
-                .attr("stroke", "black")
-                // .attr("data-fips", (item) => {
-                //     return item["id"];
-                // })
-                // .attr("data-education", (item) => {
-                //     let fips = item["id"];
-                //     let county = vis.educationData.find((county) => {
-                //         return county["fips"] === fips;
-                //     });
-                //     let percentage = county["bachelorsOrHigher"];
-                //     return percentage;
-                // })
-                .on("mouseover", (item) => {
-                    tooltip.transition().style("visibility", "visible");
+        let vis = this;
 
-                    tooltip.text(
-                        "HELLO"
-                    );
+        // Append world map
+        const geoPath = vis.chart.selectAll('.geo-path')
+            .data(topojson.feature(vis.geoData, vis.geoData.objects.states).features)
+            .join('path')
+            .attr('class', 'geo-path')
+            .attr('d', vis.geoPath);
 
-                    tooltip.attr("hi");
-                })
-                .on("mouseout", () => {
-                    tooltip.transition().style("visibility", "hidden");
-                });
-        }
+        // Append country borders
+        const geoBoundaryPath = vis.chart.selectAll('.geo-boundary-path')
+            .data([topojson.mesh(vis.geoData, vis.geoData.objects.states)])
+            .join('path')
+            .attr('class', 'geo-boundary-path')
+            .attr('d', vis.geoPath);
+
+        // Append hexbin
+        vis.svg.append("g")
+            .selectAll("path")
+            .data(vis.data)
+            .join("path")
+            .attr("transform", d => `translate(${d.x},${d.y})`)
+            .attr("d", d => vis.hexbin.hexagon(vis.radius(d.length)))
+            .attr("fill", d => vis.color(d.totalInjuries))
+            .attr("stroke", d => d3.lab(vis.color(d.totalInjuries)).darker())
+
+    }
 }
