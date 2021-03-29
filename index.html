@@ -11,7 +11,6 @@
 
     <h2 id='title'>Hex Map</h2>
     <div id="map"></div>
-<div id="tooltip"></div>
 
 <!--todo hide control panel until loaded and hide when switching to other view with attributes-->
 <div id="control_panel" class="control_panel">
@@ -44,7 +43,9 @@
 <div id="overview" class="overview"></div>
 <div id="detail" class="detail"></div>
 
-<script src="js/d3.v6.min.js"></script>
+    <div id="tooltip"></div>
+
+    <script src="js/d3.v6.min.js"></script>
 <script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
 <script src="js/topojson.v3.js"></script>
 <script src="js/main.js"></script>
@@ -53,6 +54,8 @@
 <script src="js/controls.js"></script>
 <script src="js/overview.js"></script>
 <script src="js/detail.js"></script>
+
+
 </body>
 
 </html>

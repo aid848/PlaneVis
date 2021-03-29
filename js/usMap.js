@@ -61,20 +61,18 @@ class UsMap {
     updateVis() {
         let vis = this;
 
-        console.log(vis.data)
-
         vis.data = vis.data.filter(d =>
             vis.projection([d.Longitude,d.Latitude]) != null
         );
 
-        vis.data = vis.hexbin(vis.data)
-            .map(d => (d.totalInjuries = d3.sum(d, d => d["Total Uninjured"]), d))
-            .sort((a, b) => b.length - a.length);
-        console.log(vis.data);
+        let tempMetric = "Total Uninjured"
 
-        vis.color = d3.scaleSequential(d3.extent(vis.data, d => d.totalInjuries), d3.interpolateOrRd);
+        vis.data = vis.hexbin(vis.data)
+            .map(d => (d.binMetric = d3.sum(d, d => d[tempMetric]), d))
+            .sort((a, b) => b.length - a.length);
+
+        vis.color = d3.scaleSequential(d3.extent(vis.data, d => d.binMetric), d3.interpolateOrRd);
         vis.radius = d3.scaleSqrt([0, d3.max(vis.data, d => d.length)], [0, vis.hexbin.radius() * Math.SQRT2]);
-        console.log(vis.radius(10));
 
         vis.renderVis();
     }
@@ -98,14 +96,25 @@ class UsMap {
             .attr('d', vis.geoPath);
 
         // Append hexbin
-        vis.svg.append("g")
+        const hexbin = vis.svg.append("g")
             .selectAll("path")
             .data(vis.data)
             .join("path")
             .attr("transform", d => `translate(${d.x},${d.y})`)
             .attr("d", d => vis.hexbin.hexagon(vis.radius(d.length)))
-            .attr("fill", d => vis.color(d.totalInjuries))
-            .attr("stroke", d => d3.lab(vis.color(d.totalInjuries)).darker())
+            .attr("fill", d => vis.color(d.binMetric))
+            .attr("stroke", d => d3.lab(vis.color(d.binMetric)).darker())
 
+            hexbin.on('mouseover', (event,d) => {
+            d3.select('#tooltip')
+                .style('display', 'block')
+                .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+                .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+                .html(`
+                  <div class="tooltip-title">hello</div>
+                `);
+        }).on('mouseleave', () => {
+            d3.select('#tooltip').style('display', 'none');
+        })
     }
 }

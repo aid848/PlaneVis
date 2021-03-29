@@ -13,7 +13,7 @@ us_map_data_p = d3.json('data/us.json')
 
 // default values for data filters
 let primary_selector = "Make_ac"
-let secondary_selector = "fatalities"
+let secondary_selector = "Total Fatal Injuries"
 let checkboxes = [false, false, false]// TODO refactor to map // commercial, private, amateur
 let date = [1970, 2020]
 let visualizations_view_2 = [] // every vis here that needs data to change in view 2
@@ -53,8 +53,10 @@ Promise.all([
         visualizations_view_2.push(control_panel)
         const overview = new Overview(joined_data, '#overview', control_panel_dispatcher, primary_selector)
         visualizations_view_2.push(overview)
+        // const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
         const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
-        visualizations_view_2.push(detail)
+
+    visualizations_view_2.push(detail)
 
 
         d3.selectAll('input.controlbox').on('click', function () {

@@ -35,6 +35,7 @@ class Overview{
         vis.xScale = d3.scaleLinear()
         vis.radiusScale = d3.scaleSqrt().range([vis.minCircleSize,vis.maxCircleSize])
 
+        console.log(vis.data)
         // TODO some kind of static size,color legend
 
         vis.updateVis()
@@ -47,7 +48,7 @@ class Overview{
         vis.radiusScale.domain([vis.dataGrouped[vis.maxElements-1][1].length,vis.dataGrouped[0][1].length]) // todo use min and max
         vis.renderVis()
     }
-    renderVis(){
+    renderVis() {
         // TODO color if applicable for secondary selector (eg avg severity of accidents for num of accidents)
         const vis = this
 
