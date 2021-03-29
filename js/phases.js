@@ -12,7 +12,7 @@ class FlightPhase {
         this.flightPathPoints = [
             {x: -40, y: 350, phase: null},      // starting point
             // {x: 0, y: 350, phase: "Start"},    // starting point
-            {x: 100, y: 350, phase: "Taxi"},     // 1st phase: taxi
+            {x: 70, y: 350, phase: "Taxi"},     // 1st phase: taxi
             {x: 250, y: 350, phase: "Take Off"}, // 2nd phase: take off
             {x: 325, y: 350, phase: null},       // corner
             {x: 375, y: 275, phase: "Climb"},    // 3rd phase: climb
@@ -29,6 +29,7 @@ class FlightPhase {
 
         this.validPhasePoints = this.flightPathPoints.filter(d => d.phase !== null);
         this.data = _data;
+        console.log(this.data)
 
         // initiate svg
         this.initVis();
@@ -60,6 +61,19 @@ class FlightPhase {
         // vis.yScale = d3.scaleLinear()
         //     .domain([d3.min(vis.flightPathPoints), d3.max(vis.flightPathPoints)])
         //     .range([0, vis.width]);
+
+        // https://www.d3-graph-gallery.com/graph/pie_basic.html
+        // set the color scale
+        vis.globalColor = d3.scaleOrdinal()
+            .domain(["Commercial", "Private"])
+            .range(["#0024d6", "#d60004"]);
+
+        vis.pie = d3.pie();
+
+        // shape helper to build arcs:
+        vis.arcGenerator = d3.arc()
+            .innerRadius(0)
+            .outerRadius(70)
 
         // Define size of SVG drawing area
         vis.svg = d3.select(vis.config.parentElement)
@@ -109,10 +123,21 @@ class FlightPhase {
             .attr('height', vis.height)
             .attr('fill', 'none')
             .attr('pointer-events', 'all');
+
+        vis.pieGroup = vis.chart.append('g')
     }
 
     updateVis() {
         let vis = this;
+
+        // Specify accessor functions
+        vis.xValue = d => d["Flight Phase General"];
+        // vis.yValue = d => d.Flight Phase;
+
+        // Compute the position of each group on the pie:
+        vis.pie.value(d => d.value);
+
+        // let data_ready = vis.pie(d3.entries(data));
 
         vis.renderVis();
     }
@@ -131,10 +156,9 @@ class FlightPhase {
             .attr('cx', d => d.x)
             .attr('cy', d => d.y);
 
-
         vis.chart.selectAll('text')
             .data(vis.validPhasePoints, d => d.phase)
-        .join('text')
+            .join('text')
             .attr('dy', 30)
             .attr('transform', d => {
                 if (d.phase === "Climb")
@@ -151,6 +175,52 @@ class FlightPhase {
                 return "middle"
             })
             .text(d => d.phase)
+
+        // pie groups
+        let pieG = vis.pieGroup.selectAll('.pie-container')
+            .data(vis.data, d => d[0])
+            .join('g')
+            .filter(d => {
+                return vis.validPhasePoints.find(p => d[0].includes(p.phase.toUpperCase().replace(/\s/g, '')))
+            })
+            .attr('class', 'pie-container')
+            .attr('id', d=>d[0].toLowerCase())
+            .attr('transform', d => {
+                let point = vis.validPhasePoints.find(p => d[0].includes(p.phase.toUpperCase().replace(/\s/g, '')))
+                return `translate(${point.x}, ${point.y-100})`
+            });
+            // add active class
+            // .filter TODO: for scrolling later
+
+        let pie = pieG.selectAll('.pie-chart')
+            .data(d => {
+                const data = {
+                    "Commercial": d[1][0] ? d[1][0][1].length : 0, // false
+                    "Private": d[1][1] ? d[1][1][1].length : 0 // true
+                    };
+                const keyValuePair = Array.from(Object.entries(data),
+                    ([key, value]) => ({ key, value }));
+                return vis.pie(keyValuePair)
+            }, d => d[1])
+
+            pie.join('path')
+                .attr('d', vis.arcGenerator)
+                .attr('fill', d => {
+                    // console.log(d.data, vis.globalColor(d.data.key))
+                    return vis.globalColor(d.data.key)
+                })
+                .attr("stroke", "black")
+                .style("stroke-width", "2px")
+                .style("opacity", 0.7);
+
+        // annotation
+        // TODO: lines: http://bl.ocks.org/dbuezas/9306799
+        pie.join('text')
+            .text(d => d.data.key)
+            .attr("transform", d => `translate(${vis.arcGenerator.centroid(d)})`)
+            .style("text-anchor", "middle")
+            .style("font-size", 17)
+            .style("color", "white");
 
 
 

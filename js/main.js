@@ -6,6 +6,7 @@ let educationURL =
 let countyData;
 let educationData;
 let usMap;
+let flightPhase;
 
 // Create Map
 d3.json(countyURL).then((data, error) => {
@@ -30,4 +31,32 @@ d3.json(countyURL).then((data, error) => {
             }
         });
     }
+});
+
+
+//Load data from CSV file asynchronously and render chart
+d3.csv('data/joinTable.csv').then(data => {
+    // preprocess
+    // let flight_phases = d3.group(data, d=>d["Flight Phase"]).keys(); // only want the phases
+    // flight_phases = Array.from(flight_phases)
+    // let general_phases = [];
+    // flight_phases.forEach((phase) => {
+    //     // only want the general phase so get the first word in phase
+    //     if (!(general_phases.includes(phase.split(" ")[0]))) {
+    //         general_phases.push(phase.split(" ")[0])
+    //     }
+    // });
+
+    data.forEach(d => {
+        d["Flight Phase General"] = d["Flight Phase"].split(" ")[0]
+    });
+
+    // group the data based on Phases
+    const groupedData = d3.groups(data,
+            d=>d["Flight Phase General"],
+            d=>d["Airport Name_ac"].includes("Private"),
+        );
+
+    flightPhase = new FlightPhase({ parentElement: '#flight-phase'}, groupedData);
+    flightPhase.updateVis();
 });
