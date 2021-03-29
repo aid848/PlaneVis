@@ -54,7 +54,7 @@ d3.csv('data/joinTable.csv').then(data => {
     // group the data based on Phases
     const groupedData = d3.groups(data,
             d=>d["Flight Phase General"],
-            d=>d["Airport Name_ac"].includes("Private"),
+            d=>d["Purpose of Flight"] === "Personal",
         );
 
     flightPhase = new FlightPhase({ parentElement: '#flight-phase'}, groupedData);

@@ -65,7 +65,7 @@ class FlightPhase {
         // https://www.d3-graph-gallery.com/graph/pie_basic.html
         // set the color scale
         vis.globalColor = d3.scaleOrdinal()
-            .domain(["Commercial", "Private"])
+            .domain(["Commercial", "Personal"])
             .range(["#0024d6", "#d60004"]);
 
         vis.pie = d3.pie();
@@ -194,14 +194,18 @@ class FlightPhase {
 
         let pie = pieG.selectAll('.pie-chart')
             .data(d => {
+                const phaseData = d[1];
+                const commercialData = phaseData[0][0] === false ? phaseData[0] : phaseData[1];
+                const personalData = phaseData[1][0] === true ? phaseData[1] : phaseData[0];
                 const data = {
-                    "Commercial": d[1][0] ? d[1][0][1].length : 0, // false
-                    "Private": d[1][1] ? d[1][1][1].length : 0 // true
+                    "Commercial": commercialData[1].length,
+                    "Personal": personalData[1].length
                     };
+                console.log(phaseData, data)
                 const keyValuePair = Array.from(Object.entries(data),
                     ([key, value]) => ({ key, value }));
                 return vis.pie(keyValuePair)
-            }, d => d[1])
+            }, d => d[1]);
 
             pie.join('path')
                 .attr('d', vis.arcGenerator)
