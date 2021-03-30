@@ -1,5 +1,5 @@
 let joined_data, ac_data, ntsb_data, map_data
-let crashData, usMap, mapData
+let crashData, usMap, mapData, flightPhase
 
 /**
  * Load data from CSV files asynchronously
@@ -13,8 +13,8 @@ us_map_data_p = d3.json('data/us.json')
 
 // default values for data filters
 let secondary_selector = "Total Fatal Injuries"
-let checkboxes = [true,true,false] // commercial, private, amateur
-let date = [1970,2020]
+let checkboxes = [true, true, false] // commercial, private, amateur
+let date = [1970, 2020]
 
 let visualizations_view_2 = [] // every vis here that needs data to change in view 2
 let full_data // unfiltered data copy
@@ -39,62 +39,75 @@ Promise.all([
         parentElement: '#map'
     }, map_data, joined_data, secondary_selector);
 
-        // data formatting
-        let timeParser = d3.timeParse("%Y-%m-%d")
-        joined_data.forEach((ele) => {
-            ele['Event Date_ac'] = timeParser(ele['Event Date_ac'])
-            ele['Total Fatal Injuries'] = +ele['Total Fatal Injuries']
-            ele['Total Fatal Injuries'] = +ele['Total Fatal Injuries']
-            ele['Total Serious Injuries'] = +ele['Total Serious Injuries']
-            ele['Total Minor Injuries'] = +ele['Total Minor Injuries']
-            ele['Total Uninjured'] = +ele['Total Uninjured']
-        })
+    // data formatting
+    let timeParser = d3.timeParse("%Y-%m-%d")
+    joined_data.forEach((ele) => {
+        ele['Event Date_ac'] = timeParser(ele['Event Date_ac'])
+        ele['Total Fatal Injuries'] = +ele['Total Fatal Injuries']
+        ele['Total Fatal Injuries'] = +ele['Total Fatal Injuries']
+        ele['Total Serious Injuries'] = +ele['Total Serious Injuries']
+        ele['Total Minor Injuries'] = +ele['Total Minor Injuries']
+        ele['Total Uninjured'] = +ele['Total Uninjured']
+    })
 
 
-        // vis element instantiation
-        const control_panel = new Controls(joined_data, '#date_slider', control_panel_dispatcher)
-        const overview = new Overview(joined_data,'#overview',control_panel_dispatcher,secondary_selector)
+    // vis element instantiation
+    const control_panel = new Controls(joined_data, '#date_slider', control_panel_dispatcher)
+    const overview = new Overview(joined_data, '#overview', control_panel_dispatcher, secondary_selector)
 
-        visualizations_view_2.push(overview)
-        // const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
-        const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
+    visualizations_view_2.push(overview)
+    // const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
+    const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
 
     visualizations_view_2.push(detail)
 
-        d3.selectAll('input.controlbox').on('click', function () {
-            switch (this.name) {
-                // todo change commercial and private to toggle both to on if both unselected (cosmetic)
-                case 'commercial-box':
-                    checkboxes[0] = this.checked
-                    break;
-                case 'private-box':
-                    checkboxes[1] = this.checked
-                    break;
-                case 'amateur-box':
-                    checkboxes[2] = this.checked
-                    break;
-                default:
-            }
-            joined_data = controlBoxFilter(full_data,visualizations_view_2,checkboxes,secondary_selector,date,overview)
-        })
+    d3.selectAll('input.controlbox').on('click', function () {
+        switch (this.name) {
+            // todo change commercial and private to toggle both to on if both unselected (cosmetic)
+            case 'commercial-box':
+                checkboxes[0] = this.checked
+                break;
+            case 'private-box':
+                checkboxes[1] = this.checked
+                break;
+            case 'amateur-box':
+                checkboxes[2] = this.checked
+                break;
+            default:
+        }
+        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview)
+    })
 
-        d3.selectAll('select.control-select').on('change', function () {
-            secondary_selector = d3.select(this).property("value")
-            joined_data = controlBoxFilter(full_data,visualizations_view_2,checkboxes,secondary_selector,date,overview)
-        })
+    d3.selectAll('select.control-select').on('change', function () {
+        secondary_selector = d3.select(this).property("value")
+        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview)
+    })
 
-        control_panel_dispatcher.on('control_filter', function (event,context){
-            date = this.date
-            console.log(date)
-            controlBoxFilter(full_data,visualizations_view_2,checkboxes,secondary_selector,date,overview)
-        })
-    }).catch(error => console.error(error));
+    control_panel_dispatcher.on('control_filter', function (event, context) {
+        date = this.date
+        console.log(date)
+        controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview)
+    })
+    joined_data.forEach(d => {
+        d["Flight Phase General"] = d["Flight Phase"].split(" ")[0]
+    });
 
-function controlBoxFilter(data,views,checkboxes,secondary_select,date,overview){
+    // group the data based on Phases
+    const groupedData = d3.groups(joined_data,
+        d => d["Flight Phase General"],
+        d => d["Purpose of Flight"] === "Personal",
+    );
+
+    flightPhase = new FlightPhase({parentElement: '#flight-phase'}, groupedData);
+    flightPhase.updateVis();
+
+}).catch(error => console.error(error));
+
+function controlBoxFilter(data, views, checkboxes, secondary_select, date, overview) {
     let new_Data = data
 
     // Checkbox filtering
-    if(checkboxes[0] === true && checkboxes[1] === false) {
+    if (checkboxes[0] === true && checkboxes[1] === false) {
         new_Data = new_Data.filter((ele) => {
             return ele['Purpose of Flight'] !== 'Personal'
         })
@@ -102,7 +115,7 @@ function controlBoxFilter(data,views,checkboxes,secondary_select,date,overview){
         new_Data = new_Data.filter((ele) => {
             return ele['Purpose of Flight'] === 'Personal'
         })
-    }else if(checkboxes[0] === false && checkboxes[1] === false){
+    } else if (checkboxes[0] === false && checkboxes[1] === false) {
         // TODO select other button if both deselected, having both unselected doesn't make sense
         new_Data = new_Data
     }
@@ -119,7 +132,9 @@ function controlBoxFilter(data,views,checkboxes,secondary_select,date,overview){
     })
 
     // dropdown filtering
-    views.forEach((vis) => {vis.attribute = secondary_selector})
+    views.forEach((vis) => {
+        vis.attribute = secondary_selector
+    })
 
     // change data and update views
     views.forEach((vis) => {
