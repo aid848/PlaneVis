@@ -1,5 +1,5 @@
 let joined_data, ac_data, ntsb_data, map_data
-let crashData, usMap, mapData, flightPhase
+let crashData, usMap, mapData, flightPhase, stackedBarChart
 
 /**
  * Load data from CSV files asynchronously
@@ -100,6 +100,8 @@ Promise.all([
 
     flightPhase = new FlightPhase({parentElement: '#flight-phase'}, groupedData);
     flightPhase.updateVis();
+
+    stackedBarChart = new StackedBarChart({ parentElement: '#chart'}, joined_data);
 
 }).catch(error => console.error(error));
 
