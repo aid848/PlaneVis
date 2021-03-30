@@ -82,6 +82,7 @@ class Overview{
 
     }
     renderVis(){
+        // TODO color if applicable for secondary selector (eg avg severity of accidents for num of accidents)
 
         const vis = this
 

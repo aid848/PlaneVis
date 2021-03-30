@@ -1,8 +1,5 @@
-let joined_data, ac_data,ntsb_data
+let joined_data, ac_data, ntsb_data, map_data
 let crashData, usMap, mapData
-
-let mapUrL =
-    "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/counties.json";
 
 /**
  * Load data from CSV files asynchronously
@@ -11,30 +8,57 @@ let mapUrL =
 joined_data_p = d3.csv('data/joinTable.csv')
 ac_data_p = d3.csv('data/airline_accidents_new.csv')
 ntsb_data_p = d3.csv('data/ntsb_aviation_data_new.csv')
+us_map_data_p = d3.json('data/us.json')
+
 
 // default values for data filters
+// <<<<<<< HEAD
 let secondary_selector = "Total Fatal Injuries"
 let checkboxes = [true,true,false] // commercial, private, amateur
 let date = [1970,2020]
+// =======
+// let primary_selector = "Make_ac"
+// let secondary_selector = "Total Fatal Injuries"
+// let checkboxes = [false, false, false]// TODO refactor to map // commercial, private, amateur
+// let date = [1970, 2020]
+// >>>>>>> merge-map-with-bubbles
 let visualizations_view_2 = [] // every vis here that needs data to change in view 2
 let full_data // unfiltered data copy
 
 // setup dispatchers
 const control_panel_dispatcher = d3.dispatch('control_filter')
 
-
-
+//
+// <<<<<<< HEAD
+//
+// // Render vis elements after data is all loaded
+// Promise.all([joined_data_p,ac_data_p,ntsb_data_p]).then((data) => {
+//     joined_data = data[0]
+//     full_data = Array.from(data[0])
+//
+//     // Create Map
+//     d3.json(mapUrL).then((_mapData) => {
+//         mapData = _mapData;
+//         mapData = topojson.feature(mapData, mapData.objects.states).features;
+//         usMap = new USMap({parentElement: '#us-map'}, joined_data, mapData);
+//         usMap.updateVis();
+// =======
 // Render vis elements after data is all loaded
-Promise.all([joined_data_p,ac_data_p,ntsb_data_p]).then((data) => {
-    joined_data = data[0]
-    full_data = Array.from(data[0])
+Promise.all([
+    joined_data_p,
+    ac_data_p,
+    ntsb_data_p,
+    us_map_data_p]).then((data) => {
 
-    // Create Map
-    d3.json(mapUrL).then((_mapData) => {
-        mapData = _mapData;
-        mapData = topojson.feature(mapData, mapData.objects.states).features;
-        usMap = new USMap({parentElement: '#us-map'}, joined_data, mapData);
-        usMap.updateVis();
+    joined_data = data[0] // should we just use this for the main view?
+    full_data = Array.from(data[0])
+    map_data = data[3]
+    // ac_data = data[1]
+    // ntsb_data = data[2]
+
+    usMap = new UsMap({
+        parentElement: '#map'
+    }, map_data, joined_data);
 
         // data formatting
         let timeParser = d3.timeParse("%Y-%m-%d")
@@ -51,10 +75,12 @@ Promise.all([joined_data_p,ac_data_p,ntsb_data_p]).then((data) => {
         // vis element instantiation
         const control_panel = new Controls(joined_data, '#date_slider', control_panel_dispatcher)
         const overview = new Overview(joined_data,'#overview',control_panel_dispatcher,secondary_selector)
-        visualizations_view_2.push(overview)
-        const detail = new Detail(joined_data,'#detail',control_panel_dispatcher,secondary_selector)
-        visualizations_view_2.push(detail)
 
+        visualizations_view_2.push(overview)
+        // const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
+        const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
+
+    visualizations_view_2.push(detail)
 
         d3.selectAll('input.controlbox').on('click', function () {
             switch (this.name) {
@@ -70,6 +96,7 @@ Promise.all([joined_data_p,ac_data_p,ntsb_data_p]).then((data) => {
                     break;
                 default:
             }
+// <<<<<<< HEAD
             joined_data = controlBoxFilter(full_data,visualizations_view_2,checkboxes,secondary_selector,date,overview)
         })
 
@@ -82,19 +109,50 @@ Promise.all([joined_data_p,ac_data_p,ntsb_data_p]).then((data) => {
             date = this.date
             console.log(date)
             controlBoxFilter(full_data,visualizations_view_2,checkboxes,secondary_selector,date,overview)
+// =======
+//             joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, primary_selector, secondary_selector, date, overview)
+//         })
+//
+//         d3.selectAll('select.control-select').on('change', function () {
+//             switch (this.id) {
+//                 case 'primary-selector':
+//                     primary_selector = d3.select(this).property("value")
+//                     break;
+//                 case 'secondary-selector':
+//                     secondary_selector = d3.select(this).property("value")
+//                     break;
+//             }
+//             joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, primary_selector, secondary_selector, date, overview)
+//         })
+//
+//         control_panel_dispatcher.on('control_filter', function (event, context) {
+//             // console.log()
+//             date = this.date
+//             console.log(date)
+//             controlBoxFilter(full_data, visualizations_view_2, checkboxes, primary_selector, secondary_selector, date, overview)
+// >>>>>>> merge-map-with-bubbles
         })
-    })
-});
+    }).catch(error => console.error(error));
 
+// <<<<<<< HEAD
 function controlBoxFilter(data,views,checkboxes,secondary_select,date,overview){
     let new_Data = data
 
     // checkbox filtering
     if(checkboxes[0] === true && checkboxes[1] === false) {
+// =======
+//
+// function controlBoxFilter(data, views, checkboxes, primary_select, secondary_select, date, overview) {
+//     let new_Data = data
+//
+//     // checkbox filtering
+//     if (checkboxes[0] === true && checkboxes[1] === false) {
+//         console.log('ahh')
+// >>>>>>> merge-map-with-bubbles
         new_Data = new_Data.filter((ele) => {
             return ele['Purpose of Flight'] !== 'Personal'
         })
-    }else if(checkboxes[0] === false && checkboxes[1] === true){
+    } else if (checkboxes[0] === false && checkboxes[1] === true) {
         new_Data = new_Data.filter((ele) => {
             return ele['Purpose of Flight'] === 'Personal'
         })
@@ -102,7 +160,7 @@ function controlBoxFilter(data,views,checkboxes,secondary_select,date,overview){
         // TODO select other button if both deselected, having both unselected doesn't make sense
         new_Data = new_Data
     }
-    if(checkboxes[2] === false){ // don't include amateur built
+    if (checkboxes[2] === false) { // don't include amateur built
         new_Data = new_Data.filter((ele) => {
             return ele['Amateur Built'].toLowerCase() !== 'yes'
         })
@@ -117,9 +175,8 @@ function controlBoxFilter(data,views,checkboxes,secondary_select,date,overview){
     // dropdown filtering
     views.forEach((vis) => {vis.attribute = secondary_selector})
 
-
     // change data and update views
-    views.forEach((vis)=> {
+    views.forEach((vis) => {
         vis.data = new_Data
         vis.updateVis()
     })
