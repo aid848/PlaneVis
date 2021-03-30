@@ -1,7 +1,7 @@
 // Overview from secondary selector, tooltip and click to highlight changes map view, ordered sort, glyph,  physics?
 
 class Detail{
-    constructor(_data,_parent_element, _dispatcher, _grouping) {
+    constructor(_data,_parent_element, _dispatcher, _attr) {
         this.data = _data
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
@@ -10,7 +10,8 @@ class Detail{
         this.maxCircleSize = 20
         this.minCircleSize = 2
         this.padding = this.maxCircleSize/2
-        this.groupBy = _grouping
+        this.attribute = _attr
+        this.groupBy = "Make_ac"
         this.initVis()
     }
     initVis(){

@@ -42,20 +42,24 @@ class Controls{
         vis.yAxisGroup = vis.chartArea.append("g").attr("class", "axis y-axis")
 
         vis.brush = d3.brushX().on('end', function(){
-            // todo put guard against null selection
-            // console.log(vis.xScale.invert(d3.brushSelection(this)[0]))
-            // console.log(vis.xScale.invert(d3.brushSelection(this)[1]))
-            let dates = [vis.xScale.invert(d3.brushSelection(this)[0]),vis.xScale.invert(d3.brushSelection(this)[1])]
-            // todo round and move selector
-            // todo on brush call dispatcher to re-filter data
+            // Guard against null selection
+            let dates
+            if (d3.brushSelection(this) === null){
+                dates = vis.xScale.domain()
+            }else{
+                let low = Math.round(vis.xScale.invert(d3.brushSelection(this)[0]))
+                let high = Math.round(vis.xScale.invert(d3.brushSelection(this)[1]))
+                dates = [low,high]
+            }
+            // Todo round and move selector (cosmetic)
+
+            // call dispatcher to re-filter data
             control_panel_dispatcher.call('control_filter', {date:dates})
         })
         this.updateVis()
     }
     updateVis(){
         const vis = this
-
-        // TODO update data externally, don't change for date range selections!
 
         // get the data years for histogram density view
         vis.data_dates = d3.group(vis.data, d=> new Date(d['Event Date_ac']).getFullYear())
@@ -76,7 +80,7 @@ class Controls{
     renderVis(){
         const vis = this
 
-        // todo add backgroup lines for brush
+        // todo add border lines for brush (cosmetic)
         vis.bars = vis.chartArea.selectAll('.bar')
             .data(vis.data_dates, d=> {
                 return d
@@ -90,18 +94,8 @@ class Controls{
             })
             .attr('y', d => vis.padding + vis.yScale(d[1].length))
 
-
-        // TODO fix extent to not include dates
-        vis.chart.call(vis.brush)//.extent([[0,100],[100,400]]))
+        vis.chart.call(vis.brush)
         vis.xAxisGroup.call(vis.xAxis).call((g) => g.select(".domain").remove());
         vis.yAxisGroup.call(vis.yAxis).call((g) => g.select(".domain").remove());
     }
 }
-
-// TODO primary (Make, Injury severity,  ) drop down listener and cache
-
-// TODO date range selector (d3 brush slider of relative volume of data
-
-// TODO secondary (fatalities,avg aircraft damage, num accidents) dropdown listener and cache
-
-// TODO radio buttons (commercial, private, amateur built) dispatcher call and cache of radio buttons

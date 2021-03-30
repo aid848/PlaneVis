@@ -92,3 +92,7 @@ g {
     align-items: center;
     margin-left: 50px;
 }
+
+.circle-hover{
+    border: 2px solid black;
+}
