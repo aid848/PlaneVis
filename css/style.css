@@ -62,8 +62,8 @@ svg {
     padding-left: 20px;
 }
 
-.county:hover {
-    fill: black;
+.geo-path {
+    stroke: #575657;
 }
 
 g {

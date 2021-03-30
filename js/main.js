@@ -12,37 +12,16 @@ us_map_data_p = d3.json('data/us.json')
 
 
 // default values for data filters
-// <<<<<<< HEAD
 let secondary_selector = "Total Fatal Injuries"
 let checkboxes = [true,true,false] // commercial, private, amateur
 let date = [1970,2020]
-// =======
-// let primary_selector = "Make_ac"
-// let secondary_selector = "Total Fatal Injuries"
-// let checkboxes = [false, false, false]// TODO refactor to map // commercial, private, amateur
-// let date = [1970, 2020]
-// >>>>>>> merge-map-with-bubbles
+
 let visualizations_view_2 = [] // every vis here that needs data to change in view 2
 let full_data // unfiltered data copy
 
 // setup dispatchers
 const control_panel_dispatcher = d3.dispatch('control_filter')
 
-//
-// <<<<<<< HEAD
-//
-// // Render vis elements after data is all loaded
-// Promise.all([joined_data_p,ac_data_p,ntsb_data_p]).then((data) => {
-//     joined_data = data[0]
-//     full_data = Array.from(data[0])
-//
-//     // Create Map
-//     d3.json(mapUrL).then((_mapData) => {
-//         mapData = _mapData;
-//         mapData = topojson.feature(mapData, mapData.objects.states).features;
-//         usMap = new USMap({parentElement: '#us-map'}, joined_data, mapData);
-//         usMap.updateVis();
-// =======
 // Render vis elements after data is all loaded
 Promise.all([
     joined_data_p,
@@ -58,7 +37,7 @@ Promise.all([
 
     usMap = new UsMap({
         parentElement: '#map'
-    }, map_data, joined_data);
+    }, map_data, joined_data, secondary_selector);
 
         // data formatting
         let timeParser = d3.timeParse("%Y-%m-%d")
@@ -96,7 +75,6 @@ Promise.all([
                     break;
                 default:
             }
-// <<<<<<< HEAD
             joined_data = controlBoxFilter(full_data,visualizations_view_2,checkboxes,secondary_selector,date,overview)
         })
 
@@ -109,46 +87,14 @@ Promise.all([
             date = this.date
             console.log(date)
             controlBoxFilter(full_data,visualizations_view_2,checkboxes,secondary_selector,date,overview)
-// =======
-//             joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, primary_selector, secondary_selector, date, overview)
-//         })
-//
-//         d3.selectAll('select.control-select').on('change', function () {
-//             switch (this.id) {
-//                 case 'primary-selector':
-//                     primary_selector = d3.select(this).property("value")
-//                     break;
-//                 case 'secondary-selector':
-//                     secondary_selector = d3.select(this).property("value")
-//                     break;
-//             }
-//             joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, primary_selector, secondary_selector, date, overview)
-//         })
-//
-//         control_panel_dispatcher.on('control_filter', function (event, context) {
-//             // console.log()
-//             date = this.date
-//             console.log(date)
-//             controlBoxFilter(full_data, visualizations_view_2, checkboxes, primary_selector, secondary_selector, date, overview)
-// >>>>>>> merge-map-with-bubbles
         })
     }).catch(error => console.error(error));
 
-// <<<<<<< HEAD
 function controlBoxFilter(data,views,checkboxes,secondary_select,date,overview){
     let new_Data = data
 
-    // checkbox filtering
+    // Checkbox filtering
     if(checkboxes[0] === true && checkboxes[1] === false) {
-// =======
-//
-// function controlBoxFilter(data, views, checkboxes, primary_select, secondary_select, date, overview) {
-//     let new_Data = data
-//
-//     // checkbox filtering
-//     if (checkboxes[0] === true && checkboxes[1] === false) {
-//         console.log('ahh')
-// >>>>>>> merge-map-with-bubbles
         new_Data = new_Data.filter((ele) => {
             return ele['Purpose of Flight'] !== 'Personal'
         })

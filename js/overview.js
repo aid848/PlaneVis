@@ -72,14 +72,12 @@ class Overview{
                 vis.dataAttributed = vis.dataAttributed.filter((e) => e[1]!== Infinity && !isNaN(e[1]))
                 break;
         }
-
                 // use secondary selector to order by magnitude
                 vis.dataAttributed = vis.dataAttributed.sort(((a, b) => a[1] - b[1])).reverse().slice(0,vis.maxElements)
                 console.log(vis.dataAttributed)
                 // length from secondary selector range
                 vis.radiusScale.domain([vis.dataAttributed[vis.maxElements-1][1],vis.dataAttributed[0][1]])
                 vis.renderVis()
-
     }
     renderVis(){
         // TODO color if applicable for secondary selector (eg avg severity of accidents for num of accidents)

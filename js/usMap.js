@@ -5,7 +5,7 @@ class UsMap {
      * @param {Object}
      * @param {Array}
      */
-    constructor(_config, _geoData, _data) {
+    constructor(_config, _geoData, _data, _attr) {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: _config.containerWidth || 800,
@@ -14,6 +14,8 @@ class UsMap {
             tooltipPadding: 10
         }
         this.geoData = _geoData;
+        // this.attribute = _attr
+        this.attribute = "Total Fatal Injuries"
         this.data = _data;
         this.initVis();
     }
@@ -65,10 +67,8 @@ class UsMap {
             vis.projection([d.Longitude,d.Latitude]) != null
         );
 
-        let tempMetric = "Total Uninjured"
-
         vis.data = vis.hexbin(vis.data)
-            .map(d => (d.binMetric = d3.sum(d, d => d[tempMetric]), d))
+            .map(d => (d.binMetric = d3.sum(d, d => d[vis.attribute]), d))
             .sort((a, b) => b.length - a.length);
 
         vis.color = d3.scaleSequential(d3.extent(vis.data, d => d.binMetric), d3.interpolateOrRd);
