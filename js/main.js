@@ -99,6 +99,7 @@ Promise.all([
     );
 
     flightPhase = new FlightPhase({parentElement: '#flight-phase'}, groupedData);
+    console.log(groupedData);
     flightPhase.updateVis();
 
     stackedBarChart = new StackedBarChart({ parentElement: '#chart'}, joined_data);

@@ -75,23 +75,18 @@ class StackedBarChart {
     updateVis() {
         let vis = this;
         //Todo: change to commercial or personal filtering non personal as commercial
-        vis.xScale.domain(["No", "Yes"]);
+        vis.xScale.domain(["Personal", "Commercial"]);
         vis.yScale.domain([0, 70000]);
 
-        vis.data= vis.data.filter(d => d['Amateur Built'] != "");
 
-
-        const want = [
-            { 'Amateur Built': "Yes", 'Total Minor Injuries': 10, 'Total Serious Injuries': 4, 'Total Fatal Injuries': 1},
-            { 'Amateur Built': "No", 'Total Minor Injuries': 12, 'Total Serious Injuries': 6, 'Total Fatal Injuries': 3},
-        ];
+        vis.data= vis.data.filter(d => d['Purpose of Flight'] != "" || d['Purpose of Flight'] != "Unknown");
 
         vis.groupedData = d3.rollups(
             vis.data,
             xs => {return [d3.sum(xs, x => x["Total Minor Injuries"]), d3.sum(xs, x => x["Total Serious Injuries"]), d3.sum(xs, x => x["Total Fatal Injuries"])]},
-            d => d['Amateur Built']
+            d => d["Purpose of Flight"] === "Personal",
         )
-            .map(([k, v]) => ({ "Amateur Built": k, 'Total Minor Injuries': v[0], 'Total Serious Injuries': v[1], 'Total Fatal Injuries': v[2] }));
+            .map(([k, v]) => ({ "Purpose of Flight": k ? "Personal" : "Commercial", 'Total Minor Injuries': v[0], 'Total Serious Injuries': v[1], 'Total Fatal Injuries': v[2] }));
         console.log(vis.groupedData);
 
         vis.stackedData = vis.stack(vis.groupedData);
@@ -115,7 +110,7 @@ class StackedBarChart {
             .selectAll('rect')
             .data(d => d)
             .join('rect')
-            .attr('x', d => vis.xScale(d.data["Amateur Built"]))
+            .attr('x', d => vis.xScale(d.data["Purpose of Flight"]))
             .attr('y', d => vis.yScale(d[1]))
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
             .attr('width', vis.xScale.bandwidth());
