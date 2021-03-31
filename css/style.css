@@ -1,10 +1,10 @@
-/*todo, make text unselectable for control panel and bubble chart*/
+/*todo, make text unselectable for control panel and bubble chart (cosmetic)*/
 
 * {
     font-family: "Source Sans Pro", sans-serif;
 }
 
-.control_panel{
+.control_panel {
     /*position: absolute;*/
     background-color: blue;
     border: 10px solid black;
@@ -52,11 +52,13 @@ svg {
     color: #333;
     z-index: 10;
 }
+
 .tooltip-title {
     color: #000;
     font-size: 14px;
     font-weight: 600;
 }
+
 #tooltip ul {
     margin: 5px 0 0 0;
     padding-left: 20px;
@@ -117,7 +119,7 @@ g {
     margin-left: 50px;
 }
 
-.circle-hover{
+.circle-hover {
     border: 2px solid black;
 }
 
@@ -138,9 +140,11 @@ rect {
 .Minor rect {
     fill: coral;
 }
+
 .Fatal rect {
     fill: black;
 }
+
 .Serious rect {
     fill: darkred;
 }

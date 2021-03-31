@@ -51,7 +51,7 @@ na['Event Date'] = pd.to_datetime(na['Event Date'],format="%d-%b-%y") # set date
 na = na[ (na['Event Date'] >= '1978-01-01') & (na['Event Date'] <= '2020-12-31')] # select date range
 
 
-# TODO  Remove examples with empty, null, annoying, or invalid values (check per attribute as empty may be acceptable for some attributes).
+# Remove examples with empty, null, annoying, or invalid values (check per attribute as empty may be acceptable for some attributes).
 
 # AC make should be capitalized like NA
 ac['Make'] = [a.upper() for a in ac['Make']] 

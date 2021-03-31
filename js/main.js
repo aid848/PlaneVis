@@ -102,7 +102,7 @@ Promise.all([
     console.log(groupedData);
     flightPhase.updateVis();
 
-    stackedBarChart = new StackedBarChart({ parentElement: '#chart'}, joined_data);
+    stackedBarChart = new StackedBarChart({parentElement: '#chart'}, joined_data);
 
 }).catch(error => console.error(error));
 
@@ -119,7 +119,7 @@ function controlBoxFilter(data, views, checkboxes, secondary_select, date, overv
             return ele['Purpose of Flight'] === 'Personal'
         })
     } else if (checkboxes[0] === false && checkboxes[1] === false) {
-        // TODO select other button if both deselected, having both unselected doesn't make sense
+        // select other button if both deselected, having both unselected doesn't make sense
         new_Data = new_Data
     }
     if (checkboxes[2] === false) { // don't include amateur built

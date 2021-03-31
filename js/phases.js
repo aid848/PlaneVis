@@ -6,7 +6,7 @@ class FlightPhase {
             parentElement: _config.parentElement,
             containerWidth: _config.containerWidth || 1300,
             containerHeight: _config.containerHeight || 800,
-            margin: _config.margin || { top: 40, right: 25, bottom: 40, left: 25 }
+            margin: _config.margin || {top: 40, right: 25, bottom: 40, left: 25}
         };
 
         this.flightPathPoints = [
@@ -49,8 +49,8 @@ class FlightPhase {
             .y(d => d.y)
             .curve(d3.curveBasis);
 
-        vis.flightCategories =  d3.scaleOrdinal()
-            .domain(this.validPhasePoints.map(d=>d.phase));
+        vis.flightCategories = d3.scaleOrdinal()
+            .domain(this.validPhasePoints.map(d => d.phase));
 
         // // vertical
         // vis.xScale = d3.scaleLinear()
@@ -104,7 +104,7 @@ class FlightPhase {
             .attr("fill", "none")
             .transition()
             .duration(2000)
-            // .attr("stroke-dashoffset", 0);
+        // .attr("stroke-dashoffset", 0);
 
         // flight marker to be animated along the path
         // http://bl.ocks.org/KoGor/8163268
@@ -150,7 +150,7 @@ class FlightPhase {
         // phase-phase positions
         vis.chart.selectAll('circle')
             .data(vis.validPhasePoints)
-        .join('circle')
+            .join('circle')
             .attr('id', d => d.phase)
             .attr('r', 4)
             .attr('cx', d => d.x)
@@ -185,13 +185,13 @@ class FlightPhase {
                 return vis.validPhasePoints.find(p => d[0].includes(p.phase.toUpperCase().replace(/\s/g, '')))
             })
             .attr('class', 'pie-container')
-            .attr('id', d=>d[0].toLowerCase())
+            .attr('id', d => d[0].toLowerCase())
             .attr('transform', d => {
                 let point = vis.validPhasePoints.find(p => d[0].includes(p.phase.toUpperCase().replace(/\s/g, '')))
-                return `translate(${point.x}, ${point.y-100})`
+                return `translate(${point.x}, ${point.y - 100})`
             });
-            // add active class
-            // .filter TODO: for scrolling later
+        // add active class
+        // .filter TODO: for scrolling later (m3)
 
         let pie = pieG.selectAll('.pie-chart')
             .data(d => {
@@ -201,22 +201,22 @@ class FlightPhase {
                 const data = {
                     "Commercial": commercialData[1].length,
                     "Personal": personalData[1].length
-                    };
+                };
                 console.log(phaseData, data)
                 const keyValuePair = Array.from(Object.entries(data),
-                    ([key, value]) => ({ key, value }));
+                    ([key, value]) => ({key, value}));
                 return vis.pie(keyValuePair)
             }, d => d[1]);
 
-            pie.join('path')
-                .attr('d', vis.arcGenerator)
-                .attr('fill', d => {
-                    // console.log(d.data, vis.globalColor(d.data.key))
-                    return vis.globalColor(d.data.key)
-                })
-                .attr("stroke", "black")
-                .style("stroke-width", "2px")
-                .style("opacity", 0.7);
+        pie.join('path')
+            .attr('d', vis.arcGenerator)
+            .attr('fill', d => {
+                // console.log(d.data, vis.globalColor(d.data.key))
+                return vis.globalColor(d.data.key)
+            })
+            .attr("stroke", "black")
+            .style("stroke-width", "2px")
+            .style("opacity", 0.7);
 
         // annotation
         // TODO: lines: http://bl.ocks.org/dbuezas/9306799
@@ -226,7 +226,6 @@ class FlightPhase {
             .style("text-anchor", "middle")
             .style("font-size", 17)
             .style("color", "white");
-
 
 
         // TBD
@@ -241,8 +240,8 @@ class FlightPhase {
     translateAlong(path) {
         let l = path.getTotalLength();
         let t0 = 0;
-        return function() {
-            return function(t) {
+        return function () {
+            return function (t) {
                 let p0 = path.getPointAtLength(t0 * l);//previous point
                 let p = path.getPointAtLength(t * l);////current point
                 let angle = Math.atan2(p.y - p0.y, p.x - p0.x) * 180 / Math.PI;//angle for tangent
@@ -250,7 +249,7 @@ class FlightPhase {
                 //Shifting center to center of rocket
                 let centerX = p.x - 24,
                     centerY = p.y - 12;
-                return "translate(" + centerX + "," + centerY + ")rotate(" + angle + " 24" + " 12" +")";
+                return "translate(" + centerX + "," + centerY + ")rotate(" + angle + " 24" + " 12" + ")";
             }
         }
     }

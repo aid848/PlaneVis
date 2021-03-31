@@ -79,14 +79,21 @@ class StackedBarChart {
         vis.yScale.domain([0, 70000]);
 
 
-        vis.data= vis.data.filter(d => d['Purpose of Flight'] != "" || d['Purpose of Flight'] != "Unknown");
+        vis.data = vis.data.filter(d => d['Purpose of Flight'] != "" || d['Purpose of Flight'] != "Unknown");
 
         vis.groupedData = d3.rollups(
             vis.data,
-            xs => {return [d3.sum(xs, x => x["Total Minor Injuries"]), d3.sum(xs, x => x["Total Serious Injuries"]), d3.sum(xs, x => x["Total Fatal Injuries"])]},
+            xs => {
+                return [d3.sum(xs, x => x["Total Minor Injuries"]), d3.sum(xs, x => x["Total Serious Injuries"]), d3.sum(xs, x => x["Total Fatal Injuries"])]
+            },
             d => d["Purpose of Flight"] === "Personal",
         )
-            .map(([k, v]) => ({ "Purpose of Flight": k ? "Personal" : "Commercial", 'Total Minor Injuries': v[0], 'Total Serious Injuries': v[1], 'Total Fatal Injuries': v[2] }));
+            .map(([k, v]) => ({
+                "Purpose of Flight": k ? "Personal" : "Commercial",
+                'Total Minor Injuries': v[0],
+                'Total Serious Injuries': v[1],
+                'Total Fatal Injuries': v[2]
+            }));
         console.log(vis.groupedData);
 
         vis.stackedData = vis.stack(vis.groupedData);

@@ -1,4 +1,3 @@
-
 class UsMap {
     /**
      * Class constructor with basic configuration
@@ -44,7 +43,7 @@ class UsMap {
         // Defines the scale and translate of the projection so that the geometry fits within the SVG area
         // We crop Antartica because it takes up a lot of space that is not needed for our data
         vis.projection = d3.geoAlbersUsa()
-            . translate([width/2, height/2])    // translate to center of screen
+            .translate([width / 2, height / 2])    // translate to center of screen
             .scale([1000]);
 
         vis.geoPath = d3.geoPath().projection(vis.projection);
@@ -53,8 +52,8 @@ class UsMap {
             .range([4, 25]);
 
         vis.hexbin = d3.hexbin().extent([[0, 0], [width, height]]).radius(10);
-        vis.hexbin.x(d => vis.projection([d.Longitude,d.Latitude])[0]);
-        vis.hexbin.y(d => vis.projection([d.Longitude,d.Latitude])[1]);
+        vis.hexbin.x(d => vis.projection([d.Longitude, d.Latitude])[0]);
+        vis.hexbin.y(d => vis.projection([d.Longitude, d.Latitude])[1]);
 
 
         vis.updateVis();
@@ -64,7 +63,7 @@ class UsMap {
         let vis = this;
 
         vis.data = vis.data.filter(d =>
-            vis.projection([d.Longitude,d.Latitude]) != null
+            vis.projection([d.Longitude, d.Latitude]) != null
         );
 
         vis.data = vis.hexbin(vis.data)
@@ -105,7 +104,7 @@ class UsMap {
             .attr("fill", d => vis.color(d.binMetric))
             .attr("stroke", d => d3.lab(vis.color(d.binMetric)).darker())
 
-            hexbin.on('mouseover', (event,d) => {
+        hexbin.on('mouseover', (event, d) => {
             d3.select('#tooltip')
                 .style('display', 'block')
                 .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
