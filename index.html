@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<head>
+    <title>D3 Interactive Scatter Plot</title>
+    <link rel="icon" href="data:;base64,iVBORwOKGO="/>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+<h2 id='title'>THE HISTORICAL FACTORS OF PLANE DISASTERS IN THE U.S.</h2>
+
+<div id="control_panel" class="control_panel">
+    <div id="dropdown-group">
+        <select name="Secondary attribute" id="secondary-selector" class="control-select">
+            <option value="Total Fatal Injuries">Fatalities</option>
+            <option value="Aircraft Destroyed">Most Destroyed craft</option>
+            <option value="num-accidents">Number of accidents</option>
+            <option value="Fatal to non-Fatal ratio">Fatal to non-Fatal ratio</option>
+            <option value="Serious Injuries">Serious Injuries</option>
+            <option value="Minor Injuries">Minor Injuries</option>
+            <option value="Injuries to Uninjured ratio">Injuries to Uninjured ratio</option>
+        </select>
+    </div>
+    <div id="date_slider"></div>
+    <div id="checkbox-group">
+        <input type="checkbox" id="commercial-box" class="controlbox" name="commercial-box" checked>
+        <label for="commercial-box">Commercial</label>
+        <br>
+        <input type="checkbox" id="private-box" class="controlbox" name="private-box" checked>
+        <label for="private-box">Personal</label>
+        <br>
+        <input type="checkbox" id="amateur-box" class="controlbox" name="amateur-box">
+        <label for="amateur-box">Amateur-built</label>
+    </div>
+</div>
+
+<div id="overview" class="overview"></div>
+<div id="detail" class="detail"></div>
+<div id="map"></div>
+
+<div id=flight-phase-view"">
+    <svg id="flight-phase"/>
+</div>
+<svg id="chart"></svg>
+
+<div id="tooltip"></div>
+
+<script src="js/d3.v6.min.js"></script>
+<script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
+<script src="js/topojson.v3.js"></script>
+<script src="js/main.js"></script>
+<script src="js/usMap.js"></script>
+<script src="js/phases.js"></script>
+<script src="js/controls.js"></script>
+<script src="js/overview.js"></script>
+<script src="js/detail.js"></script>
+<script src="js/stackedBarChart.js"></script>
+
+
+</body>
+
+</html>
