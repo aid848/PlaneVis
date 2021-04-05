@@ -20,7 +20,7 @@ let visualizations_view_2 = [] // every vis here that needs data to change in vi
 let full_data // unfiltered data copy
 
 // setup dispatchers
-const control_panel_dispatcher = d3.dispatch('control_filter')
+const control_panel_dispatcher = d3.dispatch('control_filter', 'overview_click')
 
 // Render vis elements after data is all loaded
 Promise.all([
@@ -29,11 +29,8 @@ Promise.all([
     ntsb_data_p,
     us_map_data_p]).then((data) => {
 
-    joined_data = data[0] // should we just use this for the main view?
-    full_data = Array.from(data[0])
+    joined_data = data[0]
     map_data = data[3]
-    // ac_data = data[1]
-    // ntsb_data = data[2]
 
     usMap = new UsMap({
         parentElement: '#map'
@@ -42,6 +39,7 @@ Promise.all([
     // data formatting
     let timeParser = d3.timeParse("%Y-%m-%d")
     joined_data.forEach((ele) => {
+        ele["ID"] = +ele[""]
         ele['Event Date_ac'] = timeParser(ele['Event Date_ac'])
         ele['Total Fatal Injuries'] = +ele['Total Fatal Injuries']
         ele['Total Fatal Injuries'] = +ele['Total Fatal Injuries']
@@ -50,14 +48,16 @@ Promise.all([
         ele['Total Uninjured'] = +ele['Total Uninjured']
     })
 
+    full_data = Array.from(joined_data)
+    // console.log(full_data[0])
 
     // vis element instantiation
     const control_panel = new Controls(joined_data, '#date_slider', control_panel_dispatcher)
-    const overview = new Overview(joined_data, '#overview', control_panel_dispatcher, secondary_selector)
+    const overview = new Overview(groupFilter(joined_data,secondary_selector), '#overview', control_panel_dispatcher, secondary_selector)
 
     visualizations_view_2.push(overview)
     // const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
-    const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
+    const detail = new Detail(groupFilter(joined_data,secondary_selector), '#detail', control_panel_dispatcher, secondary_selector)
 
     visualizations_view_2.push(detail)
 
@@ -85,9 +85,14 @@ Promise.all([
 
     control_panel_dispatcher.on('control_filter', function (event, context) {
         date = this.date
-        console.log(date)
         controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview)
     })
+
+    control_panel_dispatcher.on('overview_click', function (event,context){
+        console.log(this.name)
+
+    })
+
     joined_data.forEach(d => {
         d["Flight Phase General"] = d["Flight Phase"].split(" ")[0]
     });
@@ -134,17 +139,67 @@ function controlBoxFilter(data, views, checkboxes, secondary_select, date, overv
         return (x >= date[0]) && (x <= date[1])
     })
 
-    // dropdown filtering
+    // dropdown filtering by group
+    new_Data = groupFilter(new_Data,secondary_selector)
     views.forEach((vis) => {
         vis.attribute = secondary_selector
     })
+
+
 
     // change data and update views
     views.forEach((vis) => {
         vis.data = new_Data
         vis.updateVis()
     })
-    console.log(new_Data)
+    // console.log(new_Data)
     return new_Data
+}
+
+function groupFilter(data,attribute){
+    let dataGrouped = d3.groups(data, (d) => d["Make_ac"])
+    let dataAttributed = []
+    switch (attribute) {
+        case 'Total Fatal Injuries':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0], ele[1].map(val => val[attribute]).reduce((acc, cur) => acc + cur)]
+            })
+            break;
+        case 'Aircraft Destroyed':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0], ele[1].map(val => val['Aircraft Damage']).filter((cur) => cur.toLowerCase() === 'destroyed').length]
+            })
+            break;
+        case 'num-accidents':
+            dataAttributed = dataGrouped.map(ele => [ele[0], ele[1].length])
+            break;
+        case 'Fatal to non-Fatal ratio':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0],
+                    ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) / (ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur))]
+            })
+            dataAttributed = dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
+            break;
+        case 'Serious Injuries':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0], ele[1].map(val => val['Total Serious Injuries']).reduce((acc, cur) => acc + cur)]
+            })
+            break;
+        case 'Minor Injuries':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0], ele[1].map(val => val['Total Minor Injuries']).reduce((acc, cur) => acc + cur)]
+            })
+            break;
+        case 'Injuries to Uninjured ratio':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0],
+                    (ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur)) / ele[1].map(e => e['Total Uninjured']).reduce((acc, cur) => acc + cur)]
+            })
+            dataAttributed = dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
+            break;
+    }
+    // use secondary selector to order by magnitude
+    dataAttributed = dataAttributed.sort(((a, b) => a[1] - b[1])).reverse()
+    return dataAttributed
 }
 

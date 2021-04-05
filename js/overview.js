@@ -44,51 +44,52 @@ class Overview {
 
     updateVis() {
         const vis = this
-        console.log(vis.attribute)
-        vis.dataGrouped = d3.groups(vis.data, (d) => d[vis.groupBy])
 
-        switch (vis.attribute) {
-            case 'Total Fatal Injuries':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0], ele[1].map(val => val[vis.attribute]).reduce((acc, cur) => acc + cur)]
-                })
-                break;
-            case 'Aircraft Destroyed':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0], ele[1].map(val => val['Aircraft Damage']).filter((cur) => cur.toLowerCase() === 'destroyed').length]
-                })
-                break;
-            case 'num-accidents':
-                vis.dataAttributed = vis.dataGrouped.map(ele => [ele[0], ele[1].length])
-                break;
-            case 'Fatal to non-Fatal ratio':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0],
-                        ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) / (ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur))]
-                })
-                vis.dataAttributed = vis.dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
-                break;
-            case 'Serious Injuries':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0], ele[1].map(val => val['Total Serious Injuries']).reduce((acc, cur) => acc + cur)]
-                })
-                break;
-            case 'Minor Injuries':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0], ele[1].map(val => val['Total Minor Injuries']).reduce((acc, cur) => acc + cur)]
-                })
-                break;
-            case 'Injuries to Uninjured ratio':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0],
-                        (ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur)) / ele[1].map(e => e['Total Uninjured']).reduce((acc, cur) => acc + cur)]
-                })
-                vis.dataAttributed = vis.dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
-                break;
-        }
-        // use secondary selector to order by magnitude
-        vis.dataAttributed = vis.dataAttributed.sort(((a, b) => a[1] - b[1])).reverse().slice(0, vis.maxElements)
-        console.log(vis.dataAttributed)
+        // vis.dataGrouped = d3.groups(vis.data, (d) => d[vis.groupBy])
+        //
+        // switch (vis.attribute) {
+        //     case 'Total Fatal Injuries':
+        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
+        //             return [ele[0], ele[1].map(val => val[vis.attribute]).reduce((acc, cur) => acc + cur)]
+        //         })
+        //         break;
+        //     case 'Aircraft Destroyed':
+        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
+        //             return [ele[0], ele[1].map(val => val['Aircraft Damage']).filter((cur) => cur.toLowerCase() === 'destroyed').length]
+        //         })
+        //         break;
+        //     case 'num-accidents':
+        //         vis.dataAttributed = vis.dataGrouped.map(ele => [ele[0], ele[1].length])
+        //         break;
+        //     case 'Fatal to non-Fatal ratio':
+        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
+        //             return [ele[0],
+        //                 ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) / (ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur))]
+        //         })
+        //         vis.dataAttributed = vis.dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
+        //         break;
+        //     case 'Serious Injuries':
+        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
+        //             return [ele[0], ele[1].map(val => val['Total Serious Injuries']).reduce((acc, cur) => acc + cur)]
+        //         })
+        //         break;
+        //     case 'Minor Injuries':
+        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
+        //             return [ele[0], ele[1].map(val => val['Total Minor Injuries']).reduce((acc, cur) => acc + cur)]
+        //         })
+        //         break;
+        //     case 'Injuries to Uninjured ratio':
+        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
+        //             return [ele[0],
+        //                 (ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur)) / ele[1].map(e => e['Total Uninjured']).reduce((acc, cur) => acc + cur)]
+        //         })
+        //         vis.dataAttributed = vis.dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
+        //         break;
+        // }
+        // // use secondary selector to order by magnitude
+        // vis.dataAttributed = vis.dataAttributed.sort(((a, b) => a[1] - b[1])).reverse().slice(0, vis.maxElements)
+        vis.dataAttributed = vis.data.slice(0, vis.maxElements)
+        // console.log(vis.dataAttributed)
         // length from secondary selector range
         vis.radiusScale.domain([vis.dataAttributed[vis.maxElements - 1][1], vis.dataAttributed[0][1]])
         vis.renderVis()
@@ -105,8 +106,8 @@ class Overview {
             .attr('class', 'node')
             .attr('transform', `translate(${vis.width / 2},${vis.height / 2})`)
             .on('click', function () {
-                // TODO call dispatcher for detail view (after m2)
-                console.log(this)
+                const name = this.querySelector('text').innerHTML
+                vis.dispatcher.call('overview_click', {name: name})
             })
             .on('mouseover', function () {
                 // TODO do classed hover (cosmetic)
@@ -133,7 +134,9 @@ class Overview {
                 return d[0]
             })
 
-        vis.sim = d3.forceSimulation(vis.dataAttributed, d => d[0])
+        vis.sim = d3.forceSimulation(vis.dataAttributed, function (d, idx){
+            return d ? d.name : this.getAttribute("ID");
+        })
             .force("x", d3.forceX(vis.width / 2).strength(0.01))
             .force("y", d3.forceY(vis.height / 2).strength(0.01))
             .force("center", d3.forceCenter().x(vis.width * .5).y(vis.height * .5).strength(0.2))

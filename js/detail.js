@@ -38,7 +38,7 @@ class Detail {
         vis.radiusScale = d3.scaleSqrt().range([vis.minCircleSize, vis.maxCircleSize])
 
         // TODO some kind of static size,color legend (m3)
-        console.log(vis.data)
+        // console.log(vis.data)
 
         vis.updateVis()
     }
@@ -46,10 +46,11 @@ class Detail {
     updateVis() {
         const vis = this
 
-        vis.dataGrouped = d3.groups(vis.data, (d) => d[vis.groupBy])
-        vis.dataGrouped = vis.dataGrouped.sort(((a, b) => a[1].length - b[1].length)).reverse().slice(0, vis.maxElements)
-        console.log(vis.groupBy)
-        vis.radiusScale.domain([vis.dataGrouped[vis.maxElements - 1][1].length, vis.dataGrouped[0][1].length]) // todo use min and max
+        // vis.dataGrouped = d3.groups(vis.data, (d) => d[vis.groupBy])
+        // vis.dataGrouped = vis.dataGrouped.sort(((a, b) => a[1].length - b[1].length)).reverse().slice(0, vis.maxElements)
+        vis.dataGrouped = vis.data.slice(0, vis.maxElements)
+        console.log(vis.dataGrouped)
+        vis.radiusScale.domain([vis.dataGrouped[vis.maxElements - 1][1], vis.dataGrouped[0][1]]) // todo use min and max
         vis.renderVis()
     }
 
@@ -72,7 +73,7 @@ class Detail {
 
 
         vis.circles = vis.node.append('circle')
-            .attr('r', d => vis.radiusScale(d[1].length))
+            .attr('r', d => vis.radiusScale(d[1]))
             .attr('fill', 'red')
 
         vis.node
@@ -84,16 +85,18 @@ class Detail {
                 return Math.min(r / 3, r * 2 / len) + "px";
             }) // TODO come up with better formula? (cosmetic)
             .text(d => {
-                return d[0]
+                return d[1]
             })
 
-        vis.sim = d3.forceSimulation(vis.dataGrouped)
+        vis.sim = d3.forceSimulation(vis.dataGrouped,function (d, idx){
+            return d ? d.name : this.getAttribute("ID");
+        })
             .force("x", d3.forceX(vis.width / 2).strength(0.01))
             .force("y", d3.forceY(vis.height / 2).strength(0.01))
             .force("center", d3.forceCenter().x(vis.width * .5).y(vis.height * .5).strength(0.2))
             .force('charge', d3.forceManyBody().strength(-5))
             .force('collide', d3.forceCollide(function (d) {
-                return vis.radiusScale(d[1].length)
+                return vis.radiusScale(d[1])
             }).iterations(2).strength(1.0))
             .on("tick", function () {
                 vis.node.enter()
@@ -102,7 +105,7 @@ class Detail {
                     .attr('transform', function (d) {
                         let x = d.x
                         let y = d.y
-                        let rad = vis.radiusScale(d[1].length)
+                        let rad = vis.radiusScale(d[1])
                         if (x > vis.width - vis.padding - rad) {
                             x = vis.width - vis.padding - rad
                         } else if (x - vis.padding - rad < 0) {
