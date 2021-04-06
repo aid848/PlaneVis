@@ -44,53 +44,7 @@ class Overview {
 
     updateVis() {
         const vis = this
-
-        // vis.dataGrouped = d3.groups(vis.data, (d) => d[vis.groupBy])
-        //
-        // switch (vis.attribute) {
-        //     case 'Total Fatal Injuries':
-        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
-        //             return [ele[0], ele[1].map(val => val[vis.attribute]).reduce((acc, cur) => acc + cur)]
-        //         })
-        //         break;
-        //     case 'Aircraft Destroyed':
-        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
-        //             return [ele[0], ele[1].map(val => val['Aircraft Damage']).filter((cur) => cur.toLowerCase() === 'destroyed').length]
-        //         })
-        //         break;
-        //     case 'num-accidents':
-        //         vis.dataAttributed = vis.dataGrouped.map(ele => [ele[0], ele[1].length])
-        //         break;
-        //     case 'Fatal to non-Fatal ratio':
-        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
-        //             return [ele[0],
-        //                 ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) / (ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur))]
-        //         })
-        //         vis.dataAttributed = vis.dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
-        //         break;
-        //     case 'Serious Injuries':
-        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
-        //             return [ele[0], ele[1].map(val => val['Total Serious Injuries']).reduce((acc, cur) => acc + cur)]
-        //         })
-        //         break;
-        //     case 'Minor Injuries':
-        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
-        //             return [ele[0], ele[1].map(val => val['Total Minor Injuries']).reduce((acc, cur) => acc + cur)]
-        //         })
-        //         break;
-        //     case 'Injuries to Uninjured ratio':
-        //         vis.dataAttributed = vis.dataGrouped.map(ele => {
-        //             return [ele[0],
-        //                 (ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur)) / ele[1].map(e => e['Total Uninjured']).reduce((acc, cur) => acc + cur)]
-        //         })
-        //         vis.dataAttributed = vis.dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
-        //         break;
-        // }
-        // // use secondary selector to order by magnitude
-        // vis.dataAttributed = vis.dataAttributed.sort(((a, b) => a[1] - b[1])).reverse().slice(0, vis.maxElements)
         vis.dataAttributed = vis.data.slice(0, vis.maxElements)
-        // console.log(vis.dataAttributed)
-        // length from secondary selector range
         vis.radiusScale.domain([vis.dataAttributed[vis.maxElements - 1][1], vis.dataAttributed[0][1]])
         vis.renderVis()
     }
@@ -101,7 +55,10 @@ class Overview {
 
         vis.node = vis.chart
             .selectAll('g')
-            .data(vis.dataAttributed, d => d)
+            .data(vis.dataAttributed, function (d){
+                // console.log(d)
+                return [d[0],vis.radiusScale(d[1])]
+            })
             .join('g')
             .attr('class', 'node')
             .attr('transform', `translate(${vis.width / 2},${vis.height / 2})`)
@@ -109,18 +66,35 @@ class Overview {
                 const name = this.querySelector('text').innerHTML
                 vis.dispatcher.call('overview_click', {name: name})
             })
-            .on('mouseover', function () {
+            .on('mouseover', function (event,d) {
+                // TODO tooltip info, padding?
+                d3.select('#tooltip')
+                    .style('display', 'block')
+                    .style("left", event.pageX + 0 + "px")
+                    .style("top", event.pageY + 0 + "px")
+                    .html(
+                        `<div class="tooltip-window">  <p>hi</p> </div>`
+                    );
                 // TODO do classed hover (cosmetic)
-                // TODO tooltip (after m2)
+
+            }).on('mouseleave', function (event,d) {
+                d3.select('#tooltip')
+                    .style('display', 'none')
             })
 
 
-        vis.circles = vis.node.append('circle')
+        // vis.circles = vis.chart.merge(vis.node.enter())
+        //     .selectAll('circle');
+
+        vis.circles = vis.node
+            .append('circle')
             .attr('r', d => vis.radiusScale(d[1]))
             .attr('fill', d => {
                 // TODO color if applicable for secondary selector (eg avg severity of accidents for num of accidents) (cosmetic)
                 return 'red'
             })
+
+
 
         vis.node
             .append('text')
@@ -134,8 +108,8 @@ class Overview {
                 return d[0]
             })
 
-        vis.sim = d3.forceSimulation(vis.dataAttributed, function (d, idx){
-            return d ? d.name : this.getAttribute("ID");
+        vis.sim = d3.forceSimulation(vis.dataAttributed, function (d){
+            return [d[0],vis.radiusScale(d[1])]
         })
             .force("x", d3.forceX(vis.width / 2).strength(0.01))
             .force("y", d3.forceY(vis.height / 2).strength(0.01))
@@ -172,8 +146,11 @@ class Overview {
                         .on("start", d => vis.dragStart(d, vis.sim))
                         .on("drag", vis.drag)
                         .on("end", d => vis.dragEnd(d, vis.sim)));
-                vis.node.exit().remove()
 
+                vis.node.exit().remove()
+                // vis.circles.exit().remove()
+
+                d3.selectAll(vis.circles).exit().remove()
             })
     }
 
@@ -182,6 +159,8 @@ class Overview {
     }
 
     drag(d) {
+        d3.select('#tooltip')
+            .style('display', 'none')
         d.subject.x = d.x;
         d.subject.y = d.y;
     }

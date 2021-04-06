@@ -84,6 +84,10 @@ Promise.all([
     })
 
     control_panel_dispatcher.on('control_filter', function (event, context) {
+        // check if selection has actually changed
+        if(date[0] === this.date[0] && date[1] === this.date[1]){
+            return
+        }
         date = this.date
         controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview)
     })
@@ -104,7 +108,6 @@ Promise.all([
     );
 
     flightPhase = new FlightPhase({parentElement: '#flight-phase'}, groupedData);
-    console.log(groupedData);
     flightPhase.updateVis();
 
     stackedBarChart = new StackedBarChart({parentElement: '#chart'}, joined_data);

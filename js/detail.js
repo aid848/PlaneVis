@@ -49,7 +49,7 @@ class Detail {
         // vis.dataGrouped = d3.groups(vis.data, (d) => d[vis.groupBy])
         // vis.dataGrouped = vis.dataGrouped.sort(((a, b) => a[1].length - b[1].length)).reverse().slice(0, vis.maxElements)
         vis.dataGrouped = vis.data.slice(0, vis.maxElements)
-        console.log(vis.dataGrouped)
+        // console.log(vis.dataGrouped)
         vis.radiusScale.domain([vis.dataGrouped[vis.maxElements - 1][1], vis.dataGrouped[0][1]]) // todo use min and max
         vis.renderVis()
     }

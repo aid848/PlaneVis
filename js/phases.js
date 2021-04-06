@@ -29,7 +29,7 @@ class FlightPhase {
 
         this.validPhasePoints = this.flightPathPoints.filter(d => d.phase !== null);
         this.data = _data;
-        console.log(this.data)
+        // console.log(this.data)
 
         // initiate svg
         this.initVis();
@@ -175,7 +175,7 @@ class FlightPhase {
                 return "middle"
             })
             .text(d => d.phase)
-        console.log(vis.data);
+        // console.log(vis.data);
 
         // pie groups
         let pieG = vis.pieGroup.selectAll('.pie-container')
@@ -202,7 +202,7 @@ class FlightPhase {
                     "Commercial": commercialData[1].length,
                     "Personal": personalData[1].length
                 };
-                console.log(phaseData, data)
+                // console.log(phaseData, data)
                 const keyValuePair = Array.from(Object.entries(data),
                     ([key, value]) => ({key, value}));
                 return vis.pie(keyValuePair)
