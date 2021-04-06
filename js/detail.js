@@ -39,7 +39,6 @@ class Detail {
 
         // TODO some kind of static size,color legend (m3)
         // console.log(vis.data)
-
         vis.updateVis()
     }
 
@@ -48,8 +47,12 @@ class Detail {
 
         // vis.dataGrouped = d3.groups(vis.data, (d) => d[vis.groupBy])
         // vis.dataGrouped = vis.dataGrouped.sort(((a, b) => a[1].length - b[1].length)).reverse().slice(0, vis.maxElements)
+        if(vis.data.length < 25 ){
+            vis.maxElements = vis.data.length;
+        } else {
+            vis.maxElements = 25;
+        }
         vis.dataGrouped = vis.data.slice(0, vis.maxElements)
-        console.log(vis.dataGrouped)
         vis.radiusScale.domain([vis.dataGrouped[vis.maxElements - 1][1], vis.dataGrouped[0][1]]) // todo use min and max
         vis.renderVis()
     }
@@ -85,7 +88,7 @@ class Detail {
                 return Math.min(r / 3, r * 2 / len) + "px";
             }) // TODO come up with better formula? (cosmetic)
             .text(d => {
-                return d[1]
+                return d[0]
             })
 
         vis.sim = d3.forceSimulation(vis.dataGrouped,function (d, idx){

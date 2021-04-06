@@ -13,8 +13,7 @@ class UsMap {
             tooltipPadding: 10
         }
         this.geoData = _geoData;
-        // this.attribute = _attr
-        this.attribute = "Total Fatal Injuries"
+        this.attribute = _attr
         this.data = _data;
         this.initVis();
     }
@@ -61,17 +60,19 @@ class UsMap {
 
     updateVis() {
         let vis = this;
+        console.log(vis.filteredData);
 
-        vis.data = vis.data.filter(d =>
+        vis.filteredData = vis.data.filter(d =>
             vis.projection([d.Longitude, d.Latitude]) != null
         );
 
-        vis.data = vis.hexbin(vis.data)
+
+        vis.hexData = vis.hexbin(vis.filteredData)
             .map(d => (d.binMetric = d3.sum(d, d => d[vis.attribute]), d))
             .sort((a, b) => b.length - a.length);
 
-        vis.color = d3.scaleSequential(d3.extent(vis.data, d => d.binMetric), d3.interpolateOrRd);
-        vis.radius = d3.scaleSqrt([0, d3.max(vis.data, d => d.length)], [0, vis.hexbin.radius() * Math.SQRT2]);
+        vis.color = d3.scaleSequential(d3.extent(vis.hexData, d=> d3.sum(d, d => d[vis.attribute])), d3.interpolateOrRd);
+        vis.radius = d3.scaleSqrt([0, d3.max(vis.hexData, d => d.length)], [0, vis.hexbin.radius() * Math.SQRT2]);
 
         vis.renderVis();
     }
@@ -79,7 +80,6 @@ class UsMap {
 
     renderVis() {
         let vis = this;
-
         // Append world map
         const geoPath = vis.chart.selectAll('.geo-path')
             .data(topojson.feature(vis.geoData, vis.geoData.objects.states).features)
@@ -95,25 +95,27 @@ class UsMap {
             .attr('d', vis.geoPath);
 
         // Append hexbin
-        const hexbin = vis.svg.append("g")
-            .selectAll("path")
-            .data(vis.data)
+        const hexbin = vis.svg.selectAll(".hex-bin-path")
+            .data(vis.hexData, d => [d.x, d.y])
             .join("path")
+            .attr('class', 'hex-bin-path')
             .attr("transform", d => `translate(${d.x},${d.y})`)
             .attr("d", d => vis.hexbin.hexagon(vis.radius(d.length)))
             .attr("fill", d => vis.color(d.binMetric))
             .attr("stroke", d => d3.lab(vis.color(d.binMetric)).darker())
 
-        hexbin.on('mouseover', (event, d) => {
-            d3.select('#tooltip')
-                .style('display', 'block')
-                .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
-                .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
-                .html(`
-                  <div class="tooltip-title">hello</div>
-                `);
-        }).on('mouseleave', () => {
-            d3.select('#tooltip').style('display', 'none');
-        })
+
+
+        // hexbin.on('mouseover', (event, d) => {
+        //     d3.select('#tooltip')
+        //         .style('display', 'block')
+        //         .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+        //         .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+        //         .html(`
+        //           <div class="tooltip-title">hello</div>
+        //         `);
+        // }).on('mouseleave', () => {
+        //     d3.select('#tooltip').style('display', 'none');
+        // })
     }
 }
