@@ -53,13 +53,15 @@ Promise.all([
 
     // vis element instantiation
     const control_panel = new Controls(joined_data, '#date_slider', control_panel_dispatcher)
-    const overview = new Overview(groupFilter(joined_data,secondary_selector), '#overview', control_panel_dispatcher, secondary_selector)
+    const overview = new Overview(overviewFilter(joined_data,secondary_selector), '#overview', control_panel_dispatcher, secondary_selector)
 
     visualizations_view_2.push(overview)
     // const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
-    const detail = new Detail(groupFilter(joined_data,secondary_selector), '#detail', control_panel_dispatcher, secondary_selector)
+    visualizations_view_2.push(usMap)
 
-    visualizations_view_2.push(detail)
+    const detail = new Detail(detailFilter(joined_data, secondary_selector, null), '#detail', control_panel_dispatcher, secondary_selector, )
+    visualizations_view_2.push(detail);
+
 
     d3.selectAll('input.controlbox').on('click', function () {
         switch (this.name) {
@@ -75,12 +77,12 @@ Promise.all([
                 break;
             default:
         }
-        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview)
+        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail)
     })
 
     d3.selectAll('select.control-select').on('change', function () {
         secondary_selector = d3.select(this).property("value")
-        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview)
+        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail)
     })
 
     control_panel_dispatcher.on('control_filter', function (event, context) {
@@ -89,12 +91,14 @@ Promise.all([
             return
         }
         date = this.date
-        controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview)
+        controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail)
     })
 
     control_panel_dispatcher.on('overview_click', function (event,context){
-        console.log(this.name)
-
+        detail.data = detailFilter(full_data, secondary_selector, this.name);
+        usMap.data = mapFilterOverview(full_data, secondary_selector, this.name);
+        detail.updateVis()
+        usMap.updateVis()
     })
 
     joined_data.forEach(d => {
@@ -102,19 +106,19 @@ Promise.all([
     });
 
     // group the data based on Phases
-    const groupedData = d3.groups(joined_data,
+    const phaseGroupedData = d3.groups(joined_data,
         d => d["Flight Phase General"],
         d => d["Purpose of Flight"] === "Personal",
     );
 
-    flightPhase = new FlightPhase({parentElement: '#flight-phase'}, groupedData);
+    flightPhase = new FlightPhase({parentElement: '#flight-phase'}, phaseGroupedData);
     flightPhase.updateVis();
 
     stackedBarChart = new StackedBarChart({parentElement: '#chart'}, joined_data);
 
 }).catch(error => console.error(error));
 
-function controlBoxFilter(data, views, checkboxes, secondary_select, date, overview) {
+function controlBoxFilter(data, views, checkboxes, secondary_select, date, overview, detail) {
     let new_Data = data
 
     // Checkbox filtering
@@ -143,32 +147,61 @@ function controlBoxFilter(data, views, checkboxes, secondary_select, date, overv
     })
 
     // dropdown filtering by group
-    new_Data = groupFilter(new_Data,secondary_selector)
-    views.forEach((vis) => {
-        vis.attribute = secondary_selector
-    })
+    let overviewData = overviewFilter(new_Data,secondary_selector)
+    let detailData = detailFilter(new_Data, secondary_selector, null)
 
+    overview.attribute = secondary_selector;
+    overview.data = overviewData;
 
+    detail.attribute = secondary_selector;
+    detail.data = detailData;
 
+    usMap.attribute = decodeMapAttribute(secondary_selector);
+    usMap.data = full_data;
     // change data and update views
     views.forEach((vis) => {
-        vis.data = new_Data
         vis.updateVis()
     })
     // console.log(new_Data)
     return new_Data
 }
 
-function groupFilter(data,attribute){
+function mapFilterOverview (data, attribute, make) {
+    let new_Data = data
+
+    if(make !== null) {
+        new_Data = new_Data.filter((ele) => {
+            return ele['Make_ac'] === make;
+        })
+    }
+    return new_Data;
+}
+function detailFilter(data, attribute, make) {
+    let new_Data = data
+
+    if(make !== null) {
+        new_Data = new_Data.filter((ele) => {
+            return ele['Make_ac'] === make;
+        })
+    }
+    let dataGrouped = d3.groups(new_Data, (d) => d["Model_ac"])
+    return groupFilter(dataGrouped, attribute);
+}
+
+function overviewFilter(data, attribute){
     let dataGrouped = d3.groups(data, (d) => d["Make_ac"])
-    let dataAttributed = []
+    return groupFilter(dataGrouped, attribute);
+}
+function groupFilter(data,attribute){
+    let dataAttributed = [];
+    let dataGrouped = data;
     switch (attribute) {
         case 'Total Fatal Injuries':
             dataAttributed = dataGrouped.map(ele => {
                 return [ele[0], ele[1].map(val => val[attribute]).reduce((acc, cur) => acc + cur)]
             })
             break;
-        case 'Aircraft Destroyed':
+        case 'Most Destroyed craft':
             dataAttributed = dataGrouped.map(ele => {
                 return [ele[0], ele[1].map(val => val['Aircraft Damage']).filter((cur) => cur.toLowerCase() === 'destroyed').length]
             })
@@ -206,3 +239,30 @@ function groupFilter(data,attribute){
     return dataAttributed
 }
 
+function decodeMapAttribute(attribute) {
+    switch (attribute) {
+        case 'Total Fatal Injuries':
+            return 'Total Fatal Injuries';
+            break;
+        case 'Most Destroyed craft':
+            return 'Damage';
+            break;
+        case 'num-accidents':
+            return 'Total Fatal Injuries';
+            break;
+        case 'Fatal to non-Fatal ratio':
+            return 'Total Fatal Injuries';
+            break;
+        case 'Serious Injuries':
+            return 'Total Serious Injuries';
+            break;
+        case 'Minor Injuries':
+            return 'Total Minor Injuries';
+
+            break;
+        case 'Injuries to Uninjured ratio':
+            return 'Total Fatal Injuries';
+            break;
+    }
+    return "Total Fatal Injuries";
+}

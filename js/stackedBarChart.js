@@ -94,11 +94,9 @@ class StackedBarChart {
                 'Total Serious Injuries': v[1],
                 'Total Fatal Injuries': v[2]
             }));
-        // console.log(vis.groupedData);
 
         vis.stackedData = vis.stack(vis.groupedData);
 
-        // console.log(vis.stackedData);
         vis.renderVis();
     }
 
