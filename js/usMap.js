@@ -55,12 +55,11 @@ class UsMap {
         vis.hexbin.y(d => vis.projection([d.Longitude, d.Latitude])[1]);
 
 
-        vis.updateVis();
+        vis.updateVis(null);
     }
 
-    updateVis() {
+    updateVis(bubble) {
         let vis = this;
-        console.log(vis.filteredData);
 
         vis.filteredData = vis.data.filter(d =>
             vis.projection([d.Longitude, d.Latitude]) != null
@@ -74,11 +73,11 @@ class UsMap {
         vis.color = d3.scaleSequential(d3.extent(vis.hexData, d=> d3.sum(d, d => d[vis.attribute])), d3.interpolateOrRd);
         vis.radius = d3.scaleSqrt([0, d3.max(vis.hexData, d => d.length)], [0, vis.hexbin.radius() * Math.SQRT2]);
 
-        vis.renderVis();
+        vis.renderVis(bubble);
     }
 
 
-    renderVis() {
+    renderVis(bubble) {
         let vis = this;
         // Append world map
         const geoPath = vis.chart.selectAll('.geo-path')
@@ -94,15 +93,40 @@ class UsMap {
             .attr('class', 'geo-boundary-path')
             .attr('d', vis.geoPath);
 
-        // Append hexbin
-        const hexbin = vis.svg.selectAll(".hex-bin-path")
-            .data(vis.hexData, d => [d.x, d.y])
-            .join("path")
-            .attr('class', 'hex-bin-path')
-            .attr("transform", d => `translate(${d.x},${d.y})`)
-            .attr("d", d => vis.hexbin.hexagon(vis.radius(d.length)))
-            .attr("fill", d => vis.color(d.binMetric))
-            .attr("stroke", d => d3.lab(vis.color(d.binMetric)).darker())
+        console.log(vis.hexData)
+        if(vis.hexData.length !== 0){
+            vis.svg.selectAll(".no-location-text").remove()
+            vis.chart.attr("opacity", 1)
+
+            // Append hexbin
+            const hexbin = vis.svg.selectAll(".hex-bin-path")
+                .data(vis.hexData, d => [d.x, d.y])
+                .join("path")
+                .attr('class', 'hex-bin-path')
+                .attr("transform", d => `translate(${d.x},${d.y})`)
+                .attr("d", d => vis.hexbin.hexagon(vis.radius(d.length)))
+                .attr("fill", d => vis.color(d.binMetric))
+                .attr("stroke", d => d3.lab(vis.color(d.binMetric)).darker())
+        } else {
+            vis.svg.selectAll(".hex-bin-path").remove()
+            vis.chart.attr("opacity", .1)
+            const label = vis.svg.selectAll('.no-location-text')
+                .data([bubble])
+                .join("text")
+                .style("font-size", 17)
+                .attr("class", "no-location-text")
+                .attr("transform", d => `translate(${vis.width/2-150},250)`)
+
+            if(bubble !== null){
+                label
+                    .text("No location data available for " + bubble)
+            } else {
+                label
+                    .text("No location data available")
+            }
+
+        }
+
 
 
 

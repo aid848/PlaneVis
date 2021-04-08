@@ -68,7 +68,8 @@ class Detail {
             .attr('class', 'node')
             .attr('transform', `translate(${vis.width / 2},${vis.height / 2})`)
             .on('click', function () {
-                console.log(this)
+                const name = this.querySelector('text').innerHTML
+                vis.dispatcher.call('detail_click', {name: name})
             })
             .on('mouseover', function () {
                 // TODO do classed hover and show tooltip (m3)
