@@ -106,16 +106,16 @@ class UsMap {
 
 
 
-        // hexbin.on('mouseover', (event, d) => {
-        //     d3.select('#tooltip')
-        //         .style('display', 'block')
-        //         .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
-        //         .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
-        //         .html(`
-        //           <div class="tooltip-title">hello</div>
-        //         `);
-        // }).on('mouseleave', () => {
-        //     d3.select('#tooltip').style('display', 'none');
-        // })
+        hexbin.on('mouseover', (event, d) => {
+            d3.select('#tooltip')
+                .style('display', 'block')
+                .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+                .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+                .html(`
+                  <div class="tooltip-title">hello</div>
+                `);
+        }).on('mouseleave', () => {
+            d3.select('#tooltip').style('display', 'none');
+        })
     }
 }
