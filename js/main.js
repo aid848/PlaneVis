@@ -21,7 +21,8 @@ let visualizations_view_2 = [] // every vis here that needs data to change in vi
 let full_data // unfiltered data copy
 
 // setup dispatchers
-const control_panel_dispatcher = d3.dispatch('control_filter', 'overview_click')
+const control_panel_dispatcher = d3.dispatch('control_filter', 'overview_click', 'detail_click')
+
 
 // Render vis elements after data is all loaded
 Promise.all([
@@ -99,7 +100,12 @@ Promise.all([
         detail.data = detailFilter(full_data, secondary_selector, this.name);
         usMap.data = mapFilterOverview(full_data, secondary_selector, this.name);
         detail.updateVis()
-        usMap.updateVis()
+        usMap.updateVis(this.name)
+    })
+
+    control_panel_dispatcher.on('detail_click', function (event,context){
+        usMap.data = mapFilterDetail(full_data, secondary_selector, this.name);
+        usMap.updateVis(this.name)
     })
 
     joined_data.forEach(d => {
@@ -177,6 +183,18 @@ function mapFilterOverview (data, attribute, make) {
     }
     return new_Data;
 }
+
+function mapFilterDetail (data, attribute, model) {
+    let new_Data = data
+
+    if(model !== null) {
+        new_Data = new_Data.filter((ele) => {
+            return ele['Model_ac'] === model;
+        })
+    }
+    return new_Data;
+}
+
 function detailFilter(data, attribute, make) {
     let new_Data = data
 
