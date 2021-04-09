@@ -56,17 +56,10 @@ class Controls {
             // call dispatcher to re-filter data
             control_panel_dispatcher.call('control_filter', {date: dates})
         })
-        this.updateVis()
-    }
 
-    updateVis() {
-        const vis = this
-
-        // get the data years for histogram density view
         vis.data_dates = d3.group(vis.data, d => new Date(d['Event Date_ac']).getFullYear())
         let largest = 0
         let smallest = Infinity
-        // console.log(vis.data_dates)
         vis.data_dates.forEach(ele => {
             if (ele.length > largest)
                 largest = ele.length
@@ -76,6 +69,15 @@ class Controls {
         })
         vis.xScale.domain([d3.min(vis.data_dates.keys()), d3.max(vis.data_dates.keys())])
         vis.yScale.domain([0, largest])
+
+        this.updateVis()
+    }
+
+    updateVis() {
+        const vis = this
+
+        // get the data years for histogram density view
+
         vis.renderVis()
     }
 

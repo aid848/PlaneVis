@@ -15,6 +15,7 @@ us_map_data_p = d3.json('data/us.json')
 let secondary_selector = "Total Fatal Injuries"
 let checkboxes = [true, true, false] // commercial, private, amateur
 let date = [1970, 2020]
+let view = 1
 
 let visualizations_view_2 = [] // every vis here that needs data to change in view 2
 let full_data // unfiltered data copy
@@ -265,4 +266,21 @@ function decodeMapAttribute(attribute) {
             break;
     }
     return "Total Fatal Injuries";
+}
+
+function changeView(){
+    if(view === 1){
+        document.querySelector('#view1').style.display = 'none'
+        document.querySelector('#view2').style.display = 'block'
+        view = 2
+    }else{
+        document.querySelector('#view1').style.display = 'block'
+        document.querySelector('#view2').style.display = 'none'
+        view = 1
+    }
+
+}
+
+function planeClass(element){
+
 }

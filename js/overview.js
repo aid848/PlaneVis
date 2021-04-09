@@ -68,6 +68,7 @@ class Overview {
             })
             .on('mouseover', function (event,d) {
                 // TODO tooltip info, padding?
+                // TODO fix flicker by checking if bubbles are still in sim mode (only show when movement has stopped)
                 d3.select('#tooltip')
                     .style('display', 'block')
                     .style("left", event.pageX + 0 + "px")

@@ -81,6 +81,11 @@ g {
 }
 
 
+.switchView{
+    width: 100px;
+    height: auto;
+}
+
 #legend {
     color: rgb(56, 58, 74);
     font-size: 18px;
