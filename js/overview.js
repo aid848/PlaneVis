@@ -5,8 +5,8 @@ class Overview {
         this.data = _data
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
-        this.width = 1080
-        this.height = this.width / 2
+        this.width = window.innerWidth * 0.5
+        this.height = window.innerHeight * 0.5
         this.maxCircleSize = 100
         this.minCircleSize = 30
         this.padding = 5

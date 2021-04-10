@@ -5,8 +5,11 @@ class Detail {
         this.data = _data
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
-        this.width = 300
-        this.height = this.width
+        // this.width = 300
+        // this.height = this.width
+        this.width = window.innerWidth * 0.3
+        this.height = window.innerHeight * 0.5
+
         this.maxCircleSize = 50
         this.minCircleSize = 10
         this.padding = 5

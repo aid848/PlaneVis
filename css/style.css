@@ -1,13 +1,13 @@
-/*todo, make text unselectable for control panel and bubble chart (cosmetic)*/
-
 * {
     font-family: "Source Sans Pro", sans-serif;
 }
 
 .control_panel {
-    /*position: absolute;*/
+    position: relative;
     background-color: blue;
     border: 10px solid black;
+    width: fit-content;
+    height: auto;
 }
 
 html,
@@ -37,6 +37,10 @@ svg {
 #us-map {
     min-height: 600px;
     min-width: 950px;
+}
+
+#map{
+    float: right;
 }
 
 /* Tooltip */
@@ -84,6 +88,7 @@ g {
 .switchView{
     width: 100px;
     height: auto;
+    alignment: left;
 }
 
 #legend {
@@ -151,4 +156,21 @@ rect {
 
 .Serious rect {
     fill: darkred;
+}
+
+#bubbles{
+    width: 100%;
+    height: auto;
+}
+
+#overview{
+    float: left;
+    width: fit-content;
+    height: fit-content;
+}
+
+#detail{
+    float: right;
+    width: fit-content;
+    height: fit-content;
 }
