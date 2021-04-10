@@ -70,7 +70,7 @@ class UsMap {
             .map(d => (d.binMetric = d3.sum(d, d => d[vis.attribute]), d))
             .sort((a, b) => b.length - a.length);
 
-        vis.color = d3.scaleSequential(d3.extent(vis.hexData, d=> d3.sum(d, d => d[vis.attribute])), d3.interpolateOrRd);
+        vis.color = d3.scaleSequential(d3.extent(vis.hexData, d => d3.sum(d, d => d[vis.attribute])), d3.interpolateOrRd);
         vis.radius = d3.scaleSqrt([0, d3.max(vis.hexData, d => d.length)], [0, vis.hexbin.radius() * Math.SQRT2]);
 
         vis.renderVis(bubble);
@@ -94,7 +94,7 @@ class UsMap {
             .attr('d', vis.geoPath);
 
         console.log(vis.hexData)
-        if(vis.hexData.length !== 0){
+        if (vis.hexData.length !== 0) {
             vis.svg.selectAll(".no-location-text").remove()
             vis.chart.attr("opacity", 1)
 
@@ -115,8 +115,14 @@ class UsMap {
                     .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
                     .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
                     .html(`
-                  <div class="tooltip-title">hello</div>
-                `);
+                      <div class="tooltip-title">${vis.attribute + ": " + d.binMetric}</div>
+                      <div><i>${d[0].Location}</i></div>
+                    <ul>
+                    <li>${"Number of Incidents: " + d.length}</li>
+               
+                    </ul>
+                     
+                    `);
             }).on('mouseleave', () => {
                 d3.select('#tooltip').style('display', 'none');
             })
@@ -128,9 +134,9 @@ class UsMap {
                 .join("text")
                 .style("font-size", 17)
                 .attr("class", "no-location-text")
-                .attr("transform", d => `translate(${vis.width/2-150},250)`)
+                .attr("transform", d => `translate(${vis.width / 2 - 150},250)`)
 
-            if(bubble !== null){
+            if (bubble !== null) {
                 label
                     .text("No location data available for " + bubble)
             } else {
@@ -141,4 +147,5 @@ class UsMap {
         }
 
     }
+
 }

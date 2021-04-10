@@ -128,9 +128,12 @@ g {
     margin-left: 50px;
 }
 
-.circle-hover {
-    border: 2px solid black;
+.node:hover circle {
+    stroke: black;
+    stroke-width: 3px;
+    cursor: pointer;
 }
+
 
 axis text {
     font-size: .7rem;
