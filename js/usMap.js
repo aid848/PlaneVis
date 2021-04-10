@@ -107,6 +107,19 @@ class UsMap {
                 .attr("d", d => vis.hexbin.hexagon(vis.radius(d.length)))
                 .attr("fill", d => vis.color(d.binMetric))
                 .attr("stroke", d => d3.lab(vis.color(d.binMetric)).darker())
+
+
+            hexbin.on('mouseover', (event, d) => {
+                d3.select('#tooltip')
+                    .style('display', 'block')
+                    .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+                    .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+                    .html(`
+                  <div class="tooltip-title">hello</div>
+                `);
+            }).on('mouseleave', () => {
+                d3.select('#tooltip').style('display', 'none');
+            })
         } else {
             vis.svg.selectAll(".hex-bin-path").remove()
             vis.chart.attr("opacity", .1)
@@ -127,19 +140,5 @@ class UsMap {
 
         }
 
-
-
-
-        hexbin.on('mouseover', (event, d) => {
-            d3.select('#tooltip')
-                .style('display', 'block')
-                .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
-                .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
-                .html(`
-                  <div class="tooltip-title">hello</div>
-                `);
-        }).on('mouseleave', () => {
-            d3.select('#tooltip').style('display', 'none');
-        })
     }
 }
