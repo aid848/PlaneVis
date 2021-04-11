@@ -1,5 +1,5 @@
 let joined_data, ac_data, ntsb_data, map_data
-let crashData, usMap, mapData, flightPhase, stackedBarChart
+let crashData, usMap, mapData, flightPhase, stackedBarChart, startPosFlightContainer
 
 /**
  * Load data from CSV files asynchronously
@@ -93,18 +93,48 @@ Promise.all([
     });
 
     // group the data based on Phases
+
     const groupedData = d3.groups(joined_data,
         d => d["Flight Phase General"],
         d => d["Purpose of Flight"] === "Personal",
     );
 
     flightPhase = new FlightPhase({parentElement: '#flight-phase'}, groupedData);
-    console.log(groupedData);
     flightPhase.updateVis();
+
+    // Create a waypoint for each `flight stop` circle
+    const waypoints = d3.selectAll('.scroll-stop').each(function(d, stopIndex) {
+        return new Waypoint({
+            // `this` contains the current HTML element
+            element: this,
+            handler: function(direction) {
+                // Check if the user is scrolling up or down
+                const forward = direction === 'down';
+                const nextStop = forward ? stopIndex : Math.max(0, stopIndex - 1);
+
+                console.log(this)
+                // Update visualization based on the current stop
+                flightPhase.updateVis(forward, nextStop);
+            },
+            // Trigger scroll event
+            offset: '15%',
+        });
+    });
 
     stackedBarChart = new StackedBarChart({parentElement: '#chart'}, joined_data);
 
 }).catch(error => console.error(error));
+
+
+const marginFixed = Math.abs((window.outerHeight - 800)/2); // 800 is the containerHeight of Flight view
+// when window is scrolling, detect where the flight phase view is and let it stay in view if reached
+window.onscroll = function (e) {
+    startPosFlightContainer = d3.select('#flight-phase svg').node().getBoundingClientRect().top;
+
+    if (startPosFlightContainer < marginFixed) {
+        d3.select('#flight-phase svg').style('position', 'sticky').style('top', marginFixed);
+    }
+};
 
 function controlBoxFilter(data, views, checkboxes, secondary_select, date, overview) {
     let new_Data = data

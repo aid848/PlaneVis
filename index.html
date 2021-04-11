@@ -39,15 +39,29 @@
 <div id="detail" class="detail"></div>
 <div id="map"></div>
 
-<div id=flight-phase-view"">
-    <svg id="flight-phase"/>
-</div>
 <svg id="chart"></svg>
+
+<div id="flight-phase-container">
+    <div id="flight-phase">
+    </div>
+    <div id="flight-scroll">
+        <div class="scroll-stop" id="0"></div>
+        <div class="scroll-stop" id="1"></div>
+        <div class="scroll-stop" id="2"></div>
+        <div class="scroll-stop" id="3"></div>
+        <div class="scroll-stop" id="4"></div>
+        <div class="scroll-stop" id="5"></div>
+        <div class="scroll-stop" id="6"></div>
+        <div class="scroll-stop" id="7"></div>
+        <div class="scroll-stop" id="8"></div>
+    </div>
+</div>
 
 <div id="tooltip"></div>
 
 <script src="js/d3.v6.min.js"></script>
 <script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
+<script src="js/noframework.waypoints.min.js"></script>
 <script src="js/topojson.v3.js"></script>
 <script src="js/main.js"></script>
 <script src="js/usMap.js"></script>

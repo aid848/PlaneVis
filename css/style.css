@@ -16,6 +16,7 @@ body {
 }
 
 body {
+    position: relative;
     background-color: #2a2d2d;
     display: flex;
     flex-direction: column;
@@ -147,4 +148,32 @@ rect {
 
 .Serious rect {
     fill: darkred;
+}
+
+/* Flight Phase Container */
+#flight-phase-container {
+    position: relative;
+    display:flex;
+    flex-direction: column;
+    flex:1;
+
+    width: 1300px;
+}
+
+#flight-phase {
+    position: absolute;
+    height: 5000px;
+}
+
+#flight-phase svg {
+    position: sticky;
+}
+
+#flight-scroll{
+    position: sticky;
+}
+
+#flight-scroll .scroll-stop {
+    width: 1300px;
+    height: 500px;
 }
