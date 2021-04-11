@@ -23,8 +23,10 @@ class UsMap {
      */
     initVis() {
         let vis = this;
-        let width = vis.config.containerWidth;
-        let height = vis.config.containerHeight;
+        // let width = vis.config.containerWidth;
+        // let height = vis.config.containerHeight;
+        let width = window.innerWidth * 0.5
+        let height = window.innerHeight * 0.4
         // Calculate inner chart size. Margin specifies the space around the actual chart.
         vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
         vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;

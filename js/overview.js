@@ -13,6 +13,7 @@ class Overview {
         this.groupBy = "Make_ac"
         this.attribute = _attr
         this.maxElements = 50
+        this.legendStep = [25,50,75,100]
         this.initVis()
     }
 
@@ -38,6 +39,18 @@ class Overview {
         vis.radiusScale = d3.scaleSqrt().range([vis.minCircleSize, vis.maxCircleSize])
 
         // TODO some kind of static size chart,color legend (polish)
+        vis.legend = vis.chart
+            .selectAll('#legend-overview')
+            .data(vis.legendStep)
+            .enter()
+            .append('circle')
+            .attr('class','legend-circle')
+            .attr("cx", vis.padding + vis.maxCircleSize)
+            .attr("cy", function(d){ return vis.height - vis.padding * 2 -  (vis.maxCircleSize-vis.minCircleSize)*d/100 - vis.minCircleSize} )
+            .attr("r", function(d){ return (vis.maxCircleSize-vis.minCircleSize)*d/100 + vis.minCircleSize })
+            .style("fill", "none")
+            .attr("stroke", "black")
+
 
         vis.updateVis()
     }
@@ -46,12 +59,28 @@ class Overview {
         const vis = this
         vis.dataAttributed = vis.data.slice(0, vis.maxElements)
         vis.radiusScale.domain([vis.dataAttributed[vis.maxElements - 1][1], vis.dataAttributed[0][1]])
+
         vis.renderVis()
     }
 
     renderVis() {
 
         const vis = this
+
+        d3.selectAll(vis.textlabels).remove()
+
+        vis.textlabels = vis.chart
+            .selectAll('#legend-overview')
+            .data(vis.legendStep, d=>d)
+            .join('text')
+            .attr('class', 'legend-label')
+            .attr('x', vis.padding + vis.maxCircleSize)
+            .attr('y', d=> vis.height - vis.padding - 2*((vis.maxCircleSize-vis.minCircleSize)*d/100 + vis.minCircleSize) - 10)
+            .text(d => {
+                let val = vis.radiusScale.invert((vis.maxCircleSize-vis.minCircleSize)*d/100 + vis.minCircleSize)
+                return val.toFixed(2)})
+
+            // .attr('translate', d=> `transform(${vis.padding + vis.maxCircleSize},${vis.height - vis.padding * 2 -  (vis.maxCircleSize-vis.minCircleSize)*d/100 - vis.minCircleSize})`)
 
         vis.node = vis.chart
             .selectAll('g')
@@ -84,9 +113,6 @@ class Overview {
             })
 
 
-        // vis.circles = vis.chart.merge(vis.node.enter())
-        //     .selectAll('circle');
-
         vis.circles = vis.node
             .append('circle')
             .attr('r', d => vis.radiusScale(d[1]))
@@ -112,7 +138,7 @@ class Overview {
         vis.sim = d3.forceSimulation(vis.dataAttributed, function (d){
             return [d[0],vis.radiusScale(d[1])]
         })
-            .force("x", d3.forceX(vis.width / 2).strength(0.01))
+            .force("x", d3.forceX(vis.width / 2 + vis.maxCircleSize*1.5).strength(0.01))
             .force("y", d3.forceY(vis.height / 2).strength(0.01))
             .force("center", d3.forceCenter().x(vis.width * .5).y(vis.height * .5).strength(0.2))
             .force('charge', d3.forceManyBody().strength(-5))
@@ -149,7 +175,6 @@ class Overview {
                         .on("end", d => vis.dragEnd(d, vis.sim)));
 
                 vis.node.exit().remove()
-                // vis.circles.exit().remove()
 
                 d3.selectAll(vis.circles).exit().remove()
             })
