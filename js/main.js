@@ -110,7 +110,7 @@ Promise.all([
             handler: function(direction) {
                 // Check if the user is scrolling up or down
                 const forward = direction === 'down';
-                const nextStop = forward ? stopIndex : Math.max(0, stopIndex - 1);
+                const nextStop = stopIndex;
 
                 // Update visualization based on the current stop
                 flightPhase.updateVis(forward, nextStop);
