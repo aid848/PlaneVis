@@ -112,7 +112,6 @@ Promise.all([
                 const forward = direction === 'down';
                 const nextStop = forward ? stopIndex : Math.max(0, stopIndex - 1);
 
-                console.log(this)
                 // Update visualization based on the current stop
                 flightPhase.updateVis(forward, nextStop);
             },

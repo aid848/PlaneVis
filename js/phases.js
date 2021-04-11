@@ -28,7 +28,10 @@ class FlightPhase {
 
         this.validPhasePoints = this.flightPathPoints.filter(d => d.phase !== null);
         this.animatedStops = this.flightPathPoints.slice(0,1);
-        this.data = _data;
+        this.data = _data.filter((d) => {
+            // preprocess wanted data points here
+            return this.validPhasePoints.find(p => d[0].includes(p.phase.toUpperCase().replace(/\s/g, '')))
+        });
 
         // initiate svg
         this.initVis();
@@ -102,16 +105,8 @@ class FlightPhase {
             .attr("xlink:href", "figs/icons8-fighter-jet-48.png")
             .attr('y', -10);
 
-        // https://codesandbox.io/s/github/UBC-InfoVis/2021-436V-examples/tree/master/d3-interactive-line-chart?file=/js/linechart.js:1923-2008
-        // tracking area is on top of other chart elements
-        // TBD
-        vis.trackingArea = vis.chart.append('rect')
-            .attr('width', vis.width)
-            .attr('height', vis.height)
-            .attr('fill', 'none')
-            .attr('pointer-events', 'all');
-
         vis.pieGroup = vis.chart.append('g')
+            .attr('class', 'pie-chart-group');
     }
 
     updateVis(forward=true, nextStop = -1) {
@@ -143,8 +138,6 @@ class FlightPhase {
                 :
                 this.flightPathPoints.slice(pathBegin); // if reached last stop, i.e. summary
 
-            console.log(pathBegin < 12, vis.animatedStops, pathEnd)
-
             // reverse the flying order if scrolled up
             vis.animatedStops = forward ? vis.animatedStops : vis.animatedStops.reverse();
         }
@@ -166,23 +159,23 @@ class FlightPhase {
             .attrTween("transform", vis.translateAlong(vis.animationPath.node()));
 
         // phase container
-        // const phaseG = vis.chart.selectAll('stop')
-        //     .data(vis.validPhasePoints, d => d.phase)
-        //     .join('g')
-        //     .attr('class', 'stop');
+        const phaseG = vis.chart.selectAll('.stop')
+            .data(vis.validPhasePoints, d => d.phase)
+            .join('g')
+            .attr('class', 'stop');
 
         // phase-phase positions
-        vis.chart.selectAll('circle')
-            .data(vis.validPhasePoints)
+        phaseG.selectAll('circle')
+            .data(d => [d], d => d.phase)
             .join('circle')
             .attr('class', 'stop')
             .attr('id', d => d.phase)
             .attr('r', 4)
             .attr('cx', d => d.x)
-            .attr('cy', d => d.y)
+            .attr('cy', d => d.y);
 
-        vis.chart.selectAll('text')
-            .data(vis.validPhasePoints, d => d.phase)
+        phaseG.selectAll('text')
+            .data(d => [d], d => d.phase)
             .join('text')
             .attr('dy', 30)
             .attr('transform', d => {
@@ -199,65 +192,63 @@ class FlightPhase {
                     return "end";
                 return "middle"
             })
-            .text(d => d.phase)
+            .text(d => d.phase);
 
-        // // pie groups
-        // let pieG = vis.pieGroup.selectAll('.pie-container')
-        //     .data(vis.data, d => d[0])
-        //     .join('g')
-        //     .filter(d => {
-        //         return vis.validPhasePoints.find(p => d[0].includes(p.phase.toUpperCase().replace(/\s/g, '')))
-        //     })
-        //     .attr('class', 'pie-container')
-        //     .attr('id', d => d[0].toLowerCase())
-        //     .attr('transform', d => {
-        //         let point = vis.validPhasePoints.find(p => d[0].includes(p.phase.toUpperCase().replace(/\s/g, '')))
-        //         return `translate(${point.x}, ${point.y - 100})`
-        //     });
-        //
-        // // add active class
-        // // .filter TODO: for scrolling later (m3)
-        //
-        // let pie = pieG.selectAll('.pie-chart')
-        //     .data(d => {
-        //         const phaseData = d[1];
-        //         const commercialData = phaseData[0][0] === false ? phaseData[0] : phaseData[1];
-        //         const personalData = phaseData[1][0] === true ? phaseData[1] : phaseData[0];
-        //         const data = {
-        //             "Commercial": commercialData[1].length,
-        //             "Personal": personalData[1].length
-        //         };
-        //         const keyValuePair = Array.from(Object.entries(data),
-        //             ([key, value]) => ({key, value}));
-        //         return vis.pie(keyValuePair)
-        //     }, d => d[1]);
-        //
-        // pie.join('path')
-        //     .attr('d', vis.arcGenerator)
-        //     .attr('fill', d => {
-        //         // console.log(d.data, vis.globalColor(d.data.key))
-        //         return vis.globalColor(d.data.key)
-        //     })
-        //     .attr("stroke", "black")
-        //     .style("stroke-width", "2px")
-        //     .style("opacity", 0.7);
-        //
+        // pie groups
+        let pieG = vis.pieGroup.selectAll('.pie-container')
+            .data(vis.data, d => d[0])
+            .join('g')
+            .attr('class', 'pie-container')
+            .attr('id', d => d[0].toLowerCase())
+            .attr('transform', d => {
+                const point = vis.validPhasePoints.find(p => d[0].includes(p.phase.toUpperCase().replace(/\s/g, '')))
+                return `translate(${point.x}, ${point.y - 100})`
+            });
+
+        let pie = pieG
+            .filter(d => {
+                // only get the data for the current stop
+                const point = vis.validPhasePoints.find(p => d[0].includes(p.phase.toUpperCase().replace(/\s/g, '')))
+                const length = vis.animatedStops.length;
+                return point.x === vis.animatedStops[length-1].x && point.y === vis.animatedStops[length-1].y
+            });
+
+        if (pie.data().length !== 0) {
+            pie = pie.selectAll('.pie-chart')
+                .data(d => {
+                    const phaseData = d[1];
+                    const commercialData = phaseData[0][0] === false ? phaseData[0] : phaseData[1];
+                    const personalData = phaseData[1][0] === true ? phaseData[1] : phaseData[0];
+                    const data = {
+                        "Commercial": commercialData[1].length,
+                        "Personal": personalData[1].length
+                    };
+                    const keyValuePair = Array.from(Object.entries(data),
+                        ([key, value]) => ({key, value}));
+                    return vis.pie(keyValuePair)
+                }, d => d[0]);
+
+            pie.join('path')
+                .attr('class', 'pie-chart')
+                .attr('d', vis.arcGenerator)
+                .attr('fill', d => {
+                    return vis.globalColor(d.data.key)
+                })
+                .attr("stroke", "black")
+                .style("stroke-width", "2px")
+                .style("opacity", 0.1)
+                .transition()
+                .duration(1500)
+                .ease(d3.easeLinear).style("opacity", 0.7);
+        }
+
         // // annotation
-        // // TODO: lines: http://bl.ocks.org/dbuezas/9306799
         // pie.join('text')
         //     .text(d => d.data.key)
         //     .attr("transform", d => `translate(${vis.arcGenerator.centroid(d)})`)
         //     .style("text-anchor", "middle")
         //     .style("font-size", 17)
         //     .style("color", "white");
-
-
-        // TBD
-        // vis.trackingArea.on("mousemove", function(event) {
-        //     vis.fightMarker
-        //         .attr("cx", d3.pointer(event, this)[0])
-        //         .attr("cy", d3.pointer(event, this)[1]);
-        // });
     }
 
     // helper for plane's animation along path

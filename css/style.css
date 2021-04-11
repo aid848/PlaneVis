@@ -171,6 +171,7 @@ rect {
 
 #flight-scroll{
     position: sticky;
+    z-index: -1;
 }
 
 #flight-scroll .scroll-stop {
