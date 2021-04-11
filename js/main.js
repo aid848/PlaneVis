@@ -113,13 +113,9 @@ Promise.all([
                 const nextStop = stopIndex;
                 numberStop = stopIndex;
 
-                // const scrollValue = forward ? - 300 : 300
-                scrollView(this.element)
-                // scrollView(this.element)
-
-
                 // Update visualization based on the current stop
                 flightPhase.updateVis(forward, nextStop);
+
             },
             // Trigger scroll event
             offset: '20%',
@@ -133,6 +129,7 @@ Promise.all([
 
 const marginFixed = Math.abs((window.outerHeight - 800)/2); // 800 is the containerHeight of Flight view
 // when window is scrolling, detect where the flight phase view is and let it stay in view if reached
+// let scrolled = false;
 window.onscroll = function (e) {
     startPosFlightContainer = d3.select('#flight-phase svg').node().getBoundingClientRect().top;
 
@@ -141,9 +138,6 @@ window.onscroll = function (e) {
     }
 };
 
-function scrollView (ele) {
-    ele.scrollIntoView(true)
-}
 
 function controlBoxFilter(data, views, checkboxes, secondary_select, date, overview) {
     let new_Data = data

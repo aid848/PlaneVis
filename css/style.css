@@ -165,7 +165,7 @@ rect {
 
 #flight-phase {
     position: absolute;
-    height: 4200px;
+    height: 5000px;
 }
 
 #flight-phase svg {
@@ -179,10 +179,25 @@ rect {
     width: 100%;
 }
 
+#flight-scroll .scroll-stop:first-child {
+    height: 700px;
+}
+
 #flight-scroll .scroll-stop {
     height: 500px;
 }
 
 #flight-scroll .scroll-stop:last-child {
     height: 10px;
+}
+
+
+
+
+
+
+
+/* summary container */
+#summary-container {
+    height: 800px;
 }

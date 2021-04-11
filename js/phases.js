@@ -132,8 +132,9 @@ class FlightPhase {
                 (stop) => stop.phase === vis.validPhasePoints[nextStop].phase
                 );
 
-            reachSummary = forward && pathEnd >= 12 || !forward && pathBegin === 12;
+            reachSummary = !pathEnd || forward && pathEnd === 12;
 
+            console.log(pathBegin, pathEnd)
             vis.animatedStops = pathBegin < 11 ?
                 this.flightPathPoints.slice(pathBegin, pathEnd+1)
                 :
@@ -169,13 +170,15 @@ class FlightPhase {
             .duration(1000)
             .attrTween("transform", vis.translateAlong(vis.animationPath.node()));
 
-        if (reachSummary) {
+        if (forward && reachSummary) {
             // hide path view when reached summary
-            vis.pathView.transition()
-                .duration(1500)
-                .ease(d3.easeLinear).style("opacity", 0)
+            const top = d3.select("#summary-container").node().getBoundingClientRect().top;
 
-            //style('visibility', 'hidden');
+            vis.pathView.transition()
+                .duration(1000)
+                .ease(d3.easeLinear).style("opacity", 0)
+                // move to summary section at end
+                .on("end", d => window.scrollBy({top: top, behavior: 'smooth'}));
         } else {
             vis.pathView.transition()
                 .duration(1500)
