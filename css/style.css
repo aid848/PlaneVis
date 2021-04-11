@@ -157,8 +157,10 @@ rect {
     display:flex;
     flex-direction: column;
     flex:1;
+    margin-top: 50px;
+    align-items: center;
 
-    width: 1300px;
+    width: 100%;
 }
 
 #flight-phase {
@@ -168,19 +170,19 @@ rect {
 
 #flight-phase svg {
     position: sticky;
+    background-color: transparent;
 }
 
 #flight-scroll{
     position: sticky;
     z-index: -1;
+    width: 100%;
 }
 
 #flight-scroll .scroll-stop {
-    width: 1300px;
     height: 500px;
 }
 
 #flight-scroll .scroll-stop:last-child {
-    width: 1300px;
     height: 10px;
 }

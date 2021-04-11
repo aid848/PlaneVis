@@ -1,5 +1,5 @@
 let joined_data, ac_data, ntsb_data, map_data
-let crashData, usMap, mapData, flightPhase, stackedBarChart, startPosFlightContainer
+let crashData, usMap, mapData, flightPhase, stackedBarChart, startPosFlightContainer, numberStop;
 
 /**
  * Load data from CSV files asynchronously
@@ -111,12 +111,18 @@ Promise.all([
                 // Check if the user is scrolling up or down
                 const forward = direction === 'down';
                 const nextStop = stopIndex;
+                numberStop = stopIndex;
+
+                // const scrollValue = forward ? - 300 : 300
+                scrollView(this.element)
+                // scrollView(this.element)
+
 
                 // Update visualization based on the current stop
                 flightPhase.updateVis(forward, nextStop);
             },
             // Trigger scroll event
-            offset: '15%',
+            offset: '20%',
         });
     });
 
@@ -134,6 +140,10 @@ window.onscroll = function (e) {
         d3.select('#flight-phase svg').style('position', 'sticky').style('top', marginFixed);
     }
 };
+
+function scrollView (ele) {
+    ele.scrollIntoView(true)
+}
 
 function controlBoxFilter(data, views, checkboxes, secondary_select, date, overview) {
     let new_Data = data
