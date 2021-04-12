@@ -3,11 +3,14 @@
 }
 
 .control_panel {
-    position: relative;
+    /*position: relative;*/
     background-color: blue;
     border: 10px solid black;
     width: fit-content;
-    height: auto;
+}
+
+svg text {
+    pointer-events: none;
 }
 
 html,
@@ -44,7 +47,7 @@ svg {
 }
 
 /* Tooltip */
-.tooltip {
+#tooltip {
     position: absolute;
     display: none;
     background: #fff;
@@ -55,7 +58,8 @@ svg {
     padding: 8px;
     min-width: 160px;
     color: #333;
-    z-index: 99;
+    z-index: 999;
+    pointer-events: none;
 }
 
 .tooltip-window{
@@ -176,4 +180,16 @@ rect {
     float: right;
     width: fit-content;
     height: fit-content;
+
 }
+
+#controls-title{
+    float: left;
+    width: 50%;
+}
+
+#upperView{
+    width: 100%;
+}
+
+

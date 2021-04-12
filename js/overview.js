@@ -6,13 +6,13 @@ class Overview {
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
         this.width = window.innerWidth * 0.5
-        this.height = window.innerHeight * 0.5
-        this.maxCircleSize = 100
+        this.height = window.innerHeight * 0.45
+        this.maxCircleSize = 75
         this.minCircleSize = 30
         this.padding = 5
         this.groupBy = "Make_ac"
         this.attribute = _attr
-        this.maxElements = 50
+        this.maxElements = 30
         this.legendStep = [25,50,75,100]
         this.initVis()
     }
@@ -80,8 +80,6 @@ class Overview {
                 let val = vis.radiusScale.invert((vis.maxCircleSize-vis.minCircleSize)*d/100 + vis.minCircleSize)
                 return val.toFixed(2)})
 
-            // .attr('translate', d=> `transform(${vis.padding + vis.maxCircleSize},${vis.height - vis.padding * 2 -  (vis.maxCircleSize-vis.minCircleSize)*d/100 - vis.minCircleSize})`)
-
         vis.node = vis.chart
             .selectAll('g')
             .data(vis.dataAttributed, function (d){
@@ -95,19 +93,18 @@ class Overview {
                 const name = this.querySelector('text').innerHTML
                 vis.dispatcher.call('overview_click', {name: name})
             })
-            .on('mouseover', function (event,d) {
+            .on('mouseenter', function (event,d) {
                 // TODO tooltip info, padding?
-                // TODO fix flicker by checking if bubbles are still in sim mode (only show when movement has stopped)
                 d3.select('#tooltip')
                     .style('display', 'block')
                     .style("left", event.pageX + 0 + "px")
                     .style("top", event.pageY + 0 + "px")
                     .html(
-                        `<div class="tooltip-window">  <p>hi</p> </div>`
+                        `<div class="tooltip-window">  <p>${d[0]}</p> </div>`
                     );
-                // TODO do classed hover (cosmetic)
 
-            }).on('mouseleave', function (event,d) {
+            })
+            .on('mouseout', function (event,d) {
                 d3.select('#tooltip')
                     .style('display', 'none')
             })

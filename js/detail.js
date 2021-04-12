@@ -8,7 +8,7 @@ class Detail {
         // this.width = 300
         // this.height = this.width
         this.width = window.innerWidth * 0.3
-        this.height = window.innerHeight * 0.5
+        this.height = window.innerHeight * 0.45
 
         this.maxCircleSize = 50
         this.minCircleSize = 10
