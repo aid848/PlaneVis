@@ -11,8 +11,11 @@ class StackedBarChart {
             containerWidth: 800,
             containerHeight: 250,
             margin: {top: 10, right: 10, bottom: 30, left: 90},
-            displayType: 'absolute'
-
+            displayType: 'absolute',
+            legendWidth: 300,
+            legendTitleHeight: 12,
+            legendBarHeight: 14,
+            injuries : ['Total Fatal Injuries', 'Total Serious Injuries', 'Total Minor Injuries'],
         }
         this.data = _data;
         this.initVis();
@@ -49,6 +52,17 @@ class StackedBarChart {
         // Append group element that will contain our actual chart
         vis.chart = vis.svg.append('g')
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
+
+        vis.legendSvg = d3.select("#chart-legend")
+            .attr('width', "400px")
+            .attr('height', "100px")
+
+
+
+        // Empty group for the legend
+        vis.legend = vis.legendSvg.append('g')
+            .attr('transform', `translate(0,30)`);
+
 
         // Append empty x-axis group and move it to the bottom of the chart
         vis.xAxisG = vis.chart.append('g')
@@ -103,6 +117,7 @@ class StackedBarChart {
 
         vis.stackedData = vis.stack(vis.groupedData);
 
+        vis.renderLegend();
         vis.renderVis();
     }
 
@@ -174,5 +189,69 @@ class StackedBarChart {
         // Update the axes
         vis.xAxisG.call(vis.xAxis);
         vis.yAxisG.call(vis.yAxis);
+    }
+    /**
+     * Add categorical colour legend
+     */
+    renderLegend() {
+        const vis = this;
+
+        // Inititalize categorical scale
+        const xLegendScale = d3.scaleBand()
+            .domain(vis.config.injuries)
+            .range([0, vis.config.legendWidth])
+            .paddingInner(0);
+
+        // Add coloured rectangles
+        vis.legend.selectAll('.legend-element')
+            .data(vis.config.injuries)
+            .join('rect')
+            .attr('class', d => `legend-element ${d}`)
+            .attr('width', xLegendScale.bandwidth())
+            .attr('height', vis.config.legendBarHeight)
+            .attr('x', d => xLegendScale(d))
+            .attr('y', vis.config.legendTitleHeight)
+            .on('mouseover', (event,d) => {
+                d3.selectAll(`.cat:not(.cat-${d})`).classed('inactive', true);
+            })
+            .on('mouseout', () => {
+                d3.selectAll(`.cat`).classed('inactive', false);
+            });
+
+        // Add legend title
+        vis.legend.append('text')
+            .attr('class', 'legend-title')
+            .attr('dy', '0.35em')
+            .text('Injury Severity:')
+            .attr('transform', `translate(0,-10)`);
+
+        const legendAxisYPos = vis.config.legendTitleHeight + vis.config.legendBarHeight + 5;
+
+        vis.legend.append('text')
+            .attr('class', 'legend-axis-text')
+            .attr('dy', '0.75em')
+            .attr('y', legendAxisYPos)
+            .attr('x', 30)
+            .text('Fatal')
+            .attr('transform', `translate(0,7)`);
+
+
+        vis.legend.append('text')
+            .attr('class', 'legend-axis-text')
+            .attr('dy', '0.75em')
+            .attr('y', legendAxisYPos)
+            .attr('x', 120)
+            .text('Serious')
+            .attr('transform', `translate(0,7)`);
+
+
+        vis.legend.append('text')
+            .attr('class', 'legend-axis-text')
+            .attr('dy', '0.75em')
+            .attr('y', legendAxisYPos)
+            .attr('x', 230)
+            .text('Minor')
+            .attr('transform', `translate(0,7)`);
+
     }
 }
