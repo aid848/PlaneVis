@@ -58,7 +58,6 @@ class Detail {
             vis.maxElements = 25;
         }
         vis.dataGrouped = vis.data.slice(0, vis.maxElements)
-        // console.log(vis.dataGrouped)
         vis.radiusScale.domain([vis.dataGrouped[vis.maxElements - 1][1], vis.dataGrouped[0][1]]) // todo use min and max
         d3.selectAll(vis.title).text(`${secondary_selector} by Aircraft model`)
         vis.renderVis()
@@ -97,21 +96,24 @@ class Detail {
             })
 
 
-        vis.circles = vis.node.append('circle')
-            .attr('r', d => vis.radiusScale(d[1]))
-            .attr('fill', d=> {vis.planeConfigToImage(d[0]);return 'red'})
+        vis.circles = vis.node.append('image')
+            .attr("xlink:href", d=> {console.log(d); return vis.planeConfigToImage(d[0])})
+            .attr('width', d => vis.radiusScale(d[1]))
+            .attr('height', d => vis.radiusScale(d[1]))
+            // .attr('r', d => vis.radiusScale(d[1]))
+            // .attr('fill', d=> {vis.planeConfigToImage(d[0]);return 'red'})
 
-        vis.node
-            .append('text')
-            .attr("text-anchor", "middle")
-            .style("font-size", function (d) {
-                let r = d3.select(this.parentNode.querySelector('circle')).attr('r')
-                let len = d[0].length
-                return Math.min(r / 3, r * 2 / len) + "px";
-            }) // TODO come up with better formula? (cosmetic)
-            .text(d => {
-                return d[0]
-            })
+        // vis.node
+        //     .append('text')
+        //     .attr("text-anchor", "middle")
+        //     .style("font-size", function (d) {
+        //         let r = d3.select(this.parentNode.querySelector('circle')).attr('r')
+        //         let len = d[0].length
+        //         return Math.min(r / 3, r * 2 / len) + "px";
+        //     })
+        //     .text(d => {
+        //         return d[0]
+        //     })
 
         vis.sim = d3.forceSimulation(vis.dataGrouped,function (d, idx){
             return d ? d.name : this.getAttribute("ID");
@@ -168,26 +170,27 @@ class Detail {
         let vis = this
         let type = vis.lookup.get(model)[0]
         let engines = vis.lookup.get(model)[1]
-        let graphicPath = '' // TODO set path in
 
         switch (type){
             case 'Reciprocating':
-            case 'REC, TJ, TJ':
-                // small plane with prop and car like engine here
-                break
-            case 'Turbo Shaft':
-                // helicopter img here
-                break
-            case 'Turbo Fan':
+            case 'REC, TJ, TJ': // small plane with prop and car like engine here
+                return 'figs/Reciprocating.png'
+            case 'Turbo Shaft': // helicopter img here
+                    return "figs/heli.png"
+            case 'Turbo Fan': // regular commercial jet image (check if 2 or 4 engines, or generic)
             case 'Turbo Jet':
-                // regular commercial jet image (check if 2 or 4 engines, or generic)
-                break
-            case 'Turbo Prop':
-                // classic larger prop plane
-                break
-            case 'Unknown':
+                if(engines === 2){
+                    return "figs/turbo2engine.png"
+                }else if(engines === 4){
+                    return "figs/turbo4engine.png"
+                }else {
+                    return "figs/turboNengine.png"
+                }
+            case 'Turbo Prop': // classic larger prop plane
+                return 'figs/turboprop.png'
+            case 'Unknown': // generic cartoon plane image
             default:
-                // generic cartoon plane image
+                return "figs/planeGeneric.png"
         }
 
     }
