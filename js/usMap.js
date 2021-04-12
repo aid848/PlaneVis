@@ -7,8 +7,8 @@ class UsMap {
     constructor(_config, _geoData, _data, _attr) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: window.innerWidth * 0.4,
-            containerHeight: window.innerHeight * 0.45,
+            containerWidth: _config.containerWidth || 800,
+            containerHeight: _config.containerHeight || 500,
             margin: _config.margin || {top: 0, right: 0, bottom: 0, left: 0},
             tooltipPadding: 10
         }
@@ -23,10 +23,8 @@ class UsMap {
      */
     initVis() {
         let vis = this;
-        // let width = vis.config.containerWidth;
-        // let height = vis.config.containerHeight;
-        let width = window.innerWidth * 0.4
-        let height = window.innerHeight * 0.45
+        let width = vis.config.containerWidth;
+        let height = vis.config.containerHeight;
         // Calculate inner chart size. Margin specifies the space around the actual chart.
         vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
         vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
@@ -57,11 +55,12 @@ class UsMap {
         vis.hexbin.y(d => vis.projection([d.Longitude, d.Latitude])[1]);
 
 
-        vis.updateVis(null);
+        vis.updateVis();
     }
 
-    updateVis(bubble) {
+    updateVis() {
         let vis = this;
+        console.log(vis.filteredData);
 
         vis.filteredData = vis.data.filter(d =>
             vis.projection([d.Longitude, d.Latitude]) != null
@@ -72,14 +71,14 @@ class UsMap {
             .map(d => (d.binMetric = d3.sum(d, d => d[vis.attribute]), d))
             .sort((a, b) => b.length - a.length);
 
-        vis.color = d3.scaleSequential(d3.extent(vis.hexData, d => d3.sum(d, d => d[vis.attribute])), d3.interpolateOrRd);
+        vis.color = d3.scaleSequential(d3.extent(vis.hexData, d=> d3.sum(d, d => d[vis.attribute])), d3.interpolateOrRd);
         vis.radius = d3.scaleSqrt([0, d3.max(vis.hexData, d => d.length)], [0, vis.hexbin.radius() * Math.SQRT2]);
 
-        vis.renderVis(bubble);
+        vis.renderVis();
     }
 
 
-    renderVis(bubble) {
+    renderVis() {
         let vis = this;
         // Append world map
         const geoPath = vis.chart.selectAll('.geo-path')
@@ -95,58 +94,28 @@ class UsMap {
             .attr('class', 'geo-boundary-path')
             .attr('d', vis.geoPath);
 
-        if (vis.hexData.length !== 0) {
-            vis.svg.selectAll(".no-location-text").remove()
-            vis.chart.attr("opacity", 1)
-
-            // Append hexbin
-            const hexbin = vis.svg.selectAll(".hex-bin-path")
-                .data(vis.hexData, d => [d.x, d.y])
-                .join("path")
-                .attr('class', 'hex-bin-path')
-                .attr("transform", d => `translate(${d.x},${d.y})`)
-                .attr("d", d => vis.hexbin.hexagon(vis.radius(d.length)))
-                .attr("fill", d => vis.color(d.binMetric))
-                .attr("stroke", d => d3.lab(vis.color(d.binMetric)).darker())
+        // Append hexbin
+        const hexbin = vis.svg.selectAll(".hex-bin-path")
+            .data(vis.hexData, d => [d.x, d.y])
+            .join("path")
+            .attr('class', 'hex-bin-path')
+            .attr("transform", d => `translate(${d.x},${d.y})`)
+            .attr("d", d => vis.hexbin.hexagon(vis.radius(d.length)))
+            .attr("fill", d => vis.color(d.binMetric))
+            .attr("stroke", d => d3.lab(vis.color(d.binMetric)).darker())
 
 
-            hexbin.on('mouseover', (event, d) => {
-                d3.select('#tooltip')
-                    .style('display', 'block')
-                    .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
-                    .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
-                    .html(`
-                      <div class="tooltip-title">${vis.attribute + ": " + d.binMetric}</div>
-                      <div><i>${d[0].Location}</i></div>
-                    <ul>
-                    <li>${"Number of Incidents: " + d.length}</li>
-               
-                    </ul>
-                     
-                    `);
-            }).on('mouseleave', () => {
-                d3.select('#tooltip').style('display', 'none');
-            })
-        } else {
-            vis.svg.selectAll(".hex-bin-path").remove()
-            vis.chart.attr("opacity", .1)
-            const label = vis.svg.selectAll('.no-location-text')
-                .data([bubble])
-                .join("text")
-                .style("font-size", 17)
-                .attr("class", "no-location-text")
-                .attr("transform", d => `translate(${vis.width / 2 - 150},250)`)
 
-            if (bubble !== null) {
-                label
-                    .text("No location data available for " + bubble)
-            } else {
-                label
-                    .text("No location data available")
-            }
-
-        }
-
+        hexbin.on('mouseover', (event, d) => {
+            d3.select('#tooltip')
+                .style('display', 'block')
+                .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+                .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+                .html(`
+                  <div class="tooltip-title">hello</div>
+                `);
+        }).on('mouseleave', () => {
+            d3.select('#tooltip').style('display', 'none');
+        })
     }
-
 }
