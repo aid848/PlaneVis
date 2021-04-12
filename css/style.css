@@ -140,15 +140,15 @@ rect {
 }
 
 .Minor rect {
-    fill: coral;
+    mask: url(#minor-mask)
 }
 
 .Fatal rect {
-    fill: black;
+    mask: url(#fatal-mask)
 }
 
 .Serious rect {
-    fill: darkred;
+    mask: url(#serious-mask)
 }
 
 /* Flight Phase Container */
@@ -165,7 +165,6 @@ rect {
 
 #flight-phase {
     position: absolute;
-    height: 5000px;
     width: 100%;
 
     display: flex;
@@ -184,33 +183,27 @@ rect {
 }
 
 #flight-scroll .scroll-stop:first-child {
-    height: 700px;
+    height: 500px;
 }
 
 #flight-scroll .scroll-stop {
     height: 500px;
 }
 
-/*#flight-scroll .scroll-stop:last-child {*/
-/*    height: 300px;*/
-/*}*/
-
-
-
+#flight-scroll .scroll-stop:last-child {
+    height: 10px;
+}
 
 
 
 
 /* summary container */
 #summary-container {
-    /*background-color: #2a2d2d;*/
-    /*width: 100%;*/
     z-index: 2;
     height: 800px;
 }
 
-#chart{
-    /*width: 100%;*/
-    /*background-color: #2a2d2d; !important;*/
-    /*z-index: 1;*/
+.info span#flight-phase-title{
+    font-size: 2em;
+    font-weight: bold;
 }

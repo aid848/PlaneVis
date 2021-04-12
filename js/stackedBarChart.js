@@ -9,7 +9,7 @@ class StackedBarChart {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: 800,
-            containerHeight: 300,
+            containerHeight: 250,
             margin: {top: 10, right: 10, bottom: 30, left: 90},
             displayType: 'absolute'
 
@@ -77,8 +77,6 @@ class StackedBarChart {
         //Todo: change to commercial or personal filtering non personal as commercial
         vis.xScale.domain(["Personal", "Commercial"]);
 
-
-        // console.log(vis.data)
         vis.data = vis.data.filter(d => d['Purpose of Flight'] != "" || d['Purpose of Flight'] != "Unknown");
 
         vis.groupedData = d3.rollups(
@@ -116,6 +114,22 @@ class StackedBarChart {
     renderVis() {
         let vis = this;
 
+
+        // if data is empty, hide the svg
+        if (vis.data.length === 0) {
+            vis.svg
+                .transition()
+                .duration(500)
+                .ease(d3.easeLinear)
+                .style("opacity", 0)
+        } else {
+            vis.svg
+                .transition()
+                .duration(1000)
+                .ease(d3.easeLinear)
+                .style("opacity", 1)
+        }
+
         vis.chart.selectAll('category')
             .data(vis.stackedData)
             .join('g')
@@ -126,7 +140,45 @@ class StackedBarChart {
             .attr('x', d => vis.xScale(d.data["Purpose of Flight"]))
             .attr('y', d => vis.yScale(d[1]))
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
-            .attr('width', vis.xScale.bandwidth());
+            .attr('width', vis.xScale.bandwidth())
+            .style('fill', d => {
+                return d.data["Purpose of Flight"] === "Personal" ? "#db0004" : "#0700db"
+            })
+
+            // .style('fill', d => {
+            //     const diff = d[1] - d[0];
+            //     const injuryType = Object.keys(d.data)[Object.values(d.data).indexOf(diff)];
+            //
+            //     let mask;
+            //
+            //     if (d.data["Purpose of Flight"] === "Personal") {
+            //         if (injuryType === 'Total Fatal Injuries') {
+            //             // d3.select("#checkerboard").style('fill', '#db0004');
+            //             mask = "url(#checkerboard)";
+            //         } else if (injuryType === 'Total Serious Injuries') {
+            //             d3.select("#diagonal-stripe-3").style('fill', '#db0004');
+            //             mask = "url(#diagonal-stripe-3)"; // crosshatch // houndstooth
+            //         } else {
+            //             d3.select("#smalldot").style('fill', '#db0004');
+            //             mask = "url(#smalldot)";
+            //         }
+            //     } else {
+            //         if (injuryType === 'Total Fatal Injuries') {
+            //             // d3.select("#checkerboard").style('fill', '#0700db');
+            //             mask ="url(#checked-mask)";
+            //         } else if (injuryType === 'Total Serious Injuries') {
+            //             // d3.select("#diagonal-stripe-3").style('fill', '#0700db');
+            //             mask = "url(#diagonal-stripe-3)"; // crosshatch // houndstooth
+            //         } else {
+            //             // d3.select("#smalldot").style('fill', '#0700db');
+            //             mask = "url(#smalldot)";
+            //         }
+            //     }
+            //
+            //     return mask
+            //     // return d.data["Purpose of Flight"] === "Personal" ? pattern+" #db0004" : pattern+" #0700db"
+            // })
+            ;
 
 
         // Update the axes

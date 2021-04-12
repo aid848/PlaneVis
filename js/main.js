@@ -147,11 +147,10 @@ const marginFixed = Math.abs((window.outerHeight - 800)/2); // 800 is the contai
 // let scrolled = false;
 window.onscroll = function (e) {
     let startPosFlightContainer = d3.select('svg#flight-path').node().getBoundingClientRect().top;
-    let diff = d3.select('svg#chart').node().getBoundingClientRect().height + marginFixed;
+    let diff = d3.select('#flight-phase').node().getBoundingClientRect().height;
 
     if (startPosFlightContainer < diff) {
-        d3.select('svg#flight-path').style('position', 'sticky').style('top', diff);
-        d3.select('svg#chart').style('position', 'sticky').style('top', marginFixed);
+        d3.select('#flight-phase').style('position', 'sticky').style('top', marginFixed+"px");
     }
 };
 
