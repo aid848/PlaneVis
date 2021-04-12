@@ -94,7 +94,6 @@ class StackedBarChart {
                 'Total Serious Injuries': v[1],
                 'Total Fatal Injuries': v[2]
             }));
-        console.log(vis.groupedData);
 
         vis.yScale.domain([0, d3.max(vis.groupedData, d => {
             const total = d['Total Fatal Injuries'] + d['Total Serious Injuries'] + d['Total Fatal Injuries']
@@ -104,8 +103,9 @@ class StackedBarChart {
 
         vis.stackedData = vis.stack(vis.groupedData);
 
-        console.log(vis.stackedData);
-        vis.renderVis();
+        if(vis.groupedData.length !== 0){
+            vis.renderVis();
+        }
     }
 
     /**
@@ -116,18 +116,45 @@ class StackedBarChart {
     renderVis() {
         let vis = this;
 
-        vis.chart.selectAll('category')
+        const category = vis.chart.selectAll('.category')
             .data(vis.stackedData)
-            .join('g')
+        // enter
+        const categoryEnter = category.enter().append('g')
             .attr('class', d => `category ${d.key}`)
-            .selectAll('rect')
+
+        // enter + update groups
+        categoryEnter.merge(category)
+
+        // Exit
+        categoryEnter.exit().remove();
+
+        console.log(vis.stackedData)
+        const rectangle = category.merge(categoryEnter).selectAll('.rectangle')
             .data(d => d)
-            .join('rect')
+
+        const rectangleEnter = rectangle.enter().append('rect')
+            .attr('class', 'rectangle')
+
+        rectangle.merge(rectangleEnter)
             .attr('x', d => vis.xScale(d.data["Purpose of Flight"]))
             .attr('y', d => vis.yScale(d[1]))
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
-            .attr('width', vis.xScale.bandwidth());
+            .attr('width', vis.xScale.bandwidth())
 
+        rectangleEnter.exit().remove();
+
+
+        // vis.chart.selectAll('category')
+        //     .data(vis.stackedData, d => d.key )
+        //     .join('g')
+        //         .attr('class', d => `category ${d.key}`)
+        //     .selectAll('rect')
+        //         .data(d => d)
+        //     .join('rect')
+        //         .attr('x', d => vis.xScale(d.data["Purpose of Flight"]))
+        //         .attr('y', d => vis.yScale(d[1]))
+        //         .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
+        //         .attr('width', vis.xScale.bandwidth());
 
         // Update the axes
         vis.xAxisG.call(vis.xAxis);
