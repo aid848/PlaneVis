@@ -151,8 +151,6 @@ class Overview {
                 return vis.radiusScale(d[1])
             }).iterations(2).strength(1.0))
             .on("tick", function () {
-
-
                 vis.node.enter()
                     .append('g')
                     .merge(vis.node)

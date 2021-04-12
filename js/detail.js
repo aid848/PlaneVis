@@ -69,12 +69,14 @@ class Detail {
 
         vis.node = vis.chart
             .selectAll('g')
-            .data(vis.dataGrouped, d => d)
+            .data(vis.dataGrouped, function (d){
+                return [d[0],vis.radiusScale(d[1])]
+            })
             .join('g')
             .attr('class', 'node')
             .attr('transform', `translate(${vis.width / 2},${vis.height / 2})`)
             .on('click', function () {
-                const name = this.querySelector('text').innerHTML
+                const name = this.querySelector('image').getAttribute('plane')
                 vis.dispatcher.call('detail_click', {name: name})
             })
             .on('mouseenter', function (event, d) {
@@ -100,6 +102,7 @@ class Detail {
             .attr("xlink:href", d=> {console.log(d); return vis.planeConfigToImage(d[0])})
             .attr('width', d => vis.radiusScale(d[1]))
             .attr('height', d => vis.radiusScale(d[1]))
+            .attr('plane', d=>d[0])
             // .attr('r', d => vis.radiusScale(d[1]))
             // .attr('fill', d=> {vis.planeConfigToImage(d[0]);return 'red'})
 
@@ -115,8 +118,8 @@ class Detail {
         //         return d[0]
         //     })
 
-        vis.sim = d3.forceSimulation(vis.dataGrouped,function (d, idx){
-            return d ? d.name : this.getAttribute("ID");
+        vis.sim = d3.forceSimulation(vis.dataGrouped,function (d){
+            return [d[0],vis.radiusScale(d[1])]
         })
             .force("x", d3.forceX(vis.width / 2).strength(0.01))
             .force("y", d3.forceY(vis.height / 2).strength(0.01))
@@ -150,6 +153,7 @@ class Detail {
                         .on("drag", vis.drag)
                         .on("end", d => vis.dragEnd(d, vis.sim)));
                 vis.node.exit().remove()
+                d3.selectAll(vis.circles).exit().remove()
             })
     }
 
