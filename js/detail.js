@@ -8,7 +8,7 @@ class Detail {
         this.lookup = lookup
         this.width = window.innerWidth * 0.3
         this.height = window.innerHeight * 0.5
-        this.maxCircleSize = 50
+        this.maxCircleSize = 100
         this.minCircleSize = 10
         this.padding = 5
         this.selected = "BOEING"
@@ -44,7 +44,7 @@ class Detail {
             .attr('x', 0)
             .attr('y', vis.padding*2)
             .attr('class','bubble-title')
-            .text(`${secondary_selector} by Aircraft Make`)
+            .text(`${secondary_selector} by Aircraft Make (${vis.selected})`)
 
         vis.updateVis()
     }
@@ -59,7 +59,7 @@ class Detail {
         }
         vis.dataGrouped = vis.data.slice(0, vis.maxElements)
         vis.radiusScale.domain([vis.dataGrouped[vis.maxElements - 1][1], vis.dataGrouped[0][1]]) // todo use min and max
-        d3.selectAll(vis.title).text(`${secondary_selector} by Aircraft model`)
+        d3.selectAll(vis.title).text(`${secondary_selector} by Aircraft model (${vis.selected})`)
         vis.renderVis()
     }
 
@@ -70,6 +70,7 @@ class Detail {
         vis.node = vis.chart
             .selectAll('g')
             .data(vis.dataGrouped, function (d){
+                return d
                 return [d[0],vis.radiusScale(d[1])]
             })
             .join('g')
@@ -99,7 +100,7 @@ class Detail {
 
 
         vis.circles = vis.node.append('image')
-            .attr("xlink:href", d=> {console.log(d); return vis.planeConfigToImage(d[0])})
+            .attr("xlink:href", d=> {return vis.planeConfigToImage(d[0])})
             .attr('width', d => vis.radiusScale(d[1]))
             .attr('height', d => vis.radiusScale(d[1]))
             .attr('plane', d=>d[0])
@@ -118,15 +119,13 @@ class Detail {
         //         return d[0]
         //     })
 
-        vis.sim = d3.forceSimulation(vis.dataGrouped,function (d){
-            return [d[0],vis.radiusScale(d[1])]
-        })
+        vis.sim = d3.forceSimulation(vis.dataGrouped,d=> [d[0],vis.radiusScale(d[1])])
             .force("x", d3.forceX(vis.width / 2).strength(0.01))
             .force("y", d3.forceY(vis.height / 2).strength(0.01))
             .force("center", d3.forceCenter().x(vis.width * .5).y(vis.height * .5).strength(0.2))
             .force('charge', d3.forceManyBody().strength(-5))
             .force('collide', d3.forceCollide(function (d) {
-                return vis.radiusScale(d[1])
+                return Math.sqrt(vis.radiusScale(d[1]))
             }).iterations(2).strength(1.0))
             .on("tick", function () {
                 vis.node.enter()
