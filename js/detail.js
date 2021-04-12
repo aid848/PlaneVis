@@ -13,7 +13,7 @@ class Detail {
         this.maxCircleSize = 50
         this.minCircleSize = 10
         this.padding = 5
-        // this.groupBy = _grouping
+        this.selected = "BOEING"
         this.groupBy = "Model_ac"
         this.maxElements = 50
         this.initVis()
@@ -54,8 +54,6 @@ class Detail {
     updateVis() {
         const vis = this
 
-        // vis.dataGrouped = d3.groups(vis.data, (d) => d[vis.groupBy])
-        // vis.dataGrouped = vis.dataGrouped.sort(((a, b) => a[1].length - b[1].length)).reverse().slice(0, vis.maxElements)
         if(vis.data.length < 25 ){
             vis.maxElements = vis.data.length;
         } else {
@@ -82,8 +80,22 @@ class Detail {
                 const name = this.querySelector('text').innerHTML
                 vis.dispatcher.call('detail_click', {name: name})
             })
-            .on('mouseover', function () {
-                // TODO do classed hover and show tooltip (m3)
+            .on('mouseenter', function (event, d) {
+                // tooltip for models
+                d3.select('#tooltip')
+                    .style('display', 'block')
+                    .style("left", event.pageX + 0 + "px")
+                    .style("top", event.pageY + 0 + "px")
+                    .html(
+                        `<div class="tooltip-window">
+                        <p>${vis.selected}</p>
+                        <p>Model: ${d[0]}</p> 
+                        <p>${secondary_selector} ${d[1].toFixed(0)}</p>
+                        </div>`
+                    );
+            }).on('mouseout', function (event,d) {
+                d3.select('#tooltip')
+                    .style('display', 'none')
             })
 
 

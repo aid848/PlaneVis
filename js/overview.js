@@ -100,15 +100,17 @@ class Overview {
                 vis.dispatcher.call('overview_click', {name: name})
             })
             .on('mouseenter', function (event,d) {
-                // TODO tooltip info, padding?
+                // tooltip for makes
                 d3.select('#tooltip')
                     .style('display', 'block')
                     .style("left", event.pageX + 0 + "px")
                     .style("top", event.pageY + 0 + "px")
                     .html(
-                        `<div class="tooltip-window">  <p>${d[0]}</p> </div>`
+                        `<div class="tooltip-window">
+                        <p>${d[0]}</p> 
+                        <p>${secondary_selector} ${d[1].toFixed(0)}</p>
+                        </div>`
                     );
-
             })
             .on('mouseout', function (event,d) {
                 d3.select('#tooltip')

@@ -96,6 +96,7 @@ Promise.all([
     })
 
     control_panel_dispatcher.on('overview_click', function (event,context){
+        detail.selected = this.name
         detail.data = detailFilter(full_data, secondary_selector, this.name);
         usMap.data = mapFilterOverview(full_data, secondary_selector, this.name);
         detail.updateVis()
