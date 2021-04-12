@@ -166,10 +166,14 @@ rect {
 #flight-phase {
     position: absolute;
     height: 5000px;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #flight-phase svg {
-    position: sticky;
     background-color: transparent;
 }
 
@@ -187,9 +191,9 @@ rect {
     height: 500px;
 }
 
-#flight-scroll .scroll-stop:last-child {
-    height: 10px;
-}
+/*#flight-scroll .scroll-stop:last-child {*/
+/*    height: 300px;*/
+/*}*/
 
 
 
@@ -199,5 +203,14 @@ rect {
 
 /* summary container */
 #summary-container {
+    /*background-color: #2a2d2d;*/
+    /*width: 100%;*/
+    z-index: 2;
     height: 800px;
+}
+
+#chart{
+    /*width: 100%;*/
+    /*background-color: #2a2d2d; !important;*/
+    /*z-index: 1;*/
 }

@@ -9,7 +9,7 @@ class StackedBarChart {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: 800,
-            containerHeight: 400,
+            containerHeight: 300,
             margin: {top: 10, right: 10, bottom: 30, left: 90},
             displayType: 'absolute'
 
@@ -76,9 +76,9 @@ class StackedBarChart {
         let vis = this;
         //Todo: change to commercial or personal filtering non personal as commercial
         vis.xScale.domain(["Personal", "Commercial"]);
-        vis.yScale.domain([0, 70000]);
 
 
+        // console.log(vis.data)
         vis.data = vis.data.filter(d => d['Purpose of Flight'] != "" || d['Purpose of Flight'] != "Unknown");
 
         vis.groupedData = d3.rollups(
@@ -95,6 +95,12 @@ class StackedBarChart {
                 'Total Fatal Injuries': v[2]
             }));
         console.log(vis.groupedData);
+
+        vis.yScale.domain([0, d3.max(vis.groupedData, d => {
+            const total = d['Total Fatal Injuries'] + d['Total Serious Injuries'] + d['Total Fatal Injuries']
+            const roundThousands = (parseInt(total / 1000)+2)*1000;
+            return roundThousands < 40000 ? roundThousands : 70000
+        })]);
 
         vis.stackedData = vis.stack(vis.groupedData);
 

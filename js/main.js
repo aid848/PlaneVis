@@ -1,5 +1,6 @@
 let joined_data, ac_data, ntsb_data, map_data
-let crashData, usMap, mapData, flightPhase, stackedBarChart, startPosFlightContainer, numberStop;
+let crashData, usMap, mapData, flightPhase, stackedBarChart, currentFlightStop;
+const dispatcher = d3.dispatch('filterPhaseData');
 
 /**
  * Load data from CSV files asynchronously
@@ -99,7 +100,7 @@ Promise.all([
         d => d["Purpose of Flight"] === "Personal",
     );
 
-    flightPhase = new FlightPhase({parentElement: '#flight-phase'}, groupedData);
+    flightPhase = new FlightPhase({parentElement: '#flight-phase'}, groupedData, dispatcher);
     flightPhase.updateVis();
 
     // Create a waypoint for each `flight stop` circle
@@ -110,11 +111,10 @@ Promise.all([
             handler: function(direction) {
                 // Check if the user is scrolling up or down
                 const forward = direction === 'down';
-                const nextStop = stopIndex;
-                numberStop = stopIndex;
+                currentFlightStop = stopIndex;
 
                 // Update visualization based on the current stop
-                flightPhase.updateVis(forward, nextStop);
+                flightPhase.updateVis(forward, stopIndex);
 
             },
             // Trigger scroll event
@@ -122,19 +122,36 @@ Promise.all([
         });
     });
 
-    stackedBarChart = new StackedBarChart({parentElement: '#chart'}, joined_data);
+    stackedBarChart = new StackedBarChart({parentElement: '#chart'}, []);
 
 }).catch(error => console.error(error));
 
+
+
+// dispatcher to connect with stacked bar chart, to send phase name
+dispatcher.on('filterPhaseData', phaseName => {
+    // console.log("getting", phaseName)
+    if (phaseName === "Summary") {
+        stackedBarChart.data = joined_data;
+    } else {
+        stackedBarChart.data = joined_data.filter(d => {
+            return d["Flight Phase General"].includes(phaseName)
+        });
+    }
+
+    stackedBarChart.updateVis();
+});
 
 const marginFixed = Math.abs((window.outerHeight - 800)/2); // 800 is the containerHeight of Flight view
 // when window is scrolling, detect where the flight phase view is and let it stay in view if reached
 // let scrolled = false;
 window.onscroll = function (e) {
-    startPosFlightContainer = d3.select('#flight-phase svg').node().getBoundingClientRect().top;
+    let startPosFlightContainer = d3.select('svg#flight-path').node().getBoundingClientRect().top;
+    let diff = d3.select('svg#chart').node().getBoundingClientRect().height + marginFixed;
 
-    if (startPosFlightContainer < marginFixed) {
-        d3.select('#flight-phase svg').style('position', 'sticky').style('top', marginFixed);
+    if (startPosFlightContainer < diff) {
+        d3.select('svg#flight-path').style('position', 'sticky').style('top', diff);
+        d3.select('svg#chart').style('position', 'sticky').style('top', marginFixed);
     }
 };
 

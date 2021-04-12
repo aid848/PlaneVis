@@ -1,12 +1,12 @@
 class FlightPhase {
 
-    constructor(_config, _data) {
+    constructor(_config, _data, _dispatcher) {
 
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: _config.containerWidth || 1300,
-            containerHeight: _config.containerHeight || 800,
-            margin: _config.margin || {top: 40, right: 25, bottom: 40, left: 25}
+            containerHeight: _config.containerHeight || 400,
+            margin: _config.margin || {top: 0, right: 25, bottom: 0, left: 25}
         };
 
         this.flightPathPoints = [
@@ -25,6 +25,9 @@ class FlightPhase {
             {x: 1260, y: 350, phase: "Summary"},  // summary
             {x: 1300, y: 350, phase: null}        // ending point
         ];
+
+        // dispatcher to connect with stacked bar chart, to send phase name
+        this.dispatcher = _dispatcher;
 
         this.validPhasePoints = this.flightPathPoints.filter(d => d.phase !== null);
         this.animatedStops = this.flightPathPoints.slice(0,1);
@@ -77,7 +80,8 @@ class FlightPhase {
         // Define size of SVG drawing area
         vis.svg = d3.select(vis.config.parentElement).append('svg')
             .attr('width', vis.config.containerWidth)
-            .attr('height', vis.config.containerHeight);
+            .attr('height', vis.config.containerHeight)
+            .attr('id', 'flight-path');
 
         // Move pathView to margin area
         vis.pathView = vis.svg.append('g')
@@ -134,7 +138,6 @@ class FlightPhase {
 
             reachSummary = !pathEnd || forward && pathEnd === 12;
 
-            console.log(pathBegin, pathEnd)
             vis.animatedStops = pathBegin < 11 ?
                 this.flightPathPoints.slice(pathBegin, pathEnd+1)
                 :
@@ -155,12 +158,12 @@ class FlightPhase {
                 });
         }
 
-        vis.renderVis(forward, reachSummary);
+        vis.renderVis(forward, reachSummary, nextStop);
     }
 
     // Binding data to visual elements;
     // Called every time the data or configurations change
-    renderVis(forward, reachSummary) {
+    renderVis(forward, reachSummary, nextStop) {
         let vis = this;
 
         vis.animationPath
@@ -168,7 +171,16 @@ class FlightPhase {
 
         vis.fightMarker.transition()
             .duration(1000)
-            .attrTween("transform", vis.translateAlong(vis.animationPath.node()));
+            .attrTween("transform", vis.translateAlong(vis.animationPath.node()))
+            .on("start", function(event) {
+                if (nextStop !== -1 && !reachSummary) {
+                    if (forward) {
+                        vis.dispatcher.call('filterPhaseData', event, vis.phaseNameUpperCase[nextStop]);
+                    } else {
+                        vis.dispatcher.call('filterPhaseData', event, vis.phaseNameUpperCase[nextStop-1]);
+                    }
+                }
+            });
 
         if (forward && reachSummary) {
             // hide path view when reached summary
@@ -178,6 +190,9 @@ class FlightPhase {
                 .duration(1000)
                 .ease(d3.easeLinear).style("opacity", 0)
                 // move to summary section at end
+                .on("start", function(event) {
+                    vis.dispatcher.call('filterPhaseData', event, "Summary");
+                })
                 .on("end", d => window.scrollBy({top: top, behavior: 'smooth'}));
         } else {
             vis.pathView.transition()
@@ -270,7 +285,7 @@ class FlightPhase {
                 .attr("font-size", 12)
                 .attr("fill", "white");
 
-            pieG.filter((d) => {
+            let lastPie = pieG.filter((d) => {
                 const poi = vis.phaseNameUpperCase.findIndex(p => d[0].includes(p));
                 const stop = vis.validPhasePoints[poi];
                 const length = vis.animatedStops.length;
@@ -281,7 +296,7 @@ class FlightPhase {
             }).style("opacity", 0.1)
                 .transition()
                 .duration(1500)
-                .ease(d3.easeLinear).style("opacity", 0.7)
+                .ease(d3.easeLinear).style("opacity", 0.7);
         }
     }
 
