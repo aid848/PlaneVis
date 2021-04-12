@@ -192,12 +192,16 @@ class FlightPhase {
                 // move to summary section at end
                 .on("start", function(event) {
                     vis.dispatcher.call('filterPhaseData', event, "Summary");
+                    vis.dispatcher.call('reachedSummary', event, true);
                 })
                 .on("end", d => window.scrollBy({top: top, behavior: 'smooth'}));
         } else {
             vis.pathView.transition()
                 .duration(1500)
                 .ease(d3.easeLinear).style("opacity", 1)
+                .on("start", function(event) {
+                    vis.dispatcher.call('reachedSummary', event, false);
+                });
 
             // phase container
             const phaseG = vis.pathView.selectAll('.stop')

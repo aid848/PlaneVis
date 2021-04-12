@@ -1,6 +1,6 @@
 let joined_data, ac_data, ntsb_data, map_data
 let crashData, usMap, mapData, flightPhase, stackedBarChart, currentFlightStop;
-const dispatcher = d3.dispatch('filterPhaseData');
+const dispatcher = d3.dispatch('filterPhaseData', 'reachedSummary');
 
 /**
  * Load data from CSV files asynchronously
@@ -130,7 +130,6 @@ Promise.all([
 
 // dispatcher to connect with stacked bar chart, to send phase name
 dispatcher.on('filterPhaseData', phaseName => {
-    // console.log("getting", phaseName)
     if (phaseName === "Summary") {
         stackedBarChart.data = joined_data;
     } else {
@@ -142,16 +141,40 @@ dispatcher.on('filterPhaseData', phaseName => {
     stackedBarChart.updateVis();
 });
 
+// dispatcher for doing transitions in other containers when reached summary phase
+dispatcher.on('reachedSummary', boolean => {
+    if (boolean === true) {
+        d3.select('.info').transition()
+            .duration(1000)
+            .ease(d3.easeLinear).style("display", "none");
+
+        d3.select('#summary-container').transition()
+            .duration(1500)
+            .ease(d3.easeLinear).style("opacity", 1);
+    } else {
+        d3.select('.info').transition()
+            .duration(1000)
+            .ease(d3.easeLinear).style("display", "");
+
+        d3.select('#summary-container').transition()
+            .duration(300)
+            .ease(d3.easeLinear).style("opacity", 0);
+    }
+});
+
 const marginFixed = Math.abs((window.outerHeight - 800)/2); // 800 is the containerHeight of Flight view
 // when window is scrolling, detect where the flight phase view is and let it stay in view if reached
 // let scrolled = false;
 window.onscroll = function (e) {
     let startPosFlightContainer = d3.select('svg#flight-path').node().getBoundingClientRect().top;
-    let diff = d3.select('svg#chart').node().getBoundingClientRect().height + marginFixed;
+    let diff = d3.select('.info').node().getBoundingClientRect().height;
+    let diff2 = d3.select('#chart').node().getBoundingClientRect().height;
 
-    if (startPosFlightContainer < diff) {
-        d3.select('svg#flight-path').style('position', 'sticky').style('top', diff);
-        d3.select('svg#chart').style('position', 'sticky').style('top', marginFixed);
+    if (startPosFlightContainer < diff+diff2) {
+        d3.select('.info').style('position', 'sticky').style('top', marginFixed+"px");
+
+        d3.select('svg#chart').style('position', 'sticky').style('top', diff+marginFixed);
+        d3.select('svg#flight-path').style('position', 'sticky').style('top', diff+diff2+marginFixed);
     }
 };
 
