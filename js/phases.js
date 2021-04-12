@@ -101,6 +101,43 @@ class FlightPhase {
             .attr("d", vis.flightPathGenerator(vis.animatedStops))
             .attr("fill", "none");
 
+        // phase container
+        const phaseG = vis.pathView.selectAll('.stop')
+            .data(vis.validPhasePoints, d => d.phase)
+            .join('g')
+            .attr('class', 'stop');
+
+        // phase-phase positions
+        phaseG.selectAll('circle')
+            .data(d => [d], d => d.phase)
+            .join('circle')
+            .attr('class', 'stop')
+            .attr('id', d => d.phase)
+            .attr('r', 4)
+            .attr('cx', d => d.x)
+            .attr('cy', d => d.y);
+
+        phaseG.selectAll('text')
+            .data(d => [d], d => d.phase)
+            .join('text')
+            .attr('dy', 30)
+            .attr('transform', d => {
+                if (d.phase === "Climb")
+                    return `translate(${d.x}, ${d.y}) rotate(-53)`;
+                else if (d.phase === "Approach")
+                    return `translate(${d.x}, ${d.y}) rotate(45)`;
+                return `translate(${d.x}, ${d.y})`
+            })
+            .attr('text-anchor', d => {
+                if (d.phase === "Start")
+                    return "start";
+                else if (d.phase === "Summary")
+                    return "end";
+                return "middle"
+            })
+            .attr('fill', '#fdf1e7')
+            .text(d => d.phase);
+
         // flight marker to be animated along the path
         vis.fightMarker = vis.pathView.append("image")
             .attr("xlink:href", "figs/icons8-fighter-jet-48.png")
@@ -203,42 +240,6 @@ class FlightPhase {
                     vis.dispatcher.call('reachedSummary', event, false);
                 });
 
-            // phase container
-            const phaseG = vis.pathView.selectAll('.stop')
-                .data(vis.validPhasePoints, d => d.phase)
-                .join('g')
-                .attr('class', 'stop');
-
-            // phase-phase positions
-            phaseG.selectAll('circle')
-                .data(d => [d], d => d.phase)
-                .join('circle')
-                .attr('class', 'stop')
-                .attr('id', d => d.phase)
-                .attr('r', 4)
-                .attr('cx', d => d.x)
-                .attr('cy', d => d.y);
-
-            phaseG.selectAll('text')
-                .data(d => [d], d => d.phase)
-                .join('text')
-                .attr('dy', 30)
-                .attr('transform', d => {
-                    if (d.phase === "Climb")
-                        return `translate(${d.x}, ${d.y}) rotate(-53)`;
-                    else if (d.phase === "Approach")
-                        return `translate(${d.x}, ${d.y}) rotate(45)`;
-                    return `translate(${d.x}, ${d.y})`
-                })
-                .attr('text-anchor', d => {
-                    if (d.phase === "Start")
-                        return "start";
-                    else if (d.phase === "Summary")
-                        return "end";
-                    return "middle"
-                })
-                .text(d => d.phase);
-
             // pie groups
             let pieG = vis.pieGroup.selectAll('.pie-container')
                 .data(vis.dataPieChart, d => d[0])
@@ -289,7 +290,7 @@ class FlightPhase {
                 .attr("font-size", 12)
                 .attr("fill", "white");
 
-            let lastPie = pieG.filter((d) => {
+            pieG.filter((d) => {
                 const poi = vis.phaseNameUpperCase.findIndex(p => d[0].includes(p));
                 const stop = vis.validPhasePoints[poi];
                 const length = vis.animatedStops.length;
