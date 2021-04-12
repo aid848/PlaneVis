@@ -140,15 +140,15 @@ rect {
 }
 
 .Minor rect {
-    fill: coral;
+    mask: url(#minor-mask)
 }
 
 .Fatal rect {
-    fill: black;
+    mask: url(#fatal-mask)
 }
 
 .Serious rect {
-    fill: darkred;
+    mask: url(#serious-mask)
 }
 
 /* Flight Phase Container */

@@ -9,7 +9,7 @@ class StackedBarChart {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: 800,
-            containerHeight: 300,
+            containerHeight: 250,
             margin: {top: 10, right: 10, bottom: 30, left: 90},
             displayType: 'absolute'
 
@@ -140,6 +140,9 @@ class StackedBarChart {
             .attr('y', d => vis.yScale(d[1]))
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
             .attr('width', vis.xScale.bandwidth())
+            .style('fill', d => {
+                return d.data["Purpose of Flight"] === "Personal" ? "#db0004" : "#0700db"
+            });
 
         rectangleEnter.exit().remove();
 
