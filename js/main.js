@@ -51,12 +51,11 @@ Promise.all([
     })
 
     full_data = Array.from(joined_data)
-    // console.log(full_data[0])
 
     // vis element instantiation
     const control_panel = new Controls(joined_data, '#date_slider', control_panel_dispatcher)
     const overview = new Overview(overviewFilter(joined_data,secondary_selector), '#overview', control_panel_dispatcher, secondary_selector)
-
+    visualizations_view_2.push(control_panel)
     visualizations_view_2.push(overview)
     // const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
     visualizations_view_2.push(usMap)
@@ -79,12 +78,12 @@ Promise.all([
                 break;
             default:
         }
-        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail)
+        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail,control_panel)
     })
 
     d3.selectAll('select.control-select').on('change', function () {
         secondary_selector = d3.select(this).property("value")
-        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail)
+        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail,control_panel)
     })
 
     control_panel_dispatcher.on('control_filter', function (event, context) {
@@ -93,7 +92,7 @@ Promise.all([
             return
         }
         date = this.date
-        controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail)
+        controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail,control_panel)
     })
 
     control_panel_dispatcher.on('overview_click', function (event,context){
@@ -125,7 +124,7 @@ Promise.all([
 
 }).catch(error => console.error(error));
 
-function controlBoxFilter(data, views, checkboxes, secondary_select, date, overview, detail) {
+function controlBoxFilter(data, views, checkboxes, secondary_select, date, overview, detail,control__panel) {
     let new_Data = data
 
     // Checkbox filtering
@@ -147,6 +146,8 @@ function controlBoxFilter(data, views, checkboxes, secondary_select, date, overv
         })
     }
 
+    let predateFiltering = Array.from(new_Data)
+
     // Date filtering
     new_Data = new_Data.filter((ele) => {
         let x = new Date(ele['Event Date_ac']).getFullYear()
@@ -156,9 +157,13 @@ function controlBoxFilter(data, views, checkboxes, secondary_select, date, overv
     // dropdown filtering by group
     let overviewData = overviewFilter(new_Data,secondary_selector)
     let detailData = detailFilter(new_Data, secondary_selector, null)
+    let control__panelData = controlFilter(predateFiltering,secondary_selector)
 
     overview.attribute = secondary_selector;
     overview.data = overviewData;
+
+    control__panel.data_dates = control__panelData
+
 
     detail.attribute = secondary_selector;
     detail.data = detailData;
@@ -169,7 +174,6 @@ function controlBoxFilter(data, views, checkboxes, secondary_select, date, overv
     views.forEach((vis) => {
         vis.updateVis()
     })
-    // console.log(new_Data)
     return new_Data
 }
 
@@ -211,6 +215,12 @@ function overviewFilter(data, attribute){
     let dataGrouped = d3.groups(data, (d) => d["Make_ac"])
     return groupFilter(dataGrouped, attribute);
 }
+
+function controlFilter(data, attribute){
+    let dataGrouped =  d3.groups(data, d => new Date(d['Event Date_ac']).getFullYear())
+    return groupFilter(dataGrouped, attribute);
+}
+
 function groupFilter(data,attribute){
     let dataAttributed = [];
     let dataGrouped = data;
@@ -225,7 +235,7 @@ function groupFilter(data,attribute){
                 return [ele[0], ele[1].map(val => val['Aircraft Damage']).filter((cur) => cur.toLowerCase() === 'destroyed').length]
             })
             break;
-        case 'num-accidents':
+        case 'Number of accidents':
             dataAttributed = dataGrouped.map(ele => [ele[0], ele[1].length])
             break;
         case 'Fatal to non-Fatal ratio':

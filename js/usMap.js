@@ -95,7 +95,6 @@ class UsMap {
             .attr('class', 'geo-boundary-path')
             .attr('d', vis.geoPath);
 
-        console.log(vis.hexData)
         if (vis.hexData.length !== 0) {
             vis.svg.selectAll(".no-location-text").remove()
             vis.chart.attr("opacity", 1)

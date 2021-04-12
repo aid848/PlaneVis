@@ -52,6 +52,13 @@ class Overview {
             .attr("stroke", "black")
 
 
+        vis.title = vis.chart
+            .append('text')
+            .attr('x', 0)
+            .attr('y', vis.padding*2)
+            .attr('class','bubble-title')
+            .text(`${secondary_selector} by Aircraft Make`)
+
         vis.updateVis()
     }
 
@@ -59,7 +66,7 @@ class Overview {
         const vis = this
         vis.dataAttributed = vis.data.slice(0, vis.maxElements)
         vis.radiusScale.domain([vis.dataAttributed[vis.maxElements - 1][1], vis.dataAttributed[0][1]])
-
+        d3.selectAll(vis.title).text(`${secondary_selector} by Aircraft Make`)
         vis.renderVis()
     }
 
@@ -78,12 +85,11 @@ class Overview {
             .attr('y', d=> vis.height - vis.padding - 2*((vis.maxCircleSize-vis.minCircleSize)*d/100 + vis.minCircleSize) - 10)
             .text(d => {
                 let val = vis.radiusScale.invert((vis.maxCircleSize-vis.minCircleSize)*d/100 + vis.minCircleSize)
-                return val.toFixed(2)})
+                return val.toFixed(0)})
 
         vis.node = vis.chart
             .selectAll('g')
             .data(vis.dataAttributed, function (d){
-                // console.log(d)
                 return [d[0],vis.radiusScale(d[1])]
             })
             .join('g')

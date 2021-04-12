@@ -41,7 +41,12 @@ class Detail {
         vis.radiusScale = d3.scaleSqrt().range([vis.minCircleSize, vis.maxCircleSize])
 
         // TODO some kind of static size,color legend (m3)
-        // console.log(vis.data)
+        vis.title = vis.chart
+            .append('text')
+            .attr('x', 0)
+            .attr('y', vis.padding*2)
+            .attr('class','bubble-title')
+            .text(`${secondary_selector} by Aircraft Make`)
 
         vis.updateVis()
     }
@@ -59,6 +64,7 @@ class Detail {
         vis.dataGrouped = vis.data.slice(0, vis.maxElements)
         // console.log(vis.dataGrouped)
         vis.radiusScale.domain([vis.dataGrouped[vis.maxElements - 1][1], vis.dataGrouped[0][1]]) // todo use min and max
+        d3.selectAll(vis.title).text(`${secondary_selector} by Aircraft model`)
         vis.renderVis()
     }
 
