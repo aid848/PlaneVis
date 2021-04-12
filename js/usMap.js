@@ -7,8 +7,8 @@ class UsMap {
     constructor(_config, _geoData, _data, _attr) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: window.innerWidth * 0.4,
-            containerHeight: window.innerHeight * 0.45,
+            containerWidth: _config.containerWidth || 800,
+            containerHeight: _config.containerHeight || 500,
             margin: _config.margin || {top: 0, right: 0, bottom: 0, left: 0},
             tooltipPadding: 10
         }
@@ -23,10 +23,9 @@ class UsMap {
      */
     initVis() {
         let vis = this;
-        // let width = vis.config.containerWidth;
-        // let height = vis.config.containerHeight;
-        let width = window.innerWidth * 0.4
-        let height = window.innerHeight * 0.45
+        let width = vis.config.containerWidth;
+        let height = vis.config.containerHeight;
+
         // Calculate inner chart size. Margin specifies the space around the actual chart.
         vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
         vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
