@@ -103,9 +103,7 @@ class StackedBarChart {
 
         vis.stackedData = vis.stack(vis.groupedData);
 
-        if(vis.groupedData.length !== 0){
-            vis.renderVis();
-        }
+        vis.renderVis();
     }
 
     /**
@@ -115,6 +113,20 @@ class StackedBarChart {
      */
     renderVis() {
         let vis = this;
+
+        if (vis.data.length === 0) {
+            vis.svg
+                .transition()
+                .duration(500)
+                .ease(d3.easeLinear)
+                .style("opacity", 0)
+        } else {
+            vis.svg
+                .transition()
+                .duration(1000)
+                .ease(d3.easeLinear)
+                .style("opacity", 1)
+        }
 
         const category = vis.chart.selectAll('.category')
             .data(vis.stackedData)
@@ -128,7 +140,7 @@ class StackedBarChart {
         // Exit
         categoryEnter.exit().remove();
 
-        console.log(vis.stackedData)
+        // console.log(vis.stackedData)
         const rectangle = category.merge(categoryEnter).selectAll('.rectangle')
             .data(d => d)
 
