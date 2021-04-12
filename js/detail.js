@@ -1,15 +1,13 @@
 // Overview from primary selector, tooltip and click to highlight changes map view, ordered sort, physics?
 
 class Detail {
-    constructor(_data, _parent_element, _dispatcher, _attr) {
+    constructor(_data, _parent_element, _dispatcher, _attr,lookup) {
         this.data = _data
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
-        // this.width = 300
-        // this.height = this.width
+        this.lookup = lookup
         this.width = window.innerWidth * 0.3
         this.height = window.innerHeight * 0.5
-
         this.maxCircleSize = 50
         this.minCircleSize = 10
         this.padding = 5
@@ -101,7 +99,7 @@ class Detail {
 
         vis.circles = vis.node.append('circle')
             .attr('r', d => vis.radiusScale(d[1]))
-            .attr('fill', 'red')
+            .attr('fill', d=> {vis.planeConfigToImage(d[0]);return 'red'})
 
         vis.node
             .append('text')
@@ -165,6 +163,35 @@ class Detail {
     dragEnd(d, sim) { // stop the bubbles from moving around after user is done
         sim.alphaTarget(0);
     }
+
+    planeConfigToImage(model){
+        let vis = this
+        let type = vis.lookup.get(model)[0]
+        let engines = vis.lookup.get(model)[1]
+        let graphicPath = '' // TODO set path in
+
+        switch (type){
+            case 'Reciprocating':
+            case 'REC, TJ, TJ':
+                // small plane with prop and car like engine here
+                break
+            case 'Turbo Shaft':
+                // helicopter img here
+                break
+            case 'Turbo Fan':
+            case 'Turbo Jet':
+                // regular commercial jet image (check if 2 or 4 engines, or generic)
+                break
+            case 'Turbo Prop':
+                // classic larger prop plane
+                break
+            case 'Unknown':
+            default:
+                // generic cartoon plane image
+        }
+
+    }
+
 }
 
 

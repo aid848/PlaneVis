@@ -52,6 +52,8 @@ Promise.all([
 
     full_data = Array.from(joined_data)
 
+    let plane_lookup = generatePlaneTable(joined_data)
+
     // vis element instantiation
     const control_panel = new Controls(joined_data, '#date_slider', control_panel_dispatcher)
     const overview = new Overview(overviewFilter(joined_data,secondary_selector), '#overview', control_panel_dispatcher, secondary_selector)
@@ -60,7 +62,7 @@ Promise.all([
     // const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
     visualizations_view_2.push(usMap)
 
-    const detail = new Detail(detailFilter(joined_data, secondary_selector, null), '#detail', control_panel_dispatcher, secondary_selector, )
+    const detail = new Detail(detailFilter(joined_data, secondary_selector, null), '#detail', control_panel_dispatcher, secondary_selector,plane_lookup )
     visualizations_view_2.push(detail);
 
 
@@ -310,6 +312,11 @@ function changeView(){
 
 }
 
-function planeClass(element){
-
+function generatePlaneTable(data){
+    let grouping = d3.groups(data, d=>d['Model_ac'])
+    grouping = grouping.map((ele) => {
+        // TODO retry among ele[1] array if entry is blank
+        return [ele[0],[ele[1][0]['Engine Type'],ele[1][0]['Number of Engines']]]
+    })
+    return new Map(grouping)
 }
