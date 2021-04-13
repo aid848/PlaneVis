@@ -270,3 +270,7 @@ svg#chart {
 .inactive {
     opacity: 0.3 !important;
 }
+
+.stacked-barchart{
+    z-index: 1;
+}

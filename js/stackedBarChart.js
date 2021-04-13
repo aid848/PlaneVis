@@ -221,7 +221,7 @@ class StackedBarChart {
                         .style('opacity', 1)
                 });
             }
-            
+
             types.filter(t => t !== selected).forEach(s => {
                 d3.selectAll(`.${s}`)
                     .classed('hover', false)
@@ -231,7 +231,7 @@ class StackedBarChart {
                     .style('opacity', 1)
             });
 
-            vis.severitySelection.hover = ''; //vis.severitySelection.click ? vis.severitySelection.hoverSeverity : '';
+            vis.severitySelection.hover = '';
             vis.updateVis()
         })
         .on('click', function() {
