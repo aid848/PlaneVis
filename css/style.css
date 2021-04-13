@@ -101,7 +101,10 @@ g {
     text-align: center;
 }
 
-.node-detail:hover{}
+.node-detail:hover{
+    cursor: pointer;
+}
+
 .node:hover circle {
     stroke: black;
     stroke-width: 3px;
@@ -169,6 +172,5 @@ rect {
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-evenly;
-
 }
 

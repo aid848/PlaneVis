@@ -108,7 +108,6 @@ class UsMap {
                 .attr("fill", d => vis.color(d.binMetric))
                 .attr("stroke", d => d3.lab(vis.color(d.binMetric)).darker())
 
-
             hexbin.on('mouseover', (event, d) => {
                 d3.select('#tooltip')
                     .style('display', 'block')
@@ -136,7 +135,11 @@ class UsMap {
                 .attr("class", "no-location-text")
                 .attr("transform", d => `translate(${vis.width / 2 - 150},250)`)
 
-            if (bubble !== null) {
+            if (bubble === undefined) {
+                label
+                    .text("No location data available for this date range")
+            }
+            else if (bubble !== null) {
                 label
                     .text("No location data available for " + bubble)
             } else {
@@ -145,10 +148,11 @@ class UsMap {
             }
 
         }
+
         let mapLegend = new MapLegend()
 
         mapLegend.legend({
-            color: d3.scaleSequential([0, 100], d3.interpolateOrRd),
+            color: vis.color,
             title: vis.attribute
         })
 

@@ -21,26 +21,16 @@ class MapLegend{
             .style("overflow", "visible")
             .style("display", "block");
 
+        console.log(color.interpolate)
+        console.log(color.interpolator)
+        console.log(color.invertExtent)
+
+
+
         let tickAdjust = g => g.selectAll(".tick line").attr("y1", marginTop + marginBottom - height);
         let x;
 
-        // Continuous
-        if (color.interpolate) {
-            const n = Math.min(color.domain().length, color.range().length);
-
-            x = color.copy().rangeRound(d3.quantize(d3.interpolate(marginLeft, width - marginRight), n));
-
-            svg.append("image")
-                .attr("x", marginLeft)
-                .attr("y", marginTop)
-                .attr("width", width - marginLeft - marginRight)
-                .attr("height", height - marginTop - marginBottom)
-                .attr("preserveAspectRatio", "none")
-                .attr("xlink:href", this.ramp(color.copy().domain(d3.quantize(d3.interpolate(0, 1), n))).toDataURL());
-        }
-
         // Sequential
-        else if (color.interpolator) {
             x = Object.assign(color.copy()
                 .interpolator(d3.interpolateRound(marginLeft, width - marginRight)), {
                 range() {
@@ -48,15 +38,18 @@ class MapLegend{
                 }
             });
 
-            svg.append("image")
+            svg.selectAll(".legend-image")
+                .data([color.interpolator()])
+                .join("image")
                 .attr("x", marginLeft)
                 .attr("y", marginTop)
                 .attr("width", width - marginLeft - marginRight)
                 .attr("height", height - marginTop - marginBottom)
                 .attr("preserveAspectRatio", "none")
-                .attr("xlink:href", this.ramp(color.interpolator()).toDataURL());
+                .attr("class", "legend-image")
+                .attr("xlink:href", d => this.ramp(d).toDataURL());
 
-            // scaleSequentialQuantile doesn’t implement ticks or tickFormat.
+            // scaleSequential Quantile doesn’t implement ticks or tickFormat.
             if (!x.ticks) {
                 if (tickValues === undefined) {
                     const n = Math.round(ticks + 1);
@@ -66,58 +59,11 @@ class MapLegend{
                     tickFormat = d3.format(tickFormat === undefined ? ",f" : tickFormat);
                 }
             }
-        }
 
-        // Threshold
-        else if (color.invertExtent) {
-            const thresholds = color.thresholds ? color.thresholds() // scaleQuantize
-                :
-                color.quantiles ? color.quantiles() // scaleQuantile
-                    :
-                    color.domain(); // scaleThreshold
-
-            const thresholdFormat = tickFormat === undefined ? d => d :
-                typeof tickFormat === "string" ? d3.format(tickFormat) :
-                    tickFormat;
-
-            x = d3.scaleLinear()
-                .domain([-1, color.range().length - 1])
-                .rangeRound([marginLeft, width - marginRight]);
-
-            svg.append("g")
-                .selectAll("rect")
-                .data(color.range())
-                .join("rect")
-                .attr("x", (d, i) => x(i - 1))
-                .attr("y", marginTop)
-                .attr("width", (d, i) => x(i) - x(i - 1))
-                .attr("height", height - marginTop - marginBottom)
-                .attr("fill", d => d);
-
-            tickValues = d3.range(thresholds.length);
-            tickFormat = i => thresholdFormat(thresholds[i], i);
-        }
-
-        // Ordinal
-        else {
-            x = d3.scaleBand()
-                .domain(color.domain())
-                .rangeRound([marginLeft, width - marginRight]);
-
-            svg.append("g")
-                .selectAll("rect")
-                .data(color.domain())
-                .join("rect")
-                .attr("x", x)
-                .attr("y", marginTop)
-                .attr("width", Math.max(0, x.bandwidth() - 1))
-                .attr("height", height - marginTop - marginBottom)
-                .attr("fill", color);
-
-            tickAdjust = () => {};
-        }
-
-        svg.append("g")
+        svg.selectAll(".tick-group")
+            .data([ticks])
+            .join("g")
+            .attr("class", "tick-group")
             .attr("transform", `translate(0,${height - marginBottom})`)
             .call(d3.axisBottom(x)
                 .ticks(ticks, typeof tickFormat === "string" ? tickFormat : undefined)
@@ -126,13 +72,17 @@ class MapLegend{
                 .tickValues(tickValues))
             .call(tickAdjust)
             .call(g => g.select(".domain").remove())
-            .call(g => g.append("text")
-                .attr("x", marginLeft)
-                .attr("y", marginTop + marginBottom - height - 6)
-                .attr("fill", "currentColor")
-                .attr("text-anchor", "start")
-                .attr("font-weight", "bold")
-                .text(title));
+            .call(g =>
+                g.selectAll(".title-text")
+                    .data([title])
+                    .join("text")
+                    .attr("x", marginLeft)
+                    .attr("y", marginTop + marginBottom - height - 6)
+                    .attr("fill", "currentColor")
+                    .attr("text-anchor", "start")
+                    .attr("font-weight", "bold")
+                    .attr("class", "title-text")
+                    .text(title));
 
         return svg.node();
     }
