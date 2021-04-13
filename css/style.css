@@ -101,10 +101,7 @@ g {
     text-align: center;
 }
 
-.node-detail:hover{
-    cursor: pointer;
-}
-
+.node-detail:hover{}
 .node:hover circle {
     stroke: black;
     stroke-width: 3px;

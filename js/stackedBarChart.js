@@ -24,8 +24,6 @@ class StackedBarChart {
     initVis() {
         let vis = this;
 
-        vis.colors = ["#b33040", "#d25c4d", "#f2b447", "#d9d574"];
-
         vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
         vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
 

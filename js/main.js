@@ -1,5 +1,5 @@
 let joined_data, ac_data, ntsb_data, map_data
-let crashData, usMap, mapData, flightPhase, stackedBarChart
+let crashData, usMap, mapData, flightPhase, stackedBarChart,mapLegend
 
 /**
  * Load data from CSV files asynchronously
