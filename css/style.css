@@ -82,7 +82,7 @@ g {
     color: #fdf1e7;
 }
 
-#flight-phase-container text {
+#flight-phase-injury-view text {
     fill: #fdf1e7;
 }
 
@@ -177,7 +177,7 @@ rect {
 }
 
 /* Flight Phase Container */
-#flight-phase-container {
+#flight-phase-injury-view {
     position: relative;
     display:flex;
     flex-direction: column;
@@ -188,7 +188,7 @@ rect {
     width: 100%;
 }
 
-#flight-phase {
+#flight-phase-injury-container {
     position: absolute;
     height: 5000px;
     width: 100%;
@@ -207,7 +207,7 @@ rect {
     fill: yellow;
 }
 
-#flight-phase svg {
+#flight-phase-injury-container svg {
     background-color: transparent;
 }
 
@@ -240,9 +240,17 @@ rect {
     height: 90vh;
 }
 
-.info span#flight-phase-title{
+.info span{
     font-size: 2em;
     font-weight: bold;
+}
+
+.relative {
+    /*width: 80vw;*/
+}
+
+#view-desc {
+    position: absolute;
 }
 
 svg#patterns {

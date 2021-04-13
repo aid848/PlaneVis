@@ -100,7 +100,7 @@ Promise.all([
         d => d["Purpose of Flight"] === "Personal",
     );
 
-    flightPhase = new FlightPhase({parentElement: '#flight-phase'}, groupedData, dispatcher);
+    flightPhase = new FlightPhase({parentElement: '#flight-phase-injury-container'}, groupedData, dispatcher);
     flightPhase.updateVis();
 
     // Create a waypoint for each `flight stop` circle
