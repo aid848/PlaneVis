@@ -101,13 +101,20 @@ class StackedBarChart {
                 return [d3.sum(xs, x => x["Total Minor Injuries"]), d3.sum(xs, x => x["Total Serious Injuries"]), d3.sum(xs, x => x["Total Fatal Injuries"])]
             },
             d => d["Purpose of Flight"] === "Personal",
-        )
-            .map(([k, v]) => ({
+        ).map(([k, v]) => ({
                 "Purpose of Flight": k ? "Personal" : "Commercial",
                 'Total Minor Injuries': v[0],
                 'Total Serious Injuries': v[1],
                 'Total Fatal Injuries': v[2]
-            }));
+            })
+        ).map((d,idx, groupedData) => {
+            if (idx === 0) {
+                return d['Purpose of Flight'] === 'Personal' ? d : groupedData[1]
+            } else {
+                return d['Purpose of Flight'] === 'Personal' ? groupedData[0] : d
+            }
+        });
+
 
         vis.yScale.domain([0, d3.max(vis.groupedData, d => {
             const total = d['Total Fatal Injuries'] + d['Total Serious Injuries'] + d['Total Fatal Injuries']
@@ -150,8 +157,7 @@ class StackedBarChart {
             .attr('class', d => `category ${d.key}`)
 
         // enter + update groups
-        categoryEnter.merge(category)
-
+        categoryEnter.merge(category);
         // Exit
         categoryEnter.exit().remove();
 
@@ -163,6 +169,8 @@ class StackedBarChart {
             .attr('class', 'rectangle')
 
         rectangle.merge(rectangleEnter)
+            .transition()
+            .duration(1500)
             .attr('x', d => vis.xScale(d.data["Purpose of Flight"]))
             .style('fill', d => {
                 console.log(d)

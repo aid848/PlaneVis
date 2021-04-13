@@ -259,8 +259,8 @@ class FlightPhase {
             let pieInfo = pieG.selectAll('g')
                 .data(d => {
                     const phaseData = d[1];
-                    const commercialData = phaseData[0][0] === false ? phaseData[0] : phaseData[1];
-                    const personalData = phaseData[1][0] === true ? phaseData[1] : phaseData[0];
+                    const personalData = phaseData[0][0] === true ? phaseData[0] : phaseData[1];
+                    const commercialData = phaseData[0][0] === true ? phaseData[1] : phaseData[0];
                     const data = {
                         "Commercial": commercialData[1].length,
                         "Personal": personalData[1].length
