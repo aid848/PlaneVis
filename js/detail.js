@@ -78,7 +78,7 @@ class Detail {
             .selectAll('g')
             .data(vis.dataGrouped, d=> [d[0],vis.radiusScale(d[1])])
             .join('g')
-            .attr('class', 'node')
+            .attr('class', 'node-detail')
             .attr('transform', `translate(${vis.width / 2},${vis.height / 2})`)
             .style("margin", 3)
             .on('click', function () {

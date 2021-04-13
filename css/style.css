@@ -101,6 +101,9 @@ g {
     text-align: center;
 }
 
+.node-detail:hover{
+    cursor: pointer;
+}
 
 .node:hover circle {
     stroke: black;

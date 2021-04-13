@@ -160,6 +160,7 @@ function controlBoxFilter(data, views, checkboxes, secondary_select, date, overv
     // dropdown filtering by group
     let overviewData = overviewFilter(new_Data,secondary_selector)
     let detailData = detailFilter(new_Data, secondary_selector, null)
+
     let control__panelData = controlFilter(predateFiltering,secondary_selector)
 
     overview.attribute = secondary_selector;
@@ -172,7 +173,7 @@ function controlBoxFilter(data, views, checkboxes, secondary_select, date, overv
     detail.data = detailData;
 
     usMap.attribute = decodeMapAttribute(secondary_selector);
-    usMap.data = full_data;
+    usMap.data = new_Data;
     // change data and update views
     views.forEach((vis) => {
         vis.updateVis()
@@ -277,7 +278,7 @@ function decodeMapAttribute(attribute) {
             return 'Total Fatal Injuries';
             break;
         case 'Most Destroyed craft':
-            return 'Damage';
+            return 'Total Fatal Injuries';
             break;
         case 'num-accidents':
             return 'Total Fatal Injuries';
