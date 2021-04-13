@@ -14,8 +14,13 @@ svg text {
 }
 
 html,
+body {
+    min-height: 100%;
+    scroll-behavior: smooth;
+}
 
 body {
+    position: relative;
     background-color: #2a2d2d;
 
     color: #fdf1e7;
@@ -68,15 +73,36 @@ svg {
     stroke: #575657;
 }
 
+.pie-container text {
+    font-size: 17px;
+}
+
+.pie-container text.Commercial {
+    fill: black !important;
+}
+
 g {
     color: #fdf1e7;
 }
-
 
 .switchView{
     width: 100px;
     height: auto;
     alignment: left;
+}
+
+#flight-phase-container text {
+    fill: #fdf1e7;
+}
+
+#tooltip {
+    visibility: hidden;
+    height: auto;
+    width: auto;
+    margin-top: 2px;
+    color: #fdf1e7;
+    font-size: 24px;
+    margin-bottom: 5px;
 }
 
 #legend {
@@ -87,6 +113,16 @@ g {
     max-width: 180px;
     margin-top: 40px;
     margin-bottom: 40px;
+}
+
+#chart-legend {
+    display: flex;
+    fill: beige;
+    margin-left: 110px;
+}
+
+#chart-legend g > g, rect.rectangle {
+    cursor: pointer;
 }
 
 #title {
@@ -121,21 +157,73 @@ axis text {
     stroke: #888;
 }
 
+.tick text {
+    font-size: 17px;
+}
 
 rect {
     shape-rendering: crispEdges;
 }
 
-.Minor rect {
-    fill: coral;
+.Minor > rect{
+    mask: url(#minor-mask)
 }
 
-.Fatal rect {
-    fill: black;
+/*.Fatal rect {*/
+/*    mask: url(#fatal-mask)*/
+/*}*/
+
+.Serious > rect{
+    mask: url(#serious-mask)
 }
 
-.Serious rect {
-    fill: darkred;
+/* Flight Phase Container */
+#flight-phase-container {
+    position: relative;
+    display:flex;
+    flex-direction: column;
+    flex:1;
+    margin-top: 50px;
+    align-items: center;
+
+    width: 100%;
+}
+
+#flight-phase {
+    position: absolute;
+    height: 5000px;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.Personal {
+    fill: #db0004;
+}
+
+.Commercial {
+    /*fill: #0700db;*/
+    fill: yellow;
+}
+
+#flight-phase svg {
+    background-color: transparent;
+}
+
+#flight-scroll{
+    position: sticky;
+    z-index: -1;
+    width: 100%;
+}
+
+#flight-scroll .scroll-stop:first-child {
+    height: 750px;
+}
+
+#flight-scroll .scroll-stop {
+    height: 500px;
 }
 
 
@@ -174,3 +262,53 @@ rect {
     justify-content: space-evenly;
 }
 
+
+/*#flight-scroll .scroll-stop:last-child {*/
+/*    height: 300px;*/
+/*}*/
+
+
+
+
+
+
+
+#summary-container {
+    z-index: 2;
+    height: 90vh;
+}
+
+.info span#flight-phase-title{
+    font-size: 2em;
+    font-weight: bold;
+}
+
+svg#patterns {
+    background-color: transparent;
+}
+
+svg text {
+    -webkit-touch-caðmillout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+svg#chart {
+    padding-top: 0;
+}
+
+.hover, .inactive {
+    filter: saturate(30%);
+}
+
+.inactive {
+    opacity: 0.3 !important;
+}
+
+.stacked-barchart{
+    z-index: 1;
+}

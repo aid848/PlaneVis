@@ -1,5 +1,6 @@
 let joined_data, ac_data, ntsb_data, map_data
-let crashData, usMap, mapData, flightPhase, stackedBarChart,mapLegend
+let crashData, usMap, mapData, flightPhase, stackedBarChart, currentFlightStop,mapLegend;
+const dispatcher = d3.dispatch('filterPhaseData', 'reachedSummary');
 
 /**
  * Load data from CSV files asynchronously
@@ -115,17 +116,90 @@ Promise.all([
     });
 
     // group the data based on Phases
+
     const phaseGroupedData = d3.groups(joined_data,
         d => d["Flight Phase General"],
         d => d["Purpose of Flight"] === "Personal",
     );
 
-    flightPhase = new FlightPhase({parentElement: '#flight-phase'}, phaseGroupedData);
+    flightPhase = new FlightPhase({parentElement: '#flight-phase'}, phaseGroupedData, dispatcher);
     flightPhase.updateVis();
 
-    stackedBarChart = new StackedBarChart({parentElement: '#chart'}, joined_data);
+    // Create a waypoint for each `flight stop` circle
+    const waypoints = d3.selectAll('.scroll-stop').each(function(d, stopIndex) {
+        return new Waypoint({
+            // `this` contains the current HTML element
+            element: this,
+            handler: function(direction) {
+                // Check if the user is scrolling up or down
+                const forward = direction === 'down';
+                currentFlightStop = stopIndex;
+
+                // Update visualization based on the current stop
+                flightPhase.updateVis(forward, stopIndex);
+
+            },
+            // Trigger scroll event
+            offset: '20%',
+        });
+    });
+
+    stackedBarChart = new StackedBarChart({parentElement: '#chart'}, []);
 
 }).catch(error => console.error(error));
+
+
+
+// dispatcher to connect with stacked bar chart, to send phase name
+dispatcher.on('filterPhaseData', phaseName => {
+    if (phaseName === "Summary") {
+        stackedBarChart.data = joined_data;
+    } else {
+        stackedBarChart.data = joined_data.filter(d => {
+            return d["Flight Phase General"].includes(phaseName)
+        });
+    }
+
+    stackedBarChart.updateVis();
+});
+
+// dispatcher for doing transitions in other containers when reached summary phase
+dispatcher.on('reachedSummary', boolean => {
+    if (boolean === true) {
+        d3.select('.info').transition()
+            .duration(1000)
+            .ease(d3.easeLinear).style("display", "none");
+
+        d3.select('#summary-container').transition()
+            .duration(1500)
+            .ease(d3.easeLinear).style("opacity", 1);
+    } else {
+        d3.select('.info').transition()
+            .duration(1000)
+            .ease(d3.easeLinear).style("display", "");
+
+        d3.select('#summary-container').transition()
+            .duration(300)
+            .ease(d3.easeLinear).style("opacity", 0);
+    }
+});
+
+const marginFixed = Math.abs((window.outerHeight - 800)/2); // 800 is the containerHeight of Flight view
+// when window is scrolling, detect where the flight phase view is and let it stay in view if reached
+// let scrolled = false;
+window.onscroll = function (e) {
+    let startPosFlightContainer = d3.select('svg#flight-path').node().getBoundingClientRect().top;
+    let diff = d3.select('.info').node().getBoundingClientRect().height;
+    let diff2 = d3.select('.stacked-barchart').node().getBoundingClientRect().height;
+
+    if (startPosFlightContainer < diff+diff2) {
+        d3.select('.info').style('position', 'sticky').style('top', marginFixed+"px");
+
+        d3.select('.stacked-barchart').style('position', 'sticky').style('top', diff+marginFixed+"px");
+        d3.select('svg#flight-path').style('position', 'sticky').style('top', diff+diff2+marginFixed);
+    }
+};
+
 
 function controlBoxFilter(data, views, checkboxes, secondary_select, date, overview, detail,control__panel) {
     let new_Data = data
