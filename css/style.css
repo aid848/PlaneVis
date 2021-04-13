@@ -95,16 +95,6 @@ g {
     fill: #fdf1e7;
 }
 
-#tooltip {
-    visibility: hidden;
-    height: auto;
-    width: auto;
-    margin-top: 2px;
-    color: #fdf1e7;
-    font-size: 24px;
-    margin-bottom: 5px;
-}
-
 #legend {
     color: rgb(56, 58, 74);
     font-size: 18px;
