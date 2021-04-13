@@ -94,6 +94,11 @@ g {
     margin-bottom: 40px;
 }
 
+#chart-legend {
+ display: flex;
+    fill: beige;
+}
+
 #title {
     font-size: 28px;
     color: #fdf1e7;
@@ -139,15 +144,15 @@ rect {
     shape-rendering: crispEdges;
 }
 
-.Minor rect {
+.Minor {
     mask: url(#minor-mask)
 }
 
-.Fatal rect {
-    mask: url(#fatal-mask)
-}
+/*.Fatal rect {*/
+/*    mask: url(#fatal-mask)*/
+/*}*/
 
-.Serious rect {
+.Serious {
     mask: url(#serious-mask)
 }
 
@@ -171,6 +176,14 @@ rect {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.Personal {
+    fill: #db0004;
+}
+
+.Commercial {
+    fill: #0700db;
 }
 
 #flight-phase svg {
