@@ -38,7 +38,7 @@ class Overview {
         vis.xScale = d3.scaleLinear()
         vis.radiusScale = d3.scaleSqrt().range([vis.minCircleSize, vis.maxCircleSize])
 
-        // TODO some kind of static size chart,color legend (polish)
+        // legend
         vis.legend = vis.chart
             .selectAll('#legend-overview')
             .data(vis.legendStep)
@@ -74,7 +74,9 @@ class Overview {
 
         const vis = this
 
+        // patch sub elements duplications, (limited to only a few rogue elements of the force directed sim)
         d3.selectAll(vis.textlabels).remove()
+        d3.selectAll(vis.circles).remove()
 
         vis.textlabels = vis.chart
             .selectAll('#legend-overview')

@@ -36,9 +36,12 @@ class Detail {
 
         // scales
         vis.xScale = d3.scaleLinear()
-        vis.radiusScale = d3.scaleSqrt().range([vis.minCircleSize, vis.maxCircleSize])
+        vis.radiusScale = d3.scaleLinear().range([vis.minCircleSize, vis.maxCircleSize])
 
-        // TODO some kind of static size,color legend (m3)
+        // legend
+
+
+
         vis.title = vis.chart
             .append('text')
             .attr('x', 0)
@@ -58,7 +61,7 @@ class Detail {
             vis.maxElements = 25;
         }
         vis.dataGrouped = vis.data.slice(0, vis.maxElements)
-        vis.radiusScale.domain([vis.dataGrouped[vis.maxElements - 1][1], vis.dataGrouped[0][1]]) // todo use min and max
+        vis.radiusScale.domain([vis.dataGrouped[vis.maxElements - 1][1], vis.dataGrouped[0][1]])
         d3.selectAll(vis.title).text(`${secondary_selector} by Aircraft model (${vis.selected})`)
         vis.renderVis()
     }
@@ -67,15 +70,17 @@ class Detail {
         // TODO color if applicable for secondary selector (eg avg severity of accidents for num of accidents) (M3)
         const vis = this
 
+        // patch sub elements duplications, (limited to only a few rogue elements of the force directed sim)
+        d3.selectAll(vis.txt).remove()
+        d3.selectAll(vis.circles).remove()
+
         vis.node = vis.chart
             .selectAll('g')
-            .data(vis.dataGrouped, function (d){
-                return d
-                return [d[0],vis.radiusScale(d[1])]
-            })
+            .data(vis.dataGrouped, d=> [d[0],vis.radiusScale(d[1])])
             .join('g')
             .attr('class', 'node')
             .attr('transform', `translate(${vis.width / 2},${vis.height / 2})`)
+            .style("margin", 3)
             .on('click', function () {
                 const name = this.querySelector('image').getAttribute('plane')
                 vis.dispatcher.call('detail_click', {name: name})
@@ -84,8 +89,8 @@ class Detail {
                 // tooltip for models
                 d3.select('#tooltip')
                     .style('display', 'block')
-                    .style("left", event.pageX + 0 + "px")
-                    .style("top", event.pageY + 0 + "px")
+                    .style("left", event.pageX + "px")
+                    .style("top", event.pageY + "px")
                     .html(
                         `<div class="tooltip-window">
                         <p>${vis.selected}</p>
@@ -104,28 +109,23 @@ class Detail {
             .attr('width', d => vis.radiusScale(d[1]))
             .attr('height', d => vis.radiusScale(d[1]))
             .attr('plane', d=>d[0])
-            // .attr('r', d => vis.radiusScale(d[1]))
-            // .attr('fill', d=> {vis.planeConfigToImage(d[0]);return 'red'})
 
-        // vis.node
-        //     .append('text')
-        //     .attr("text-anchor", "middle")
-        //     .style("font-size", function (d) {
-        //         let r = d3.select(this.parentNode.querySelector('circle')).attr('r')
-        //         let len = d[0].length
-        //         return Math.min(r / 3, r * 2 / len) + "px";
-        //     })
-        //     .text(d => {
-        //         return d[0]
-        //     })
+        vis.txt = vis.node
+            .append('text')
+            .attr("text-anchor", "middle")
+            .attr('x', d=>vis.radiusScale(d[1])/2)
+            .style("font-size",14)
+            .text(d => {
+                return d[0]
+            })
 
         vis.sim = d3.forceSimulation(vis.dataGrouped,d=> [d[0],vis.radiusScale(d[1])])
-            .force("x", d3.forceX(vis.width / 2).strength(0.01))
-            .force("y", d3.forceY(vis.height / 2).strength(0.01))
+            .force("x", d3.forceX(vis.width / 2).strength(0.005))
+            .force("y", d3.forceY(vis.height / 2).strength(0.005))
             .force("center", d3.forceCenter().x(vis.width * .5).y(vis.height * .5).strength(0.2))
             .force('charge', d3.forceManyBody().strength(-5))
-            .force('collide', d3.forceCollide(function (d) {
-                return Math.sqrt(vis.radiusScale(d[1]))
+            .force('collision', d3.forceCollide(function (d) {
+                return vis.radiusScale(d[1])*0.6
             }).iterations(2).strength(1.0))
             .on("tick", function () {
                 vis.node.enter()
@@ -153,6 +153,7 @@ class Detail {
                         .on("end", d => vis.dragEnd(d, vis.sim)));
                 vis.node.exit().remove()
                 d3.selectAll(vis.circles).exit().remove()
+                d3.selectAll(vis.txt).exit().remove()
             })
     }
 
@@ -161,6 +162,8 @@ class Detail {
     }
 
     drag(d) {
+        d3.select('#tooltip')
+            .style('display', 'none')
         d.subject.x = d.x;
         d.subject.y = d.y;
     }

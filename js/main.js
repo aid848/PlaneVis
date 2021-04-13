@@ -315,7 +315,6 @@ function changeView(){
 function generatePlaneTable(data){
     let grouping = d3.groups(data, d=>d['Model_ac'])
     grouping = grouping.map((ele) => {
-        // TODO retry among ele[1] array if entry is blank
         return [ele[0],[ele[1][0]['Engine Type'],ele[1][0]['Number of Engines']]]
     })
     return new Map(grouping)
