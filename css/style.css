@@ -139,6 +139,9 @@ axis text {
     stroke: #888;
 }
 
+.tick text {
+    font-size: 15px;
+}
 
 rect {
     shape-rendering: crispEdges;

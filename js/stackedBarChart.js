@@ -42,7 +42,7 @@ class StackedBarChart {
 
         // Initialize axes
         vis.xAxis = d3.axisBottom(vis.xScale);
-        vis.yAxis = d3.axisLeft(vis.yScale).ticks(6);
+        vis.yAxis = d3.axisLeft(vis.yScale).ticks(5);
 
         // Define size of SVG drawing area
         vis.svg = d3.select(vis.config.parentElement)
@@ -164,12 +164,14 @@ class StackedBarChart {
 
         rectangle.merge(rectangleEnter)
             .attr('x', d => vis.xScale(d.data["Purpose of Flight"]))
-            .attr('y', d => vis.yScale(d[1]))
-            .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
-            .attr('width', vis.xScale.bandwidth())
             .style('fill', d => {
+                console.log(d)
                 return d.data["Purpose of Flight"] === "Personal" ? "#db0004" : "#0700db"
-            });
+            }).transition()
+            .duration(700)
+            .attr('width', vis.xScale.bandwidth())
+            .attr("y", function(d) {return vis.yScale(d[1]) })
+            .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
 
         rectangleEnter.exit().remove();
 
