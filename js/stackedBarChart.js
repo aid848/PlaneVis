@@ -14,10 +14,11 @@ class StackedBarChart {
             displayType: 'absolute',
             legendWidth: 300,
             legendTitleHeight: 12,
-            legendBarHeight: 14,
+            legendBarHeight: 20,
             injuries : ['Total Fatal Injuries', 'Total Serious Injuries', 'Total Minor Injuries'],
         }
         this.data = _data;
+        this.severitySelection = '';
         this.initVis();
     }
 
@@ -80,6 +81,12 @@ class StackedBarChart {
         vis.stack = d3.stack()
             .keys(injuries);
 
+        // create label group for number of injuries
+        vis.injuryNumberLabelG = vis.chart.append('g')
+            .attr('class', 'injury-number-container');
+            // .attr('transform', `translate(${vis.width},0)`);
+
+        vis.renderLegend();
         vis.updateVis();
     }
 
@@ -124,7 +131,6 @@ class StackedBarChart {
 
         vis.stackedData = vis.stack(vis.groupedData);
 
-        vis.renderLegend();
         vis.renderVis();
     }
 
@@ -150,11 +156,11 @@ class StackedBarChart {
                 .style("opacity", 1)
         }
 
-        const category = vis.chart.selectAll('.category')
+        const category = vis.chart.selectAll('.bar-category')
             .data(vis.stackedData)
         // enter
         const categoryEnter = category.enter().append('g')
-            .attr('class', d => `category ${d.key}`)
+            .attr('class', d => `bar-category ${d.key.split(' ')[1]}`);
 
         // enter + update groups
         categoryEnter.merge(category);
@@ -166,13 +172,11 @@ class StackedBarChart {
             .data(d => d)
 
         const rectangleEnter = rectangle.enter().append('rect')
-            .attr('class', 'rectangle')
+            .attr('class', d => `rectangle ${d.data["Purpose of Flight"]}`)
 
         rectangle.merge(rectangleEnter)
             .attr('x', d => vis.xScale(d.data["Purpose of Flight"]))
-            .style('fill', d => {
-                return d.data["Purpose of Flight"] === "Personal" ? "#db0004" : "#0700db"
-            }).transition()
+            .transition()
             .ease(d3.easeLinear)
             .duration(600)
             .attr('width', vis.xScale.bandwidth())
@@ -180,6 +184,33 @@ class StackedBarChart {
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
 
         rectangleEnter.exit().remove();
+
+
+
+        // Add injury numbers to chart
+        vis.injuryNumberLabelG.selectAll('text')
+            .data(vis.groupedData, d => d['Purpose of Flight'])
+            .join('text')
+            .transition()
+            .ease(d3.easeLinear)
+            .duration(600)
+            .attr('x', d => {
+                const tick = vis.chart.selectAll(".x-axis .tick").filter(t => t === d["Purpose of Flight"]);
+                // get transform / translate info
+                const transform = tick.node().transform.baseVal[0].matrix;
+                return transform.e
+            })
+            .attr('y', d => vis.yScale(
+                d["Total Fatal Injuries"] + d["Total Minor Injuries"] + d["Total Serious Injuries"]
+            ))
+            .attr('dy', -20)
+            .attr('text-anchor', 'middle')
+            .text(d => {
+                if (vis.severitySelection.length > 0) {
+                    return d[`Total ${vis.severitySelection} Injuries`]
+                }
+                return d["Total Fatal Injuries"] + d["Total Minor Injuries"] + d["Total Serious Injuries"]
+            });
 
 
         // Update the axes
@@ -192,29 +223,57 @@ class StackedBarChart {
     renderLegend() {
         const vis = this;
 
-        // Inititalize categorical scale
+        // Initialize categorical scale
         const xLegendScale = d3.scaleBand()
             .domain(vis.config.injuries)
             .range([0, vis.config.legendWidth])
             .paddingInner(0);
 
         // Add coloured rectangles
-        vis.legend.selectAll('.legend-element')
-            .data(vis.config.injuries)
+        let legendElementG = vis.legend.selectAll('g')
+            .data(vis.config.injuries, d => d)
+            .join('g')
+
+        legendElementG.on('mouseover', function(event,d) {
+                const types = ["Fatal", "Serious", "Minor"];
+                vis.severitySelection = d.split(' ')[1];
+
+                vis.updateVis()
+
+                types.filter(t => t !== vis.severitySelection).forEach(s => {
+                    d3.selectAll(`.${s}`)
+                        .transition()
+                        .ease(d3.easeLinear)
+                        .duration(300)
+                        .style('opacity', 0.3);
+                })
+            })
+            .on('mouseout', function(event,d) {
+                const types = ["Fatal", "Serious", "Minor"];
+                vis.severitySelection = '';
+
+                vis.updateVis()
+
+                types.filter(t => t !== d.split(' ')[1]).forEach(s => {
+                    d3.selectAll(`.${s}`)
+                        .transition()
+                        .ease(d3.easeLinear)
+                        .duration(300)
+                        .style('opacity', 1)
+                })
+            });
+
+        legendElementG.selectAll('rect')
+            .data(d => [d], d => d)
             .join('rect')
-            .attr('class', d => `legend-element ${d}`)
+            .attr('class', d => `legend-element ${d.split(' ')[1]}`)
             .attr('width', xLegendScale.bandwidth())
             .attr('height', vis.config.legendBarHeight)
             .attr('x', d => xLegendScale(d))
             .attr('y', vis.config.legendTitleHeight)
-            .on('mouseover', (event,d) => {
-                d3.selectAll(`.cat:not(.cat-${d})`).classed('inactive', true);
-            })
-            .on('mouseout', () => {
-                d3.selectAll(`.cat`).classed('inactive', false);
-            });
 
         // Add legend title
+        // TODO: DATA BINDING OR MOVE TO INIT
         vis.legend.append('text')
             .attr('class', 'legend-title')
             .attr('dy', '0.35em')
@@ -223,30 +282,19 @@ class StackedBarChart {
 
         const legendAxisYPos = vis.config.legendTitleHeight + vis.config.legendBarHeight + 5;
 
-        vis.legend.append('text')
+        legendElementG.selectAll('text')
+            .data(d => [d], d => d)
+            .join('text')
             .attr('class', 'legend-axis-text')
             .attr('dy', '0.75em')
             .attr('y', legendAxisYPos)
-            .attr('x', 30)
-            .text('Fatal')
-            .attr('transform', `translate(0,7)`);
-
-
-        vis.legend.append('text')
-            .attr('class', 'legend-axis-text')
-            .attr('dy', '0.75em')
-            .attr('y', legendAxisYPos)
-            .attr('x', 120)
-            .text('Serious')
-            .attr('transform', `translate(0,7)`);
-
-
-        vis.legend.append('text')
-            .attr('class', 'legend-axis-text')
-            .attr('dy', '0.75em')
-            .attr('y', legendAxisYPos)
-            .attr('x', 230)
-            .text('Minor')
+            .attr('x', function() {
+                const pos = this.parentNode.getBBox();
+                console.log(this, this.parentNode, this.parentNode.getBBox())
+                return pos.x + pos.width / 2
+            })
+            .text(d => d.split(' ')[1])
+            .attr('text-anchor', 'middle')
             .attr('transform', `translate(0,7)`);
 
     }

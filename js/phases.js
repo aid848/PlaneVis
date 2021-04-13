@@ -68,7 +68,7 @@ class FlightPhase {
         // set the color scale
         vis.globalColor = d3.scaleOrdinal()
             .domain(["Commercial", "Personal"])
-            .range(["#0024d6", "#d60004"]);
+            // .range(["#0024d6", "#d60004"]);
 
         vis.pie = d3.pie();
 
@@ -135,7 +135,6 @@ class FlightPhase {
                     return "end";
                 return "middle"
             })
-            .attr('fill', '#fdf1e7')
             .text(d => d.phase);
 
         // flight marker to be animated along the path
@@ -275,9 +274,7 @@ class FlightPhase {
                 .data(d => [d])
                 .join('path')
                 .attr('d', vis.arcGenerator)
-                .attr('fill', d => {
-                    return vis.globalColor(d.data.key)
-                })
+                .attr('class', d => d.data.key)
                 .attr("stroke", "black")
                 .style("stroke-width", "2px");
             // annotation
@@ -285,10 +282,10 @@ class FlightPhase {
                 .data(d => [d])
                 .join('text')
                 .text(d => d.data.value)
+                .attr('class', d => d.data.key)
                 .attr("transform", d => `translate(${vis.arcGenerator.centroid(d)})`)
-                .attr("text-anchor", "middle")
-                .attr("font-size", 12)
-                .attr("fill", "white");
+                .attr("text-anchor", "middle");
+
 
             pieG.filter((d) => {
                 const poi = vis.phaseNameUpperCase.findIndex(p => d[0].includes(p));

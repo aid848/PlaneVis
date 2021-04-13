@@ -168,12 +168,12 @@ const marginFixed = Math.abs((window.outerHeight - 800)/2); // 800 is the contai
 window.onscroll = function (e) {
     let startPosFlightContainer = d3.select('svg#flight-path').node().getBoundingClientRect().top;
     let diff = d3.select('.info').node().getBoundingClientRect().height;
-    let diff2 = d3.select('#chart').node().getBoundingClientRect().height;
+    let diff2 = d3.select('.stacked-barchart').node().getBoundingClientRect().height;
 
     if (startPosFlightContainer < diff+diff2) {
         d3.select('.info').style('position', 'sticky').style('top', marginFixed+"px");
 
-        d3.select('svg#chart').style('position', 'sticky').style('top', diff+marginFixed);
+        d3.select('.stacked-barchart').style('position', 'sticky').style('top', diff+marginFixed+"px");
         d3.select('svg#flight-path').style('position', 'sticky').style('top', diff+diff2+marginFixed);
     }
 };

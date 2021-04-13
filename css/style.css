@@ -74,8 +74,16 @@ svg {
     font-size: 17px;
 }
 
+.pie-container text.Commercial {
+    fill: black !important;
+}
+
 g {
     color: #fdf1e7;
+}
+
+#flight-phase-container text {
+    fill: #fdf1e7;
 }
 
 #tooltip {
@@ -99,8 +107,13 @@ g {
 }
 
 #chart-legend {
- display: flex;
+    display: flex;
     fill: beige;
+    margin-left: 110px;
+}
+
+#chart-legend g > g {
+    cursor: pointer;
 }
 
 #title {
@@ -190,7 +203,8 @@ rect {
 }
 
 .Commercial {
-    fill: #0700db;
+    /*fill: #0700db;*/
+    fill: yellow;
 }
 
 #flight-phase svg {
@@ -223,7 +237,7 @@ rect {
 
 #summary-container {
     z-index: 2;
-    height: 750px;
+    height: 90vh;
 }
 
 .info span#flight-phase-title{
@@ -236,11 +250,15 @@ svg#patterns {
 }
 
 svg text {
-    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-touch-caðmillout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
     -khtml-user-select: none; /* Konqueror HTML */
     -moz-user-select: none; /* Old versions of Firefox */
     -ms-user-select: none; /* Internet Explorer/Edge */
     user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
+}
+
+svg#chart {
+    padding-top: 0;
 }
