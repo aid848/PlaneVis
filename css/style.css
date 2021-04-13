@@ -70,6 +70,10 @@ svg {
     stroke: #575657;
 }
 
+.pie-container text {
+    font-size: 17px;
+}
+
 g {
     color: #fdf1e7;
 }
@@ -140,7 +144,7 @@ axis text {
 }
 
 .tick text {
-    font-size: 15px;
+    font-size: 17px;
 }
 
 rect {

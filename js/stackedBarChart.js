@@ -169,32 +169,18 @@ class StackedBarChart {
             .attr('class', 'rectangle')
 
         rectangle.merge(rectangleEnter)
-            .transition()
-            .duration(1500)
             .attr('x', d => vis.xScale(d.data["Purpose of Flight"]))
             .style('fill', d => {
-                console.log(d)
                 return d.data["Purpose of Flight"] === "Personal" ? "#db0004" : "#0700db"
             }).transition()
-            .duration(700)
+            .ease(d3.easeLinear)
+            .duration(600)
             .attr('width', vis.xScale.bandwidth())
             .attr("y", function(d) {return vis.yScale(d[1]) })
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
 
         rectangleEnter.exit().remove();
 
-
-        // vis.chart.selectAll('category')
-        //     .data(vis.stackedData, d => d.key )
-        //     .join('g')
-        //         .attr('class', d => `category ${d.key}`)
-        //     .selectAll('rect')
-        //         .data(d => d)
-        //     .join('rect')
-        //         .attr('x', d => vis.xScale(d.data["Purpose of Flight"]))
-        //         .attr('y', d => vis.yScale(d[1]))
-        //         .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
-        //         .attr('width', vis.xScale.bandwidth());
 
         // Update the axes
         vis.xAxisG.call(vis.xAxis);
