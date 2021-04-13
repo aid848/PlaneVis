@@ -164,7 +164,7 @@ rect {
     shape-rendering: crispEdges;
 }
 
-.Minor {
+.Minor > rect{
     mask: url(#minor-mask)
 }
 
@@ -172,7 +172,7 @@ rect {
 /*    mask: url(#fatal-mask)*/
 /*}*/
 
-.Serious {
+.Serious > rect{
     mask: url(#serious-mask)
 }
 
@@ -261,4 +261,12 @@ svg text {
 
 svg#chart {
     padding-top: 0;
+}
+
+.hover, .inactive {
+     filter: saturate(30%);
+}
+
+.inactive {
+    opacity: 0.3 !important;
 }

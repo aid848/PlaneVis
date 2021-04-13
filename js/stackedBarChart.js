@@ -18,7 +18,10 @@ class StackedBarChart {
             injuries : ['Total Fatal Injuries', 'Total Serious Injuries', 'Total Minor Injuries'],
         }
         this.data = _data;
-        this.severitySelection = '';
+        this.severitySelection = {
+            click: false,
+            severity: ''
+        };
         this.initVis();
     }
 
@@ -183,6 +186,60 @@ class StackedBarChart {
             .attr("y", function(d) {return vis.yScale(d[1]) })
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
 
+        d3.selectAll('.stacked-barchart rect').on('mouseover', function() {
+            const types = ["Fatal", "Serious", "Minor"];
+            const selected = this.parentNode.classList[1];
+
+            types.filter(t => t !== selected).forEach(s => {
+                d3.selectAll(`.${s}`)
+                    .classed('hover', true)
+                    .transition()
+                    .ease(d3.easeLinear)
+                    .duration(300)
+                    .style('opacity', 0.3);
+            });
+
+            vis.severitySelection.severity = selected;
+
+            vis.updateVis()
+        })
+        .on('mouseout', function() {
+            const types = ["Fatal", "Serious", "Minor"];
+            const selected = this.parentNode.classList[1];
+
+            types.filter(t => t !== selected).forEach(s => {
+                d3.selectAll(`.${s}`)
+                    .classed('hover', false)
+                    .transition()
+                    .ease(d3.easeLinear)
+                    .duration(300)
+                    .style('opacity', 1)
+            })
+
+            vis.severitySelection.severity = '';
+
+            console.log('mouseout',  vis.severitySelection.severity)
+
+            vis.updateVis()
+        })
+        .on('click', function() {
+            const types = ["Fatal", "Serious", "Minor"];
+            const selected = this.parentNode.classList[1];
+
+            let bool;
+
+            types.filter(t => t !== selected).forEach(s => {
+                bool = !d3.selectAll(`.${s}`).classed('inactive');
+                d3.selectAll(`.${s}`)
+                    .classed('inactive', bool)
+            });
+
+            vis.severitySelection.click = !!bool;
+            // vis.severitySelection.severity = bool ? selected : '';
+
+            vis.updateVis()
+        });
+
         rectangleEnter.exit().remove();
 
 
@@ -206,8 +263,9 @@ class StackedBarChart {
             .attr('dy', -20)
             .attr('text-anchor', 'middle')
             .text(d => {
-                if (vis.severitySelection.length > 0) {
-                    return d[`Total ${vis.severitySelection} Injuries`]
+                if (vis.severitySelection.click || vis.severitySelection.severity) {
+                    console.log("click", vis.severitySelection.click, vis.severitySelection.severity, d[`Total ${vis.severitySelection.severity} Injuries`])
+                    return d[`Total ${vis.severitySelection.severity} Injuries`]
                 }
                 return d["Total Fatal Injuries"] + d["Total Minor Injuries"] + d["Total Serious Injuries"]
             });
@@ -233,40 +291,12 @@ class StackedBarChart {
         let legendElementG = vis.legend.selectAll('g')
             .data(vis.config.injuries, d => d)
             .join('g')
-
-        legendElementG.on('mouseover', function(event,d) {
-                const types = ["Fatal", "Serious", "Minor"];
-                vis.severitySelection = d.split(' ')[1];
-
-                vis.updateVis()
-
-                types.filter(t => t !== vis.severitySelection).forEach(s => {
-                    d3.selectAll(`.${s}`)
-                        .transition()
-                        .ease(d3.easeLinear)
-                        .duration(300)
-                        .style('opacity', 0.3);
-                })
-            })
-            .on('mouseout', function(event,d) {
-                const types = ["Fatal", "Serious", "Minor"];
-                vis.severitySelection = '';
-
-                vis.updateVis()
-
-                types.filter(t => t !== d.split(' ')[1]).forEach(s => {
-                    d3.selectAll(`.${s}`)
-                        .transition()
-                        .ease(d3.easeLinear)
-                        .duration(300)
-                        .style('opacity', 1)
-                })
-            });
+            .attr('class', d => d.split(' ')[1]);
 
         legendElementG.selectAll('rect')
             .data(d => [d], d => d)
             .join('rect')
-            .attr('class', d => `legend-element ${d.split(' ')[1]}`)
+            .attr('class', 'legend-element')
             .attr('width', xLegendScale.bandwidth())
             .attr('height', vis.config.legendBarHeight)
             .attr('x', d => xLegendScale(d))
@@ -290,7 +320,6 @@ class StackedBarChart {
             .attr('y', legendAxisYPos)
             .attr('x', function() {
                 const pos = this.parentNode.getBBox();
-                console.log(this, this.parentNode, this.parentNode.getBBox())
                 return pos.x + pos.width / 2
             })
             .text(d => d.split(' ')[1])
