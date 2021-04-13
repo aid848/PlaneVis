@@ -112,7 +112,7 @@ g {
     margin-left: 110px;
 }
 
-#chart-legend g > g {
+#chart-legend g > g, rect.rectangle {
     cursor: pointer;
 }
 
@@ -264,7 +264,7 @@ svg#chart {
 }
 
 .hover, .inactive {
-     filter: saturate(30%);
+    filter: saturate(30%);
 }
 
 .inactive {

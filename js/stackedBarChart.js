@@ -19,8 +19,8 @@ class StackedBarChart {
         }
         this.data = _data;
         this.severitySelection = {
-            click: false,
-            severity: ''
+            click: '',
+            hover: ''
         };
         this.initVis();
     }
@@ -188,7 +188,12 @@ class StackedBarChart {
 
         d3.selectAll('.stacked-barchart rect').on('mouseover', function() {
             const types = ["Fatal", "Serious", "Minor"];
-            const selected = this.parentNode.classList[1];
+            const selected = types.filter(t => this.parentNode.classList.contains(t))[0];
+
+
+            if (vis.severitySelection.click) {
+                d3.selectAll(`.${selected}`).classed('inactive', false)
+            }
 
             types.filter(t => t !== selected).forEach(s => {
                 d3.selectAll(`.${s}`)
@@ -199,14 +204,24 @@ class StackedBarChart {
                     .style('opacity', 0.3);
             });
 
-            vis.severitySelection.severity = selected;
-
+            vis.severitySelection.hover = selected;
             vis.updateVis()
         })
         .on('mouseout', function() {
             const types = ["Fatal", "Serious", "Minor"];
-            const selected = this.parentNode.classList[1];
+            const selected = types.filter(t => this.parentNode.classList.contains(t))[0];
 
+            if (vis.severitySelection.click) {
+                types.filter(t => t !== vis.severitySelection.click).forEach(s => {
+                    d3.selectAll(`.${s}`)
+                        .classed('inactive', true)
+                        .transition()
+                        .ease(d3.easeLinear)
+                        .duration(300)
+                        .style('opacity', 1)
+                });
+            }
+            
             types.filter(t => t !== selected).forEach(s => {
                 d3.selectAll(`.${s}`)
                     .classed('hover', false)
@@ -214,17 +229,14 @@ class StackedBarChart {
                     .ease(d3.easeLinear)
                     .duration(300)
                     .style('opacity', 1)
-            })
+            });
 
-            vis.severitySelection.severity = '';
-
-            console.log('mouseout',  vis.severitySelection.severity)
-
+            vis.severitySelection.hover = ''; //vis.severitySelection.click ? vis.severitySelection.hoverSeverity : '';
             vis.updateVis()
         })
         .on('click', function() {
             const types = ["Fatal", "Serious", "Minor"];
-            const selected = this.parentNode.classList[1];
+            const selected = types.filter(t => this.parentNode.classList.contains(t))[0];
 
             let bool;
 
@@ -234,9 +246,7 @@ class StackedBarChart {
                     .classed('inactive', bool)
             });
 
-            vis.severitySelection.click = !!bool;
-            // vis.severitySelection.severity = bool ? selected : '';
-
+            vis.severitySelection.click = !!bool ? selected : '';
             vis.updateVis()
         });
 
@@ -263,9 +273,10 @@ class StackedBarChart {
             .attr('dy', -20)
             .attr('text-anchor', 'middle')
             .text(d => {
-                if (vis.severitySelection.click || vis.severitySelection.severity) {
-                    console.log("click", vis.severitySelection.click, vis.severitySelection.severity, d[`Total ${vis.severitySelection.severity} Injuries`])
-                    return d[`Total ${vis.severitySelection.severity} Injuries`]
+                if (vis.severitySelection.hover) {
+                    return d[`Total ${vis.severitySelection.hover} Injuries`]
+                } else if (vis.severitySelection.click) {
+                    return d[`Total ${vis.severitySelection.click} Injuries`]
                 }
                 return d["Total Fatal Injuries"] + d["Total Minor Injuries"] + d["Total Serious Injuries"]
             });
