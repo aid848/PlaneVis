@@ -1,5 +1,6 @@
 let joined_data, ac_data, ntsb_data, map_data
-let crashData, usMap, mapData, flightPhase, stackedBarChart
+let crashData, usMap, mapData, flightPhase, stackedBarChart, currentFlightStop,mapLegend;
+const dispatcher = d3.dispatch('filterPhaseData', 'reachedSummary');
 
 /**
  * Load data from CSV files asynchronously
@@ -15,12 +16,14 @@ us_map_data_p = d3.json('data/us.json')
 let secondary_selector = "Total Fatal Injuries"
 let checkboxes = [true, true, false] // commercial, private, amateur
 let date = [1970, 2020]
+let view = 1
 
 let visualizations_view_2 = [] // every vis here that needs data to change in view 2
 let full_data // unfiltered data copy
 
 // setup dispatchers
-const control_panel_dispatcher = d3.dispatch('control_filter')
+const control_panel_dispatcher = d3.dispatch('control_filter', 'overview_click', 'detail_click')
+
 
 // Render vis elements after data is all loaded
 Promise.all([
@@ -29,11 +32,8 @@ Promise.all([
     ntsb_data_p,
     us_map_data_p]).then((data) => {
 
-    joined_data = data[0] // should we just use this for the main view?
-    full_data = Array.from(data[0])
+    joined_data = data[0]
     map_data = data[3]
-    // ac_data = data[1]
-    // ntsb_data = data[2]
 
     usMap = new UsMap({
         parentElement: '#map'
@@ -42,6 +42,7 @@ Promise.all([
     // data formatting
     let timeParser = d3.timeParse("%Y-%m-%d")
     joined_data.forEach((ele) => {
+        ele["ID"] = +ele[""]
         ele['Event Date_ac'] = timeParser(ele['Event Date_ac'])
         ele['Total Fatal Injuries'] = +ele['Total Fatal Injuries']
         ele['Total Fatal Injuries'] = +ele['Total Fatal Injuries']
@@ -50,16 +51,21 @@ Promise.all([
         ele['Total Uninjured'] = +ele['Total Uninjured']
     })
 
+    full_data = Array.from(joined_data)
+
+    let plane_lookup = generatePlaneTable(joined_data)
 
     // vis element instantiation
     const control_panel = new Controls(joined_data, '#date_slider', control_panel_dispatcher)
-    const overview = new Overview(joined_data, '#overview', control_panel_dispatcher, secondary_selector)
-
+    const overview = new Overview(overviewFilter(joined_data,secondary_selector), '#overview', control_panel_dispatcher, secondary_selector)
+    visualizations_view_2.push(control_panel)
     visualizations_view_2.push(overview)
     // const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
-    const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
+    visualizations_view_2.push(usMap)
 
-    visualizations_view_2.push(detail)
+    const detail = new Detail(detailFilter(joined_data, secondary_selector, null), '#detail', control_panel_dispatcher, secondary_selector,plane_lookup )
+    visualizations_view_2.push(detail);
+
 
     d3.selectAll('input.controlbox').on('click', function () {
         switch (this.name) {
@@ -75,38 +81,127 @@ Promise.all([
                 break;
             default:
         }
-        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview)
+        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail,control_panel)
     })
 
     d3.selectAll('select.control-select').on('change', function () {
         secondary_selector = d3.select(this).property("value")
-        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview)
+        joined_data = controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail,control_panel)
     })
 
     control_panel_dispatcher.on('control_filter', function (event, context) {
+        // check if selection has actually changed
+        if(date[0] === this.date[0] && date[1] === this.date[1]){
+            return
+        }
         date = this.date
-        console.log(date)
-        controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview)
+        controlBoxFilter(full_data, visualizations_view_2, checkboxes, secondary_selector, date, overview, detail,control_panel)
     })
+
+    control_panel_dispatcher.on('overview_click', function (event,context){
+        detail.selected = this.name
+        detail.data = detailFilter(full_data, secondary_selector, this.name);
+        usMap.data = mapFilterOverview(full_data, secondary_selector, this.name);
+        detail.updateVis()
+        usMap.updateVis(this.name)
+    })
+
+    control_panel_dispatcher.on('detail_click', function (event,context){
+        usMap.data = mapFilterDetail(full_data, secondary_selector, this.name);
+        usMap.updateVis(this.name)
+    })
+
     joined_data.forEach(d => {
         d["Flight Phase General"] = d["Flight Phase"].split(" ")[0]
     });
 
     // group the data based on Phases
-    const groupedData = d3.groups(joined_data,
+
+    const phaseGroupedData = d3.groups(joined_data,
         d => d["Flight Phase General"],
         d => d["Purpose of Flight"] === "Personal",
     );
 
-    flightPhase = new FlightPhase({parentElement: '#flight-phase'}, groupedData);
-    console.log(groupedData);
+    flightPhase = new FlightPhase({parentElement: '#flight-phase'}, phaseGroupedData, dispatcher);
     flightPhase.updateVis();
 
-    stackedBarChart = new StackedBarChart({parentElement: '#chart'}, joined_data);
+    // Create a waypoint for each `flight stop` circle
+    const waypoints = d3.selectAll('.scroll-stop').each(function(d, stopIndex) {
+        return new Waypoint({
+            // `this` contains the current HTML element
+            element: this,
+            handler: function(direction) {
+                // Check if the user is scrolling up or down
+                const forward = direction === 'down';
+                currentFlightStop = stopIndex;
+
+                // Update visualization based on the current stop
+                flightPhase.updateVis(forward, stopIndex);
+
+            },
+            // Trigger scroll event
+            offset: '20%',
+        });
+    });
+
+    stackedBarChart = new StackedBarChart({parentElement: '#chart'}, []);
 
 }).catch(error => console.error(error));
 
-function controlBoxFilter(data, views, checkboxes, secondary_select, date, overview) {
+
+
+// dispatcher to connect with stacked bar chart, to send phase name
+dispatcher.on('filterPhaseData', phaseName => {
+    if (phaseName === "Summary") {
+        stackedBarChart.data = joined_data;
+    } else {
+        stackedBarChart.data = joined_data.filter(d => {
+            return d["Flight Phase General"].includes(phaseName)
+        });
+    }
+
+    stackedBarChart.updateVis();
+});
+
+// dispatcher for doing transitions in other containers when reached summary phase
+dispatcher.on('reachedSummary', boolean => {
+    if (boolean === true) {
+        d3.select('.info').transition()
+            .duration(1000)
+            .ease(d3.easeLinear).style("display", "none");
+
+        d3.select('#summary-container').transition()
+            .duration(1500)
+            .ease(d3.easeLinear).style("opacity", 1);
+    } else {
+        d3.select('.info').transition()
+            .duration(1000)
+            .ease(d3.easeLinear).style("display", "");
+
+        d3.select('#summary-container').transition()
+            .duration(300)
+            .ease(d3.easeLinear).style("opacity", 0);
+    }
+});
+
+const marginFixed = Math.abs((window.outerHeight - 800)/2); // 800 is the containerHeight of Flight view
+// when window is scrolling, detect where the flight phase view is and let it stay in view if reached
+// let scrolled = false;
+window.onscroll = function (e) {
+    let startPosFlightContainer = d3.select('svg#flight-path').node().getBoundingClientRect().top;
+    let diff = d3.select('.info').node().getBoundingClientRect().height;
+    let diff2 = d3.select('.stacked-barchart').node().getBoundingClientRect().height;
+
+    if (startPosFlightContainer < diff+diff2) {
+        d3.select('.info').style('position', 'sticky').style('top', marginFixed+"px");
+
+        d3.select('.stacked-barchart').style('position', 'sticky').style('top', diff+marginFixed+"px");
+        d3.select('svg#flight-path').style('position', 'sticky').style('top', diff+diff2+marginFixed);
+    }
+};
+
+
+function controlBoxFilter(data, views, checkboxes, secondary_select, date, overview, detail,control__panel) {
     let new_Data = data
 
     // Checkbox filtering
@@ -128,23 +223,174 @@ function controlBoxFilter(data, views, checkboxes, secondary_select, date, overv
         })
     }
 
+    let predateFiltering = Array.from(new_Data)
+
     // Date filtering
     new_Data = new_Data.filter((ele) => {
         let x = new Date(ele['Event Date_ac']).getFullYear()
         return (x >= date[0]) && (x <= date[1])
     })
 
-    // dropdown filtering
-    views.forEach((vis) => {
-        vis.attribute = secondary_selector
-    })
+    // dropdown filtering by group
+    let overviewData = overviewFilter(new_Data,secondary_selector)
+    let detailData = detailFilter(new_Data, secondary_selector, null)
 
+    let control__panelData = controlFilter(predateFiltering,secondary_selector)
+
+    overview.attribute = secondary_selector;
+    overview.data = overviewData;
+
+    control__panel.data_dates = control__panelData
+
+
+    detail.attribute = secondary_selector;
+    detail.data = detailData;
+
+    usMap.attribute = decodeMapAttribute(secondary_selector);
+    usMap.data = new_Data;
     // change data and update views
     views.forEach((vis) => {
-        vis.data = new_Data
         vis.updateVis()
     })
-    console.log(new_Data)
     return new_Data
 }
 
+function mapFilterOverview (data, attribute, make) {
+    let new_Data = data
+
+    if(make !== null) {
+        new_Data = new_Data.filter((ele) => {
+            return ele['Make_ac'] === make;
+        })
+    }
+    return new_Data;
+}
+
+function mapFilterDetail (data, attribute, model) {
+    let new_Data = data
+
+    if(model !== null) {
+        new_Data = new_Data.filter((ele) => {
+            return ele['Model_ac'] === model;
+        })
+    }
+    return new_Data;
+}
+
+function detailFilter(data, attribute, make) {
+    let new_Data = data
+
+    if(make !== null) {
+        new_Data = new_Data.filter((ele) => {
+            return ele['Make_ac'] === make;
+        })
+    }
+    let dataGrouped = d3.groups(new_Data, (d) => d["Model_ac"])
+    return groupFilter(dataGrouped, attribute);
+}
+
+function overviewFilter(data, attribute){
+    let dataGrouped = d3.groups(data, (d) => d["Make_ac"])
+    return groupFilter(dataGrouped, attribute);
+}
+
+function controlFilter(data, attribute){
+    let dataGrouped =  d3.groups(data, d => new Date(d['Event Date_ac']).getFullYear())
+    return groupFilter(dataGrouped, attribute);
+}
+
+function groupFilter(data,attribute){
+    let dataAttributed = [];
+    let dataGrouped = data;
+    switch (attribute) {
+        case 'Total Fatal Injuries':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0], ele[1].map(val => val[attribute]).reduce((acc, cur) => acc + cur)]
+            })
+            break;
+        case 'Most Destroyed craft':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0], ele[1].map(val => val['Aircraft Damage']).filter((cur) => cur.toLowerCase() === 'destroyed').length]
+            })
+            break;
+        case 'Number of accidents':
+            dataAttributed = dataGrouped.map(ele => [ele[0], ele[1].length])
+            break;
+        case 'Fatal to non-Fatal ratio':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0],
+                    ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) / (ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur))]
+            })
+            dataAttributed = dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
+            break;
+        case 'Serious Injuries':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0], ele[1].map(val => val['Total Serious Injuries']).reduce((acc, cur) => acc + cur)]
+            })
+            break;
+        case 'Minor Injuries':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0], ele[1].map(val => val['Total Minor Injuries']).reduce((acc, cur) => acc + cur)]
+            })
+            break;
+        case 'Injuries to Uninjured ratio':
+            dataAttributed = dataGrouped.map(ele => {
+                return [ele[0],
+                    (ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur)) / ele[1].map(e => e['Total Uninjured']).reduce((acc, cur) => acc + cur)]
+            })
+            dataAttributed = dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
+            break;
+    }
+    // use secondary selector to order by magnitude
+    dataAttributed = dataAttributed.sort(((a, b) => a[1] - b[1])).reverse()
+    return dataAttributed
+}
+
+function decodeMapAttribute(attribute) {
+    switch (attribute) {
+        case 'Total Fatal Injuries':
+            return 'Total Fatal Injuries';
+            break;
+        case 'Most Destroyed craft':
+            return 'Total Fatal Injuries';
+            break;
+        case 'num-accidents':
+            return 'Total Fatal Injuries';
+            break;
+        case 'Fatal to non-Fatal ratio':
+            return 'Total Fatal Injuries';
+            break;
+        case 'Serious Injuries':
+            return 'Total Serious Injuries';
+            break;
+        case 'Minor Injuries':
+            return 'Total Minor Injuries';
+
+            break;
+        case 'Injuries to Uninjured ratio':
+            return 'Total Fatal Injuries';
+            break;
+    }
+    return "Total Fatal Injuries";
+}
+
+function changeView(){
+    if(view === 1){
+        document.querySelector('#view1').style.display = 'none'
+        document.querySelector('#view2').style.display = 'block'
+        view = 2
+    }else{
+        document.querySelector('#view1').style.display = 'block'
+        document.querySelector('#view2').style.display = 'none'
+        view = 1
+    }
+
+}
+
+function generatePlaneTable(data){
+    let grouping = d3.groups(data, d=>d['Model_ac'])
+    grouping = grouping.map((ele) => {
+        return [ele[0],[ele[1][0]['Engine Type'],ele[1][0]['Number of Engines']]]
+    })
+    return new Map(grouping)
+}

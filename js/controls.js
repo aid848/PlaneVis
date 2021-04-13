@@ -4,9 +4,11 @@ class Controls {
         this.data = _data // Data should only be changed based on filters besides date
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
-        this.width = 400
+        this.width = window.innerWidth * 0.4
+        this.height = window.innerHeight * 0.1
+        // this.width = 400
         this.padding = 5
-        this.height = this.width / 8
+        // this.height = this.width / 8
 
         this.initVis()
     }
@@ -56,46 +58,45 @@ class Controls {
             // call dispatcher to re-filter data
             control_panel_dispatcher.call('control_filter', {date: dates})
         })
+
+        vis.data_dates = d3.groups(vis.data, d => new Date(d['Event Date_ac']).getFullYear())
+        vis.data_dates = controlFilter(vis.data,secondary_selector)
+        vis.xScale.domain([d3.min(vis.data_dates, d => d[0]),d3.max(vis.data_dates, d => d[0]) ])
         this.updateVis()
     }
 
     updateVis() {
         const vis = this
-
         // get the data years for histogram density view
-        vis.data_dates = d3.group(vis.data, d => new Date(d['Event Date_ac']).getFullYear())
         let largest = 0
         let smallest = Infinity
-        // console.log(vis.data_dates)
         vis.data_dates.forEach(ele => {
-            if (ele.length > largest)
-                largest = ele.length
+            if (ele[1] > largest)
+                largest = ele[1]
 
-            if (ele.length < smallest)
-                smallest = ele.length
+            if (ele[1] < smallest)
+                smallest = ele[1]
         })
-        vis.xScale.domain([d3.min(vis.data_dates.keys()), d3.max(vis.data_dates.keys())])
-        vis.yScale.domain([0, largest])
+        vis.yScale.domain([smallest, largest])
+
+
         vis.renderVis()
     }
 
     renderVis() {
         const vis = this
 
-        // todo add border lines for brush (cosmetic)
-        vis.bars = vis.chartArea.selectAll('.bar')
-            .data(vis.data_dates, d => {
-                return d
-            })
+        vis.bars = vis.chartArea.selectAll('rect')
+            .data(vis.data_dates, d=>d[0])
             .join('rect')
-            .attr('class', d => `bar-volume-${d[0]}`)
             .attr('x', d => vis.xScale(d[0]))
             .attr('width', 5)
             .attr('height', d => {
-                return vis.height + vis.padding - vis.yScale(d[1].length)
+                return vis.height + vis.padding - vis.yScale(d[1])
             })
-            .attr('y', d => vis.padding + vis.yScale(d[1].length))
+            .attr('y', d => vis.padding + vis.yScale(d[1]))
 
+        vis.bars.exit().remove()
         vis.chart.call(vis.brush)
         vis.xAxisGroup.call(vis.xAxis).call((g) => g.select(".domain").remove());
         vis.yAxisGroup.call(vis.yAxis).call((g) => g.select(".domain").remove());

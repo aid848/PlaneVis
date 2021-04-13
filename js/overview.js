@@ -5,14 +5,15 @@ class Overview {
         this.data = _data
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
-        this.width = 1080
-        this.height = this.width / 2
-        this.maxCircleSize = 100
+        this.width = window.innerWidth * 0.6
+        this.height = window.innerHeight * 0.5
+        this.maxCircleSize = 75
         this.minCircleSize = 30
         this.padding = 5
         this.groupBy = "Make_ac"
         this.attribute = _attr
-        this.maxElements = 50
+        this.maxElements = 30
+        this.legendStep = [25,50,75,100]
         this.initVis()
     }
 
@@ -37,60 +38,35 @@ class Overview {
         vis.xScale = d3.scaleLinear()
         vis.radiusScale = d3.scaleSqrt().range([vis.minCircleSize, vis.maxCircleSize])
 
-        // TODO some kind of static size chart,color legend (polish)
+        // legend
+        vis.legend = vis.chart
+            .selectAll('#legend-overview')
+            .data(vis.legendStep)
+            .enter()
+            .append('circle')
+            .attr('class','legend-circle')
+            .attr("cx", vis.padding + vis.maxCircleSize)
+            .attr("cy", function(d){ return vis.height - vis.padding * 2 -  (vis.maxCircleSize-vis.minCircleSize)*d/100 - vis.minCircleSize} )
+            .attr("r", function(d){ return (vis.maxCircleSize-vis.minCircleSize)*d/100 + vis.minCircleSize })
+            .style("fill", "none")
+            .attr("stroke", "black")
+
+
+        vis.title = vis.chart
+            .append('text')
+            .attr('x', 0)
+            .attr('y', vis.padding*2)
+            .attr('class','bubble-title')
+            .text(`${secondary_selector} by Aircraft Make`)
 
         vis.updateVis()
     }
 
     updateVis() {
         const vis = this
-        console.log(vis.attribute)
-        vis.dataGrouped = d3.groups(vis.data, (d) => d[vis.groupBy])
-
-        switch (vis.attribute) {
-            case 'Total Fatal Injuries':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0], ele[1].map(val => val[vis.attribute]).reduce((acc, cur) => acc + cur)]
-                })
-                break;
-            case 'Aircraft Destroyed':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0], ele[1].map(val => val['Aircraft Damage']).filter((cur) => cur.toLowerCase() === 'destroyed').length]
-                })
-                break;
-            case 'num-accidents':
-                vis.dataAttributed = vis.dataGrouped.map(ele => [ele[0], ele[1].length])
-                break;
-            case 'Fatal to non-Fatal ratio':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0],
-                        ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) / (ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur))]
-                })
-                vis.dataAttributed = vis.dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
-                break;
-            case 'Serious Injuries':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0], ele[1].map(val => val['Total Serious Injuries']).reduce((acc, cur) => acc + cur)]
-                })
-                break;
-            case 'Minor Injuries':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0], ele[1].map(val => val['Total Minor Injuries']).reduce((acc, cur) => acc + cur)]
-                })
-                break;
-            case 'Injuries to Uninjured ratio':
-                vis.dataAttributed = vis.dataGrouped.map(ele => {
-                    return [ele[0],
-                        (ele[1].map(e => e['Total Fatal Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Serious Injuries']).reduce((acc, cur) => acc + cur) + ele[1].map(e => e['Total Minor Injuries']).reduce((acc, cur) => acc + cur)) / ele[1].map(e => e['Total Uninjured']).reduce((acc, cur) => acc + cur)]
-                })
-                vis.dataAttributed = vis.dataAttributed.filter((e) => e[1] !== Infinity && !isNaN(e[1]))
-                break;
-        }
-        // use secondary selector to order by magnitude
-        vis.dataAttributed = vis.dataAttributed.sort(((a, b) => a[1] - b[1])).reverse().slice(0, vis.maxElements)
-        console.log(vis.dataAttributed)
-        // length from secondary selector range
+        vis.dataAttributed = vis.data.slice(0, vis.maxElements)
         vis.radiusScale.domain([vis.dataAttributed[vis.maxElements - 1][1], vis.dataAttributed[0][1]])
+        d3.selectAll(vis.title).text(`${secondary_selector} by Aircraft Make`)
         vis.renderVis()
     }
 
@@ -98,28 +74,61 @@ class Overview {
 
         const vis = this
 
+        // patch sub elements duplications, (limited to only a few rogue elements of the force directed sim)
+        d3.selectAll(vis.textlabels).remove()
+        d3.selectAll(vis.circles).remove()
+
+        vis.textlabels = vis.chart
+            .selectAll('#legend-overview')
+            .data(vis.legendStep, d=>d)
+            .join('text')
+            .attr('class', 'legend-label')
+            .attr('x', vis.padding + vis.maxCircleSize)
+            .attr('y', d=> vis.height - vis.padding - 2*((vis.maxCircleSize-vis.minCircleSize)*d/100 + vis.minCircleSize) - 10)
+            .text(d => {
+                let val = vis.radiusScale.invert((vis.maxCircleSize-vis.minCircleSize)*d/100 + vis.minCircleSize)
+                return val.toFixed(0)})
+
         vis.node = vis.chart
             .selectAll('g')
-            .data(vis.dataAttributed, d => d)
+            .data(vis.dataAttributed, function (d){
+                return [d[0],vis.radiusScale(d[1])]
+            })
             .join('g')
             .attr('class', 'node')
             .attr('transform', `translate(${vis.width / 2},${vis.height / 2})`)
             .on('click', function () {
-                // TODO call dispatcher for detail view (after m2)
-                console.log(this)
+                const name = this.querySelector('text').innerHTML
+                vis.dispatcher.call('overview_click', {name: name})
             })
-            .on('mouseover', function () {
-                // TODO do classed hover (cosmetic)
-                // TODO tooltip (after m2)
+            .on('mouseenter', function (event,d) {
+                // tooltip for makes
+                d3.select('#tooltip')
+                    .style('display', 'block')
+                    .style("left", event.pageX + 0 + "px")
+                    .style("top", event.pageY + 0 + "px")
+                    .html(
+                        `<div class="tooltip-window">
+                        <p>${d[0]}</p> 
+                        <p>${secondary_selector} ${d[1].toFixed(0)}</p>
+                        </div>`
+                    );
+            })
+            .on('mouseout', function (event,d) {
+                d3.select('#tooltip')
+                    .style('display', 'none')
             })
 
 
-        vis.circles = vis.node.append('circle')
+        vis.circles = vis.node
+            .append('circle')
             .attr('r', d => vis.radiusScale(d[1]))
             .attr('fill', d => {
                 // TODO color if applicable for secondary selector (eg avg severity of accidents for num of accidents) (cosmetic)
                 return 'red'
             })
+
+
 
         vis.node
             .append('text')
@@ -133,8 +142,10 @@ class Overview {
                 return d[0]
             })
 
-        vis.sim = d3.forceSimulation(vis.dataAttributed, d => d[0])
-            .force("x", d3.forceX(vis.width / 2).strength(0.01))
+        vis.sim = d3.forceSimulation(vis.dataAttributed, function (d){
+            return [d[0],vis.radiusScale(d[1])]
+        })
+            .force("x", d3.forceX(vis.width / 2 + vis.maxCircleSize*1.5).strength(0.01))
             .force("y", d3.forceY(vis.height / 2).strength(0.01))
             .force("center", d3.forceCenter().x(vis.width * .5).y(vis.height * .5).strength(0.2))
             .force('charge', d3.forceManyBody().strength(-5))
@@ -142,8 +153,6 @@ class Overview {
                 return vis.radiusScale(d[1])
             }).iterations(2).strength(1.0))
             .on("tick", function () {
-
-
                 vis.node.enter()
                     .append('g')
                     .merge(vis.node)
@@ -169,8 +178,10 @@ class Overview {
                         .on("start", d => vis.dragStart(d, vis.sim))
                         .on("drag", vis.drag)
                         .on("end", d => vis.dragEnd(d, vis.sim)));
+
                 vis.node.exit().remove()
 
+                d3.selectAll(vis.circles).exit().remove()
             })
     }
 
@@ -179,6 +190,8 @@ class Overview {
     }
 
     drag(d) {
+        d3.select('#tooltip')
+            .style('display', 'none')
         d.subject.x = d.x;
         d.subject.y = d.y;
     }

@@ -8,46 +8,100 @@
 </head>
 
 <body>
-<h2 id='title'>THE HISTORICAL FACTORS OF PLANE DISASTERS IN THE U.S.</h2>
 
-<div id="control_panel" class="control_panel">
-    <div id="dropdown-group">
-        <select name="Secondary attribute" id="secondary-selector" class="control-select">
-            <option value="Total Fatal Injuries">Fatalities</option>
-            <option value="Aircraft Destroyed">Most Destroyed craft</option>
-            <option value="num-accidents">Number of accidents</option>
-            <option value="Fatal to non-Fatal ratio">Fatal to non-Fatal ratio</option>
-            <option value="Serious Injuries">Serious Injuries</option>
-            <option value="Minor Injuries">Minor Injuries</option>
-            <option value="Injuries to Uninjured ratio">Injuries to Uninjured ratio</option>
-        </select>
+
+
+
+<div id="view1">
+    <div id="heading">
+        <h2 id='title'>THE HISTORICAL FACTORS OF PLANE DISASTERS IN THE U.S.</h2>
+        <input type="image" src="figs/changePage.png" class="switchView" onclick="changeView()">
     </div>
-    <div id="date_slider"></div>
-    <div id="checkbox-group">
-        <input type="checkbox" id="commercial-box" class="controlbox" name="commercial-box" checked>
-        <label for="commercial-box">Commercial</label>
-        <br>
-        <input type="checkbox" id="private-box" class="controlbox" name="private-box" checked>
-        <label for="private-box">Personal</label>
-        <br>
-        <input type="checkbox" id="amateur-box" class="controlbox" name="amateur-box">
-        <label for="amateur-box">Amateur-built</label>
+    <div id="views">
+        <div id="control_panel" class="control_panel">
+            <div id="dropdown-group">
+                <select name="Secondary attribute" id="secondary-selector" class="control-select">
+                    <option value="Total Fatal Injuries">Fatalities</option>
+                    <option value="Most Destroyed craft">Most Destroyed craft</option>
+                    <option value="Number of accidents">Number of accidents</option>
+                    <option value="Fatal to non-Fatal ratio">Fatal to non-Fatal ratio</option>
+                    <option value="Serious Injuries">Serious Injuries</option>
+                    <option value="Minor Injuries">Minor Injuries</option>
+                    <option value="Injuries to Uninjured ratio">Injuries to Uninjured ratio</option>
+                </select>
+            </div>
+            <div id="date_slider"></div>
+            <div id="checkbox-group">
+                <input type="checkbox" id="commercial-box" class="controlbox" name="commercial-box" checked>
+                <label for="commercial-box">Commercial</label>
+                <br>
+                <input type="checkbox" id="private-box" class="controlbox" name="private-box" checked>
+                <label for="private-box">Personal</label>
+                <br>
+                <input type="checkbox" id="amateur-box" class="controlbox" name="amateur-box">
+                <label for="amateur-box">Amateur-built</label>
+            </div>
+        </div>
+        <div id="map">
+            <svg id="map-legend"></svg>
+        </div>
+        <div id="overview" class="overview"></div>
+        <div id="detail" class="detail"></div>
     </div>
 </div>
 
-<div id="overview" class="overview"></div>
-<div id="detail" class="detail"></div>
-<div id="map"></div>
 
-<div id=flight-phase-view"">
-    <svg id="flight-phase"/>
+<div id="view2" style="display: none">
+    <input type="image" src="figs/changePage.png" class="switchView" onclick="changeView()">
+    <div id="flight-phase-container">
+        <div id="flight-phase">
+        <div class="info">
+            <span id="flight-phase-title">Injuries Based on Flight Phase & Purpose</span>
+        </div>
+    <div class="stacked-barchart">
+    <svg id="chart-legend"></svg>
+            <svg id="chart"></svg>
+        </div>
+    </div>
+    <div id="flight-scroll">
+        <div class="scroll-stop" id="0"></div>
+        <div class="scroll-stop" id="1"></div>
+        <div class="scroll-stop" id="2"></div>
+        <div class="scroll-stop" id="3"></div>
+        <div class="scroll-stop" id="4"></div>
+        <div class="scroll-stop" id="5"></div>
+        <div class="scroll-stop" id="6"></div>
+        <div class="scroll-stop" id="7"></div>
+    </div>
 </div>
-<svg id="chart"></svg>
 
-<div id="tooltip"></div>
+<div id="summary-container">
+    Summary
+</div>
+
+<svg xmlns='http://www.w3.org/2000/svg' width='0' height='0' id="patterns">
+    <defs>
+        <svg height="10" width="10" xmlns="http://www.w3.org/2000/svg" version="1.1"> <defs> <pattern id="dots-9" patternUnits="userSpaceOnUse" width="10" height="10"> <image xlink:href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScgLz4KICA8cmVjdCB4PScwJyB5PScwJyB3aWR0aD0nOScgaGVpZ2h0PSc5JyBmaWxsPSdibGFjaycgLz4KPC9zdmc+" x="0" y="0" width="10" height="10"> </image> </pattern> </defs> </svg>
+        <svg height="10" width="10" xmlns="http://www.w3.org/2000/svg" version="1.1"> <defs> <pattern id="dots-5" patternUnits="userSpaceOnUse" width="10" height="10"> <image xlink:href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScgLz4KICA8cmVjdCB4PScwJyB5PScwJyB3aWR0aD0nNScgaGVpZ2h0PSc1JyBmaWxsPSdibGFjaycgLz4KPC9zdmc+" x="0" y="0" width="10" height="10"> </image> </pattern> </defs> </svg>
+
+        <mask id="serious-mask" x="0" y="0" width="1" height="1" >
+            <rect x="0" y="0" width="1000" height="1000" fill="url(#dots-5)" />
+        </mask>
+        <mask id="minor-mask" x="0" y="0" width="1" height="1" >
+            <rect x="0" y="0" width="1000" height="1000" fill="url(#dots-9)" />
+        </mask>
+    </defs>
+</svg>
+
+</div>
+
+
+
+<div id="tooltip" class="tooltip"></div>
 
 <script src="js/d3.v6.min.js"></script>
 <script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
+<script src="js/noframework.waypoints.min.js"></script>
 <script src="js/topojson.v3.js"></script>
 <script src="js/main.js"></script>
 <script src="js/usMap.js"></script>
@@ -56,8 +110,19 @@
 <script src="js/overview.js"></script>
 <script src="js/detail.js"></script>
 <script src="js/stackedBarChart.js"></script>
+<script src="js/mapLegend.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
+
 
 
 </body>
+<footer>
+    Boeing plane image:
+    <a href="http://www.freepik.com">Designed by catalyststuff / Freepik</a>
+    Plane Icons:
+    <a href="https://www.vecteezy.com/free-vector/hand-drawn">Hand Drawn Vectors by Vecteezy</a>
+    Helicopter Icon:
+    <a href="https://www.vecteezy.com/free-vector/navy">Navy Vectors by Vecteezy</a>
+</footer>
 
 </html>

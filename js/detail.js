@@ -1,16 +1,17 @@
 // Overview from primary selector, tooltip and click to highlight changes map view, ordered sort, physics?
 
 class Detail {
-    constructor(_data, _parent_element, _dispatcher, _attr) {
+    constructor(_data, _parent_element, _dispatcher, _attr,lookup) {
         this.data = _data
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
-        this.width = 300
-        this.height = this.width
-        this.maxCircleSize = 50
+        this.lookup = lookup
+        this.width = window.innerWidth * 0.3
+        this.height = window.innerHeight * 0.5
+        this.maxCircleSize = 100
         this.minCircleSize = 10
         this.padding = 5
-        // this.groupBy = _grouping
+        this.selected = "BOEING"
         this.groupBy = "Model_ac"
         this.maxElements = 50
         this.initVis()
@@ -35,10 +36,18 @@ class Detail {
 
         // scales
         vis.xScale = d3.scaleLinear()
-        vis.radiusScale = d3.scaleSqrt().range([vis.minCircleSize, vis.maxCircleSize])
+        vis.radiusScale = d3.scaleLinear().range([vis.minCircleSize, vis.maxCircleSize])
 
-        // TODO some kind of static size,color legend (m3)
-        console.log(vis.data)
+        // legend
+
+
+
+        vis.title = vis.chart
+            .append('text')
+            .attr('x', 0)
+            .attr('y', vis.padding*2)
+            .attr('class','bubble-title')
+            .text(`${secondary_selector} by Aircraft Make (${vis.selected})`)
 
         vis.updateVis()
     }
@@ -46,10 +55,14 @@ class Detail {
     updateVis() {
         const vis = this
 
-        vis.dataGrouped = d3.groups(vis.data, (d) => d[vis.groupBy])
-        vis.dataGrouped = vis.dataGrouped.sort(((a, b) => a[1].length - b[1].length)).reverse().slice(0, vis.maxElements)
-        console.log(vis.groupBy)
-        vis.radiusScale.domain([vis.dataGrouped[vis.maxElements - 1][1].length, vis.dataGrouped[0][1].length]) // todo use min and max
+        if(vis.data.length < 25 ){
+            vis.maxElements = vis.data.length;
+        } else {
+            vis.maxElements = 25;
+        }
+        vis.dataGrouped = vis.data.slice(0, vis.maxElements)
+        vis.radiusScale.domain([vis.dataGrouped[vis.maxElements - 1][1], vis.dataGrouped[0][1]])
+        d3.selectAll(vis.title).text(`${secondary_selector} by Aircraft model (${vis.selected})`)
         vis.renderVis()
     }
 
@@ -57,43 +70,62 @@ class Detail {
         // TODO color if applicable for secondary selector (eg avg severity of accidents for num of accidents) (M3)
         const vis = this
 
+        // patch sub elements duplications, (limited to only a few rogue elements of the force directed sim)
+        d3.selectAll(vis.txt).remove()
+        d3.selectAll(vis.circles).remove()
+
         vis.node = vis.chart
             .selectAll('g')
-            .data(vis.dataGrouped, d => d)
+            .data(vis.dataGrouped, d=> [d[0],vis.radiusScale(d[1])])
             .join('g')
-            .attr('class', 'node')
+            .attr('class', 'node-detail')
             .attr('transform', `translate(${vis.width / 2},${vis.height / 2})`)
+            .style("margin", 3)
             .on('click', function () {
-                console.log(this)
+                const name = this.querySelector('image').getAttribute('plane')
+                vis.dispatcher.call('detail_click', {name: name})
             })
-            .on('mouseover', function () {
-                // TODO do classed hover and show tooltip (m3)
+            .on('mouseenter', function (event, d) {
+                // tooltip for models
+                d3.select('#tooltip')
+                    .style('display', 'block')
+                    .style("left", event.pageX + "px")
+                    .style("top", event.pageY + "px")
+                    .html(
+                        `<div class="tooltip-window">
+                        <p>${vis.selected}</p>
+                        <p>Model: ${d[0]}</p> 
+                        <p>${secondary_selector} ${d[1].toFixed(0)}</p>
+                        </div>`
+                    );
+            }).on('mouseout', function (event,d) {
+                d3.select('#tooltip')
+                    .style('display', 'none')
             })
 
 
-        vis.circles = vis.node.append('circle')
-            .attr('r', d => vis.radiusScale(d[1].length))
-            .attr('fill', 'red')
+        vis.circles = vis.node.append('image')
+            .attr("xlink:href", d=> {return vis.planeConfigToImage(d[0])})
+            .attr('width', d => vis.radiusScale(d[1]))
+            .attr('height', d => vis.radiusScale(d[1]))
+            .attr('plane', d=>d[0])
 
-        vis.node
+        vis.txt = vis.node
             .append('text')
             .attr("text-anchor", "middle")
-            .style("font-size", function (d) {
-                let r = d3.select(this.parentNode.querySelector('circle')).attr('r')
-                let len = d[0].length
-                return Math.min(r / 3, r * 2 / len) + "px";
-            }) // TODO come up with better formula? (cosmetic)
+            .attr('x', d=>vis.radiusScale(d[1])/2)
+            .style("font-size",14)
             .text(d => {
                 return d[0]
             })
 
-        vis.sim = d3.forceSimulation(vis.dataGrouped)
-            .force("x", d3.forceX(vis.width / 2).strength(0.01))
-            .force("y", d3.forceY(vis.height / 2).strength(0.01))
+        vis.sim = d3.forceSimulation(vis.dataGrouped,d=> [d[0],vis.radiusScale(d[1])])
+            .force("x", d3.forceX(vis.width / 2).strength(0.005))
+            .force("y", d3.forceY(vis.height / 2).strength(0.005))
             .force("center", d3.forceCenter().x(vis.width * .5).y(vis.height * .5).strength(0.2))
             .force('charge', d3.forceManyBody().strength(-5))
-            .force('collide', d3.forceCollide(function (d) {
-                return vis.radiusScale(d[1].length)
+            .force('collision', d3.forceCollide(function (d) {
+                return vis.radiusScale(d[1])*0.6
             }).iterations(2).strength(1.0))
             .on("tick", function () {
                 vis.node.enter()
@@ -102,7 +134,7 @@ class Detail {
                     .attr('transform', function (d) {
                         let x = d.x
                         let y = d.y
-                        let rad = vis.radiusScale(d[1].length)
+                        let rad = vis.radiusScale(d[1])
                         if (x > vis.width - vis.padding - rad) {
                             x = vis.width - vis.padding - rad
                         } else if (x - vis.padding - rad < 0) {
@@ -120,6 +152,8 @@ class Detail {
                         .on("drag", vis.drag)
                         .on("end", d => vis.dragEnd(d, vis.sim)));
                 vis.node.exit().remove()
+                d3.selectAll(vis.circles).exit().remove()
+                d3.selectAll(vis.txt).exit().remove()
             })
     }
 
@@ -128,6 +162,8 @@ class Detail {
     }
 
     drag(d) {
+        d3.select('#tooltip')
+            .style('display', 'none')
         d.subject.x = d.x;
         d.subject.y = d.y;
     }
@@ -135,6 +171,36 @@ class Detail {
     dragEnd(d, sim) { // stop the bubbles from moving around after user is done
         sim.alphaTarget(0);
     }
+
+    planeConfigToImage(model){
+        let vis = this
+        let type = vis.lookup.get(model)[0]
+        let engines = vis.lookup.get(model)[1]
+
+        switch (type){
+            case 'Reciprocating':
+            case 'REC, TJ, TJ': // small plane with prop and car like engine here
+                return 'figs/Reciprocating.png'
+            case 'Turbo Shaft': // helicopter img here
+                    return "figs/heli.png"
+            case 'Turbo Fan': // regular commercial jet image (check if 2 or 4 engines, or generic)
+            case 'Turbo Jet':
+                if(engines === 2){
+                    return "figs/turbo2engine.png"
+                }else if(engines === 4){
+                    return "figs/turbo4engine.png"
+                }else {
+                    return "figs/turboNengine.png"
+                }
+            case 'Turbo Prop': // classic larger prop plane
+                return 'figs/turboprop.png'
+            case 'Unknown': // generic cartoon plane image
+            default:
+                return "figs/planeGeneric.png"
+        }
+
+    }
+
 }
 
 
