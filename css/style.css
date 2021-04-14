@@ -112,7 +112,7 @@ g {
     cursor: pointer;
 }
 
-#title {
+#title, .title {
     font-size: 28px;
     color: #fdf1e7;
     text-transform: uppercase;
@@ -334,20 +334,15 @@ body {
     height: 90vh;
     display: flex;
     justify-content: center;
+    position: sticky;
+
+    margin-top: -20px;
 }
 
-/*.info {*/
-/*    position: sticky;*/
-/*    top: calc((100% - 800px) / 2);*/
-/*}*/
 
-.info span#flight-phase-injury-title {
+.title-2 {
     font-size: 2em;
     font-weight: bold;
-}
-
-#view-desc {
-    position: absolute;
 }
 
 svg#patterns {
@@ -370,18 +365,30 @@ svg#chart {
     opacity: 0.3 !important;
 }
 
+.top-view {
+    width: 100%;
+    display: flex;
+}
+
+#view-desc {
+    position: sticky;
+    margin-top: 12vh;
+    margin-left: 7vw;
+    margin-right: 5vw;
+    width: 15vw;
+    pointer-events: none;
+}
+
 .stacked-barchart{
-    /*position: sticky;*/
-    /*--width: 4%;*/
-    /*top: calc(var(--width) + (100% - 800px) / 2);*/
     z-index: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 #date_slider{
     background-color: #131820;
     border-radius: 20px 20px 20px 20px;
     box-shadow: rgba(43, 63, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
-
 }
 
 .hist-rect{
@@ -396,20 +403,14 @@ svg#chart {
     z-index: 1;
 }
 
+#view2 {
+    min-width: 1200px;
+}
+
 #view2 .switchView {
     right: 0;
     position: fixed;
     z-index: 1;
-}
-
-#view-desc {
-    left: 0;
-    position: fixed;
-    /*text-align: justify;*/
-    top: 30vh;
-    margin-left: 10vw;
-    width: 17vw;
-    pointer-events: none;
 }
 
 .footer {

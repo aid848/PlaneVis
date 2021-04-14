@@ -68,19 +68,19 @@
     <input type="image" src="figs/changePage.png" class="switchView" onclick="changeView()">
     <div id="flight-phase-container">
         <div id="flight-phase">
-            <div class="info">
-                <div class="relative">
-                    <span id="flight-phase-injury-title">Injuries Based on Flight Phase & Purpose</span>
-                    <div id="view-desc">
-                        <p> For each phase, each stacked bar chart is updated with the number of injuries
-                            that occurred in the corresponding flight purposes;
-                            the pie charts show the number of the flight incidents that happened.</p>
-                    </div>
-                </div>
+            <div class="title title-2">
+                <span>Injuries Based on Flight Phase & Purpose</span>
             </div>
-            <div class="stacked-barchart">
-                <svg id="chart-legend"></svg>
-                <svg id="chart"></svg>
+            <div class="top-view">
+                <div id="view-desc">
+                    <p> For each phase, each stacked bar chart is updated with the number of injuries
+                        that occurred in the corresponding flight purposes;
+                        the pie charts show the number of the flight incidents that happened.</p>
+                </div>
+                <div class="stacked-barchart">
+                    <svg id="chart-legend"></svg>
+                    <svg id="chart"></svg>
+                </div>
             </div>
         </div>
         <div id="flight-scroll">
@@ -96,7 +96,9 @@
     </div>
 
     <div id="summary-container">
-        Summary
+        <div class="title title-2">
+            <span>Summary</span>
+        </div>
     </div>
 
     <div id="footer-2">
