@@ -8,7 +8,7 @@ class UsMap {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: window.innerWidth * 0.5,
-            containerHeight: window.innerHeight * 0.5,
+            containerHeight: window.innerHeight * 0.6,
             margin: _config.margin || {top: 0, right: 0, bottom: 0, left: 0},
             tooltipPadding: 10
         }
