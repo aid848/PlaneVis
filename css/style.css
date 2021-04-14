@@ -179,6 +179,7 @@ rect {
     align-items: center;
 
     width: 100%;
+    zoom: 0.9;
 }
 
 #flight-phase {
@@ -312,9 +313,18 @@ body {
     justify-content: center;
 }
 
-.info span#flight-phase-title{
+/*.info {*/
+/*    position: sticky;*/
+/*    top: calc((100% - 800px) / 2);*/
+/*}*/
+
+.info span#flight-phase-injury-title {
     font-size: 2em;
     font-weight: bold;
+}
+
+#view-desc {
+    position: absolute;
 }
 
 svg#patterns {
@@ -338,6 +348,9 @@ svg#chart {
 }
 
 .stacked-barchart{
+    /*position: sticky;*/
+    /*--width: 4%;*/
+    /*top: calc(var(--width) + (100% - 800px) / 2);*/
     z-index: 1;
 }
 
@@ -357,4 +370,32 @@ svg#chart {
     right: 0;
     position: fixed;
     z-index: 1;
+}
+
+#view-desc {
+    left: 0;
+    position: fixed;
+    /*text-align: justify;*/
+    top: 30vh;
+    margin-left: 10vw;
+    width: 17vw;
+    pointer-events: none;
+}
+
+.footer {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#footer-2 {
+    width: 100%;
+    position: fixed;
+    bottom: 10px;
+    text-align: center;
+}
+
+
+.stop-scrolling {
+    height: 100%;
+    overflow: hidden;
 }

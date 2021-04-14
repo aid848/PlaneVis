@@ -1,5 +1,6 @@
 let joined_data, ac_data, ntsb_data, map_data
-let crashData, usMap, mapData, flightPhase, stackedBarChart, currentFlightStop,mapLegend;
+let crashData, usMap, mapData, flightPhase, stackedBarChart, currentFlightStop,mapLegend, scrollPoint;
+
 const dispatcher = d3.dispatch('filterPhaseData', 'reachedSummary');
 
 /**
@@ -111,6 +112,8 @@ Promise.all([
         usMap.updateVis(this.name)
     })
 
+    scrollPoint = d3.select('.footer').node().getBoundingClientRect().bottom;
+
     joined_data.forEach(d => {
         d["Flight Phase General"] = d["Flight Phase"].split(" ")[0]
     });
@@ -128,7 +131,6 @@ Promise.all([
     stackedBarChart = new StackedBarChart({parentElement: '#chart'}, []);
 
 }).catch(error => console.error(error));
-
 
 
 // dispatcher to connect with stacked bar chart, to send phase name
@@ -167,7 +169,6 @@ dispatcher.on('reachedSummary', boolean => {
 
 const marginFixed = Math.abs((window.outerHeight - 800)/2); // 800 is the containerHeight of Flight view
 // when window is scrolling, detect where the flight phase view is and let it stay in view if reached
-// let scrolled = false;
 window.onscroll = function (e) {
     let startPosFlightContainer = d3.select('svg#flight-path').node().getBoundingClientRect().top;
     let diff = d3.select('.info').node().getBoundingClientRect().height;
@@ -179,6 +180,11 @@ window.onscroll = function (e) {
         d3.select('.stacked-barchart').style('position', 'sticky').style('top', diff+marginFixed+"px");
         d3.select('svg#flight-path').style('position', 'sticky').style('top', diff+diff2+marginFixed);
     }
+
+    // const docTop = document.documentElement.scrollTop;
+    // if (document.querySelector('#view2').style.display === "block") {
+    //     docTop < scrollPoint ? document.documentElement.scrollTop = scrollPoint : ''
+    // }
 };
 
 
@@ -361,7 +367,12 @@ function changeView(){
         document.querySelector('#view2').style.display = 'block'
         view = 2
 
-        detectFlightScrolling();
+        // scroll to top of view
+        const top = d3.select('#flight-phase-container').node().getBoundingClientRect().top;
+        window.scrollBy(0, top);
+
+        detectFlightScrolling()
+
     }else{
         document.querySelector('#view1').style.display = 'flex'
         document.querySelector('#view2').style.display = 'none'
@@ -372,7 +383,7 @@ function changeView(){
 
 function detectFlightScrolling() {
     // Create a waypoint for each `flight stop` circle
-    const waypoints = d3.selectAll('.scroll-stop').each(function(d, stopIndex) {
+    d3.selectAll('.scroll-stop').each(function(d, stopIndex) {
         return new Waypoint({
             // `this` contains the current HTML element
             element: this,
@@ -380,8 +391,6 @@ function detectFlightScrolling() {
                 // Check if the user is scrolling up or down
                 const forward = direction === 'down';
                 currentFlightStop = stopIndex;
-
-                console.log(this)
 
                 // Update visualization based on the current stop
                 flightPhase.updateVis(forward, stopIndex);
