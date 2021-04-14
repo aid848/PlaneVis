@@ -148,17 +148,21 @@ dispatcher.on('filterPhaseData', phaseName => {
 // dispatcher for doing transitions in other containers when reached summary phase
 dispatcher.on('reachedSummary', boolean => {
     if (boolean === true) {
-        d3.select('.info').transition()
+        d3.select('.title-2').style("display", "none");
+
+        d3.select('#view-desc').transition()
             .duration(1000)
-            .ease(d3.easeLinear).style("display", "none");
+            .ease(d3.easeLinear).style("visibility", "hidden");
 
         d3.select('#summary-container').transition()
             .duration(1500)
             .ease(d3.easeLinear).style("opacity", 1);
     } else {
-        d3.select('.info').transition()
+        d3.select('.title-2').style("display", "");
+
+        d3.select('#view-desc').transition()
             .duration(1000)
-            .ease(d3.easeLinear).style("display", "");
+            .ease(d3.easeLinear).style("visibility", "");
 
         d3.select('#summary-container').transition()
             .duration(300)
@@ -170,20 +174,15 @@ const marginFixed = Math.abs((window.outerHeight - 800)/2); // 800 is the contai
 // when window is scrolling, detect where the flight phase view is and let it stay in view if reached
 window.onscroll = function (e) {
     let startPosFlightContainer = d3.select('svg#flight-path').node().getBoundingClientRect().top;
-    let diff = d3.select('.info').node().getBoundingClientRect().height;
-    let diff2 = d3.select('.stacked-barchart').node().getBoundingClientRect().height;
+    let diff = d3.select('.title-2').node().getBoundingClientRect().height;
+    let diff2 = d3.select('.top-view').node().getBoundingClientRect().height;
 
     if (startPosFlightContainer < diff+diff2) {
-        d3.select('.info').style('position', 'sticky').style('top', marginFixed+"px");
+        d3.select('.title-2').style('position', 'sticky').style('top', marginFixed+"px");
 
-        d3.select('.stacked-barchart').style('position', 'sticky').style('top', diff+marginFixed+"px");
+        d3.select('.top-view').style('position', 'sticky').style('top', diff+marginFixed+"px");
         d3.select('svg#flight-path').style('position', 'sticky').style('top', diff+diff2+marginFixed);
     }
-
-    // const docTop = document.documentElement.scrollTop;
-    // if (document.querySelector('#view2').style.display === "block") {
-    //     docTop < scrollPoint ? document.documentElement.scrollTop = scrollPoint : ''
-    // }
 };
 
 
