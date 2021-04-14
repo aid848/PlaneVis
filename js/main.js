@@ -202,7 +202,7 @@ dispatcher.on("filterPhaseData", (phaseName) => {
 // dispatcher for doing transitions in other containers when reached summary phase
 dispatcher.on("reachedSummary", (boolean) => {
   if (boolean === true) {
-    d3.select(".title-2").style("display", "none");
+    d3.select("#flight-phase .title-2").style("display", "none");
 
     d3.select("#view-desc")
       .transition()
@@ -210,13 +210,13 @@ dispatcher.on("reachedSummary", (boolean) => {
       .ease(d3.easeLinear)
       .style("visibility", "hidden");
 
-    d3.select("#summary-container")
+    d3.select("#summary-container .title-2")
       .transition()
       .duration(1500)
       .ease(d3.easeLinear)
       .style("opacity", 1);
   } else {
-    d3.select(".title-2").style("display", "");
+    d3.select("#flight-phase .title-2").style("display", "");
 
     d3.select("#view-desc")
       .transition()
@@ -224,7 +224,7 @@ dispatcher.on("reachedSummary", (boolean) => {
       .ease(d3.easeLinear)
       .style("visibility", "");
 
-    d3.select("#summary-container")
+    d3.select("#summary-container .title-2")
       .transition()
       .duration(300)
       .ease(d3.easeLinear)

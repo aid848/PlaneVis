@@ -88,10 +88,6 @@ g {
     alignment: left;
 }
 
-#flight-phase-container text {
-    fill: #fdf1e7;
-}
-
 #legend {
     color: rgb(56, 58, 74);
     font-size: 18px;
@@ -175,6 +171,12 @@ rect {
 
     width: 100%;
     zoom: 0.9;
+
+    z-index: 1;
+}
+
+#flight-phase-container text {
+    fill: #fdf1e7;
 }
 
 #flight-phase {
@@ -185,6 +187,28 @@ rect {
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    background-color: #2f2f2f;
+    box-shadow: rgba(49, 63, 93, 0.2) 0px 30px 60px 20px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+    width: 95%;
+    border-radius: 340px 340px 50px 50px;
+}
+
+#flight-phase svg {
+    background-color: transparent;
+}
+
+#top-views {
+    background-color: #2f2f2f;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 95vw;
+    margin-bottom: 20px;
+    border-radius: 340px 340px 50px 50px;
+    box-shadow: rgba(49, 63, 93, 0.25) 0px 30px 60px 20px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
 }
 
 .Personal {
@@ -196,13 +220,9 @@ rect {
     fill: #ffe061;
 }
 
-#flight-phase svg {
-    background-color: transparent;
-}
-
 #flight-scroll{
     position: sticky;
-    z-index: -1;
+    z-index: -99;
     width: 100%;
 }
 
@@ -245,28 +265,6 @@ rect {
     border-radius: 150px 150px 50px 50px;
     margin-top: 100px;
     box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
-}
-
-
-#top-views {
-    background-color: #2f2f2f;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-evenly;
-    width: 95vw;
-    margin-bottom: 20px;
-    border-radius: 340px 340px 50px 50px;
-    box-shadow: rgba(49, 63, 93, 0.25) 0px 30px 60px 20px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
-}
-
-#flight-phase{
-    background-color: #2f2f2f;
-    box-shadow: rgba(49, 63, 93, 0.2) 0px 30px 60px 20px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
-    width: 95%;
-    border-radius: 340px 340px 50px 50px;
-
 }
 
 #overview{
@@ -330,15 +328,19 @@ body {
 
 
 #summary-container {
-    z-index: 2;
+    z-index: 1;
     height: 90vh;
     display: flex;
     justify-content: center;
-    position: sticky;
 
     margin-top: -20px;
 }
 
+#summary-container > .title-2 {
+    position: relative;
+    z-index: 2;
+    height: fit-content;
+}
 
 .title-2 {
     font-size: 2em;
@@ -380,7 +382,7 @@ svg#chart {
 }
 
 .stacked-barchart{
-    z-index: 1;
+    z-index: 3;
     display: flex;
     flex-direction: column;
 }
