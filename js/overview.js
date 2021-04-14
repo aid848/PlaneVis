@@ -37,7 +37,6 @@ class Overview {
     vis.radiusScale = d3
       .scaleSqrt()
       .range([vis.minCircleSize, vis.maxCircleSize]);
-    // vis.colorScale = d3.scaleSqrt().range(['coral','darkred'])
     vis.colorScale = d3.scaleSequential(d3.interpolateCividis);
 
     // legend
@@ -166,6 +165,13 @@ class Overview {
     vis.node
       .append("text")
       .attr("text-anchor", "middle")
+      .style('fill', function (d){
+        let ep = 0.85
+        if( vis.radiusScale(d[1]) > ep*vis.maxCircleSize) {
+          return 'black'
+        }
+        return 'white'
+      })
       .style("font-size", function (d) {
         let r = d3.select(this.parentNode.querySelector("circle")).attr("r");
         let len = d[0].length;
