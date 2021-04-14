@@ -363,7 +363,7 @@ function changeView(){
 
         detectFlightScrolling();
     }else{
-        document.querySelector('#view1').style.display = 'block'
+        document.querySelector('#view1').style.display = 'flex'
         document.querySelector('#view2').style.display = 'none'
         view = 1
     }

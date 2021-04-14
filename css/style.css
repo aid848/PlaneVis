@@ -3,9 +3,11 @@
 }
 
 .control_panel {
-    background-color: blue;
-    border: 10px solid black;
+    background-color: #3c3f41;
+    border: 5px solid black;
     width: fit-content;
+    border-radius: 10px;
+
 }
 
 svg text {
@@ -20,14 +22,13 @@ body {
 
 body {
     position: relative;
-    background-color: #2a2d2d;
+    background-color: #2b2b2b;
 
     color: #fdf1e7;
-    /*margin: none;*/
+    /*margin: 40px;*/
 }
 
 svg {
-    background-color: #305555;
     /*box-shadow: 0px 3px 15px rgba(0,0,0,0.2); */
     /*border-radius: 5px; */
     border-radius: 5px;
@@ -137,6 +138,7 @@ g {
 }
 
 
+
 axis text {
     font-size: .7rem;
     fill: #6b6b6b;
@@ -219,13 +221,16 @@ rect {
     float: left;
     width: fit-content;
     height: fit-content;
+    background-color: #424242;
+
+
 }
 
 #detail{
     float: right;
     width: fit-content;
     height: fit-content;
-
+    background-color: #424242;
 }
 
 
@@ -243,15 +248,32 @@ rect {
     justify-content: center;
 }
 
-#views {
+
+
+.sub-view{
+}
+#views{
+ display: flex;
+    flex-direction: column;
+}
+
+#top-views {
+    background-color: #424242;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-evenly;
+    margin-bottom: 30px;
 }
 
-
+#bottom-views {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
 /*#flight-scroll .scroll-stop:last-child {*/
 /*    height: 300px;*/
 /*}*/
@@ -296,6 +318,10 @@ svg#chart {
 
 .stacked-barchart{
     z-index: 1;
+}
+
+#date_slider{
+    background-color: #2b2b2b;
 }
 
 #view1 .switchView {

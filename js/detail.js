@@ -6,7 +6,7 @@ class Detail {
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
         this.lookup = lookup
-        this.width = window.innerWidth * 0.3
+        this.width = window.innerWidth * 0.315
         this.height = window.innerHeight * 0.5
         this.maxCircleSize = 100
         this.minCircleSize = 10

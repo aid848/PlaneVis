@@ -5,7 +5,7 @@ class Overview {
         this.data = _data
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
-        this.width = window.innerWidth * 0.6
+        this.width = window.innerWidth * 0.52
         this.height = window.innerHeight * 0.5
         this.maxCircleSize = 75
         this.minCircleSize = 30
@@ -49,7 +49,7 @@ class Overview {
             .attr("cy", function(d){ return vis.height - vis.padding * 2 -  (vis.maxCircleSize-vis.minCircleSize)*d/100 - vis.minCircleSize} )
             .attr("r", function(d){ return (vis.maxCircleSize-vis.minCircleSize)*d/100 + vis.minCircleSize })
             .style("fill", "none")
-            .attr("stroke", "black")
+            .attr("stroke", "black");
 
 
         vis.title = vis.chart

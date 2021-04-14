@@ -18,35 +18,39 @@
         <input type="image" src="figs/changePage.png" class="switchView" onclick="window.scrollTo(0,0); changeView()">
     </div>
     <div id="views">
-        <div id="control_panel" class="control_panel">
-            <div id="dropdown-group">
-                <select name="Secondary attribute" id="secondary-selector" class="control-select">
-                    <option value="Total Fatal Injuries">Fatalities</option>
-                    <option value="Most Destroyed craft">Most Destroyed craft</option>
-                    <option value="Number of accidents">Number of accidents</option>
-                    <option value="Fatal to non-Fatal ratio">Fatal to non-Fatal ratio</option>
-                    <option value="Serious Injuries">Serious Injuries</option>
-                    <option value="Minor Injuries">Minor Injuries</option>
-                    <option value="Injuries to Uninjured ratio">Injuries to Uninjured ratio</option>
-                </select>
+        <div id="top-views" class="sub-view">
+            <div id="control_panel" class="control_panel">
+                <div id="dropdown-group">
+                    <select name="Secondary attribute" id="secondary-selector" class="control-select">
+                        <option value="Total Fatal Injuries">Fatalities</option>
+                        <option value="Most Destroyed craft">Most Destroyed craft</option>
+                        <option value="Number of accidents">Number of accidents</option>
+                        <option value="Fatal to non-Fatal ratio">Fatal to non-Fatal ratio</option>
+                        <option value="Serious Injuries">Serious Injuries</option>
+                        <option value="Minor Injuries">Minor Injuries</option>
+                        <option value="Injuries to Uninjured ratio">Injuries to Uninjured ratio</option>
+                    </select>
+                </div>
+                <div id="date_slider"></div>
+                <div id="checkbox-group">
+                    <input type="checkbox" id="commercial-box" class="controlbox" name="commercial-box" checked>
+                    <label for="commercial-box">Commercial</label>
+                    <br>
+                    <input type="checkbox" id="private-box" class="controlbox" name="private-box" checked>
+                    <label for="private-box">Personal</label>
+                    <br>
+                    <input type="checkbox" id="amateur-box" class="controlbox" name="amateur-box">
+                    <label for="amateur-box">Amateur-built</label>
+                </div>
             </div>
-            <div id="date_slider"></div>
-            <div id="checkbox-group">
-                <input type="checkbox" id="commercial-box" class="controlbox" name="commercial-box" checked>
-                <label for="commercial-box">Commercial</label>
-                <br>
-                <input type="checkbox" id="private-box" class="controlbox" name="private-box" checked>
-                <label for="private-box">Personal</label>
-                <br>
-                <input type="checkbox" id="amateur-box" class="controlbox" name="amateur-box">
-                <label for="amateur-box">Amateur-built</label>
+            <div id="map">
+                <svg id="map-legend"></svg>
             </div>
         </div>
-        <div id="map">
-            <svg id="map-legend"></svg>
+        <div id="bottom-views" class="sub-view">
+            <div id="overview" class="overview"></div>
+            <div id="detail" class="detail"></div>
         </div>
-        <div id="overview" class="overview"></div>
-        <div id="detail" class="detail"></div>
     </div>
 </div>
 
