@@ -438,3 +438,7 @@ svg#chart {
 #map {
     margin-top: 100px;
 }
+
+a {
+    color: royalblue;
+}
