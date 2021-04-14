@@ -98,7 +98,11 @@ class Controls {
 
         vis.bars.exit().remove()
         vis.chart.call(vis.brush)
-        vis.xAxisGroup.call(vis.xAxis).call((g) => g.select(".domain").remove());
+
+        vis.xAxisGroup.call(vis.xAxis).call((g) => g.select(".domain").remove())
+            .selectAll("text")
+            // .attr('dy', -10)
+            .attr("transform", "rotate(300 10 0)");
         vis.yAxisGroup.call(vis.yAxis).call((g) => g.select(".domain").remove());
     }
 }

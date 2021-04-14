@@ -5,7 +5,8 @@
 .control_panel {
     background-color: #3c3f41;
     width: fit-content;
-    border-radius: 100px;
+    border-radius: 30px 10px;
+    /*overflow: hidden;*/
 }
 
 svg text {
