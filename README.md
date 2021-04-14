@@ -40,8 +40,8 @@ https://stackoverflow.com/questions/10692100/invoke-a-callback-at-the-end-of-a-t
 ### Main.js
 Since we wanted to detect the coordinate/positions of the elements so that we could force position on the screen, we used element.getBoundingClientRect(), specifically we used element.getBoundingClientRect().top to get the top location of the div and then add that into the style. .e.g.
 
-let diff = d3.select('.title-2').node().getBoundingClientRect().height;
-d3.select('.top-view').style('position', 'sticky').style('top', diff+"px");
+        let diff = d3.select('.title-2').node().getBoundingClientRect().height;
+        d3.select('.top-view').style('position', 'sticky').style('top', diff+"px");
 
 ### Figs directory
 Here we place all of our icons for the plane bubble chart as well as the UI elements for changing views and for the scrolly-telling view plane marker. <br>
