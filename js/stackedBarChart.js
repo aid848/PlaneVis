@@ -312,7 +312,6 @@ class StackedBarChart {
             .attr('y', vis.config.legendTitleHeight)
 
         // Add legend title
-        // TODO: DATA BINDING OR MOVE TO INIT
         vis.legend.append('text')
             .attr('class', 'legend-title')
             .attr('dy', '0.35em')
@@ -328,8 +327,12 @@ class StackedBarChart {
             .attr('dy', '0.75em')
             .attr('y', legendAxisYPos)
             .attr('x', function() {
-                const pos = this.parentNode.getBBox();
-                return pos.x + pos.width / 2
+                const x = this.parentNode.childNodes[0].width.baseVal.value / 2;
+                const name = this.parentNode.classList.value;
+
+                if (name === 'Fatal') return x;
+                else if (name === 'Serious') return 100+x;
+                return 200+x
             })
             .text(d => d.split(' ')[1])
             .attr('text-anchor', 'middle')

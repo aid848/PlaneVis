@@ -55,28 +55,29 @@
     <input type="image" src="figs/changePage.png" class="switchView" onclick="changeView()">
     <div id="flight-phase-container">
         <div id="flight-phase">
-        <div class="info">
-            <span id="flight-phase-title">Injuries Based on Flight Phase & Purpose</span>
+            <div class="info">
+                <span id="flight-phase-title">Injuries Based on Flight Phase & Purpose</span>
+            </div>
+            <div class="stacked-barchart">
+                <svg id="chart-legend"></svg>
+                <svg id="chart"></svg>
+            </div>
         </div>
-    <div class="stacked-barchart">
-    <svg id="chart-legend"></svg>
-            <svg id="chart"></svg>
+        <div id="flight-scroll">
+            <div class="scroll-stop" id="0"></div>
+            <div class="scroll-stop" id="1"></div>
+            <div class="scroll-stop" id="2"></div>
+            <div class="scroll-stop" id="3"></div>
+            <div class="scroll-stop" id="4"></div>
+            <div class="scroll-stop" id="5"></div>
+            <div class="scroll-stop" id="6"></div>
+            <div class="scroll-stop" id="7"></div>
         </div>
     </div>
-    <div id="flight-scroll">
-        <div class="scroll-stop" id="0"></div>
-        <div class="scroll-stop" id="1"></div>
-        <div class="scroll-stop" id="2"></div>
-        <div class="scroll-stop" id="3"></div>
-        <div class="scroll-stop" id="4"></div>
-        <div class="scroll-stop" id="5"></div>
-        <div class="scroll-stop" id="6"></div>
-        <div class="scroll-stop" id="7"></div>
-    </div>
-</div>
 
-<div id="summary-container">
-    Summary
+    <div id="summary-container">
+        Summary
+    </div>
 </div>
 
 <svg xmlns='http://www.w3.org/2000/svg' width='0' height='0' id="patterns">

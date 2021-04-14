@@ -6,7 +6,6 @@
     background-color: blue;
     border: 10px solid black;
     width: fit-content;
-
 }
 
 svg text {
@@ -173,7 +172,6 @@ rect {
     display:flex;
     flex-direction: column;
     flex:1;
-    margin-top: 50px;
     align-items: center;
 
     width: 100%;
@@ -242,6 +240,7 @@ rect {
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: center;
 }
 
 #views {
@@ -266,6 +265,8 @@ rect {
 #summary-container {
     z-index: 2;
     height: 90vh;
+    display: flex;
+    justify-content: center;
 }
 
 .info span#flight-phase-title{
@@ -294,5 +295,19 @@ svg#chart {
 }
 
 .stacked-barchart{
+    z-index: 1;
+}
+
+#view1 .switchView {
+    position: fixed;
+    right: 0;
+    bottom: 30px;
+    rotate: 180deg;
+    z-index: 1;
+}
+
+#view2 .switchView {
+    right: 0;
+    position: fixed;
     z-index: 1;
 }

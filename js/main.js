@@ -125,25 +125,6 @@ Promise.all([
     flightPhase = new FlightPhase({parentElement: '#flight-phase'}, phaseGroupedData, dispatcher);
     flightPhase.updateVis();
 
-    // Create a waypoint for each `flight stop` circle
-    const waypoints = d3.selectAll('.scroll-stop').each(function(d, stopIndex) {
-        return new Waypoint({
-            // `this` contains the current HTML element
-            element: this,
-            handler: function(direction) {
-                // Check if the user is scrolling up or down
-                const forward = direction === 'down';
-                currentFlightStop = stopIndex;
-
-                // Update visualization based on the current stop
-                flightPhase.updateVis(forward, stopIndex);
-
-            },
-            // Trigger scroll event
-            offset: '20%',
-        });
-    });
-
     stackedBarChart = new StackedBarChart({parentElement: '#chart'}, []);
 
 }).catch(error => console.error(error));
@@ -379,12 +360,37 @@ function changeView(){
         document.querySelector('#view1').style.display = 'none'
         document.querySelector('#view2').style.display = 'block'
         view = 2
+
+        detectFlightScrolling();
     }else{
         document.querySelector('#view1').style.display = 'block'
         document.querySelector('#view2').style.display = 'none'
         view = 1
     }
 
+}
+
+function detectFlightScrolling() {
+    // Create a waypoint for each `flight stop` circle
+    const waypoints = d3.selectAll('.scroll-stop').each(function(d, stopIndex) {
+        return new Waypoint({
+            // `this` contains the current HTML element
+            element: this,
+            handler: function(direction) {
+                // Check if the user is scrolling up or down
+                const forward = direction === 'down';
+                currentFlightStop = stopIndex;
+
+                console.log(this)
+
+                // Update visualization based on the current stop
+                flightPhase.updateVis(forward, stopIndex);
+
+            },
+            // Trigger scroll event
+            offset: '20%',
+        });
+    });
 }
 
 function generatePlaneTable(data){
