@@ -96,7 +96,7 @@ class UsMap {
 
         if (vis.hexData.length !== 0) {
             vis.svg.selectAll(".no-location-text").remove()
-            vis.chart.attr("opacity", .4)
+            vis.chart.attr("opacity", .45)
 
             // Append hexbin
             const hexbin = vis.svg.selectAll(".hex-bin-path")

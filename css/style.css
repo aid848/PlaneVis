@@ -15,15 +15,15 @@ body {
 
 
 #dropdown-group{
-    margin-top: 20px;
-    margin-bottom: 20px;
-    margin-left: 150px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    margin-left: 100px;
 }
 
 #checkbox-group {
-    margin-top: 20px;
+    margin-top: 10px;
     margin-bottom: 20px;
-    margin-left: 150px;
+    margin-left: 100px;
 }
 svg {
     /*box-shadow: 0px 3px 15px rgba(0,0,0,0.2); */
@@ -67,7 +67,7 @@ svg {
 }
 
 .geo-boundary-path {
-    stroke: #575657;
+    stroke: #2f2f2f;
 }
 
 .pie-container text {
@@ -232,7 +232,9 @@ rect {
 }
 
 
-
+.bubble-title span{
+    background-color: white;
+}
 #views{
  display: flex;
     flex-direction: column;
@@ -240,8 +242,9 @@ rect {
 .control_panel {
     background-color: #1b1b1b;
     width: fit-content;
-    border-radius: 150px 50px 50px 50px;
+    border-radius: 150px 150px 50px 50px;
     margin-top: 100px;
+    box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
 }
 
 
@@ -274,6 +277,17 @@ rect {
     border-radius: 50px 100px 100px 100px;
     margin-right: 20px;
     box-shadow: rgba(43, 63, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+.legend-label {
+    fill: white;
+}
+.legend-circle{
+    stroke: white;
+    opacity:.8;
+
+}
+.bubble-title {
+    fill: white;
 }
 
 #detail{
@@ -364,8 +378,10 @@ svg#chart {
 }
 
 #date_slider{
-    background-color: #1b1b1b;
-    border-radius: 30px 0px 30px 30px;
+    background-color: #131820;
+    border-radius: 20px 20px 20px 20px;
+    box-shadow: rgba(43, 63, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+
 }
 
 .hist-rect{

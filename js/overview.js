@@ -54,9 +54,9 @@ class Overview {
         // view text title
         vis.title = vis.chart
             .append('text')
+            .attr('class','bubble-title')
             .attr('x', 0)
             .attr('y', vis.padding*2)
-            .attr('class','bubble-title')
             .text(`${secondary_selector} by Aircraft Make`)
 
         vis.updateVis()
