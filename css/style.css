@@ -402,14 +402,17 @@ svg#chart {
     right: 0;
     bottom: 30px;
     rotate: 180deg;
-    z-index: 1;
+    z-index: 99;
 }
 
 #view1 .viewTitle{
+    pointer-events: none;
+    cursor: pointer;
+
     position: fixed;
     right: 10px;
     bottom: 5px;
-    z-index: 1;
+    z-index: 99;
 }
 
 #view2 {
@@ -419,14 +422,17 @@ svg#chart {
 #view2 .switchView {
     right: 0;
     position: fixed;
-    z-index: 1;
+    z-index: 99;
 }
 
 #view2 .viewTitle{
+    pointer-events: none;
+    cursor: pointer;
+
     position: fixed;
     right: 10px;
     top: 80px;
-    z-index: 1;
+    z-index: 99;
 }
 
 .footer {
