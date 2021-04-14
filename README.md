@@ -9,32 +9,32 @@ Then in the css file instead of fill() for the pattern, we used mask(url(#dot-ma
 The patterns were defined in index.html like such
 ```
 <svg>
-<defs>
-<pattern id=”dot”>
-<mask id=”dot-mask”>
-<rec fill=”url(#dot)”>
-</mask>
-</def>
+        <defs>
+                <pattern id=”dot”>
+                <mask id=”dot-mask”>
+                        <rec fill=”url(#dot)”>
+                </mask>
+        </def>
 </svg>
 ```
 
-http://iros.github.io/patternfills/sample_d3.html
+http://iros.github.io/patternfills/sample_d3.html <br>
 https://developer.mozilla.org/en-US/docs/Web/CSS/mask
 
 ###  phases.js
-The slices of the pies in the flight-path view initially don’t not load the same location for the categories, for example, sometimes the “Personal” category would be on the left slice, sometimes it would be on the right slice. To allow a better visualization and to keep things in consistency, we used sort(null) so that the slice order would be shown exactly like how the data was passed in (since our data is all ordered in order of Personal → Commercial), specifically d3.pie().value({some value}).sort(null). Hence now, all personal data are on the left slice and all commercial data are on the right slice.
+The slices of the pies in the flight-path view initially don’t not load the same location for the categories, for example, sometimes the “Personal” category would be on the left slice, sometimes it would be on the right slice. To allow a better visualization and to keep things in consistency, we used sort(null) so that the slice order would be shown exactly like how the data was passed in (since our data is all ordered in order of Personal → Commercial), specifically d3.pie().value({some value}).sort(null). Hence now, all personal data are on the left slice and all commercial data are on the right slice. <br>
 
 https://stackoverflow.com/questions/17169504/pie-donut-chart-segment-order-in-d3
 
 We also wanted to update data when it started moving to the next stop, i.e. start of the animation transition, so we used a callback at the start of the transition using .on(‘start, function()) to dispatch the dispatcher
-
+```
 vis.pathView.transition()
-.duration(1500)
-.ease(d3.easeLinear).style("opacity", 1)
-.on("start", function(event) {
-vis.dispatcher.call('reachedSummary', event, false);
-});
-
+        .duration(1500)
+        .ease(d3.easeLinear).style("opacity", 1)
+        .on("start", function(event) {
+                vis.dispatcher.call('reachedSummary', event, false);
+        });
+```
 https://stackoverflow.com/questions/10692100/invoke-a-callback-at-the-end-of-a-transition
 
 ### Main.js
@@ -44,16 +44,15 @@ let diff = d3.select('.title-2').node().getBoundingClientRect().height;
 d3.select('.top-view').style('position', 'sticky').style('top', diff+"px");
 
 ### Figs directory
-Here we place all of our icons for the plane bubble chart as well as the UI elements for changing views and for the scrolly-telling view plane marker.
-
+Here we place all of our icons for the plane bubble chart as well as the UI elements for changing views and for the scrolly-telling view plane marker. <br>
 https://stackoverflow.com/questions/19154631/how-to-get-coordinates-of-an-svg-element
 
 
 
-Used as reference to make stacked rectangles in the bar chart:
+Used as reference to make stacked rectangles in the bar chart: <br>
 https://github.com/UBC-InfoVis/2021-436V-examples/tree/master/d3-stacked-bar-chart
 
-Used waypoint to detect location of screen:
+Used waypoint to detect location of screen: <br>
 https://github.com/UBC-InfoVis/2021-436V-examples/tree/master/d3-waypoints-scrollytelling
 
 
@@ -64,7 +63,8 @@ PlaneConfigToImage()
 To choose the plane glyph for the given data we check the type of engine and number of engines so choose the most suitable image. If the data is unavailable a generic image is chosen instead.
 
 ### overview.js: </br>
-We adapted this view to redundently encode the attribute with a color scale to improve clarity and we added a bubble chart legend that was inspired by this tutorial: https://www.d3-graph-gallery.com/graph/bubble_legend.html
+We adapted this view to redundently encode the attribute with a color scale to improve clarity and we added a bubble chart legend that was inspired by this tutorial: <br>
+https://www.d3-graph-gallery.com/graph/bubble_legend.html
 
 ### usMap.js (Hex Bin Map) </br>
 
