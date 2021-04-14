@@ -184,69 +184,75 @@ class StackedBarChart {
             .attr("y", function(d) {return vis.yScale(d[1]) })
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
 
-        d3.selectAll('.stacked-barchart rect').on('mouseover', function() {
-            const types = ["Fatal", "Serious", "Minor"];
-            const selected = types.filter(t => this.parentNode.classList.contains(t))[0];
+        d3.selectAll('.stacked-barchart rect')
+            .on('mouseover', function() {
+                const types = ["Fatal", "Serious", "Minor"];
+                const selected = types.filter(t => this.parentNode.classList.contains(t))[0];
 
+                if (vis.severitySelection.click) {
+                    d3.selectAll(`.${selected}`).classed('inactive', false)
+                }
 
-            if (vis.severitySelection.click) {
-                d3.selectAll(`.${selected}`).classed('inactive', false)
-            }
-
-            types.filter(t => t !== selected).forEach(s => {
-                d3.selectAll(`.${s}`)
-                    .classed('hover', true)
-                    .transition()
-                    .ease(d3.easeLinear)
-                    .duration(300)
-                    .style('opacity', 0.3);
-            });
-
-            vis.severitySelection.hover = selected;
-            vis.updateVis()
-        })
-        .on('mouseout', function() {
-            const types = ["Fatal", "Serious", "Minor"];
-            const selected = types.filter(t => this.parentNode.classList.contains(t))[0];
-
-            if (vis.severitySelection.click) {
-                types.filter(t => t !== vis.severitySelection.click).forEach(s => {
+                types.filter(t => t !== selected).forEach(s => {
                     d3.selectAll(`.${s}`)
-                        .classed('inactive', true)
+                        .classed('hover', true)
+                        .transition()
+                        .ease(d3.easeLinear)
+                        .duration(300)
+                        .style('opacity', 0.3);
+                });
+
+                vis.severitySelection.hover = selected;
+                vis.updateVis()
+            })
+            .on('mouseout', function() {
+                const types = ["Fatal", "Serious", "Minor"];
+                const selected = types.filter(t => this.parentNode.classList.contains(t))[0];
+
+                if (vis.severitySelection.click) {
+                    types.filter(t => t !== vis.severitySelection.click).forEach(s => {
+                        d3.selectAll(`.${s}`)
+                            .classed('inactive', true)
+                            .transition()
+                            .ease(d3.easeLinear)
+                            .duration(300)
+                            .style('opacity', 1)
+                    });
+                }
+
+                types.forEach(s => {
+                    d3.selectAll(`.${s}`)
+                        .classed('hover', false)
                         .transition()
                         .ease(d3.easeLinear)
                         .duration(300)
                         .style('opacity', 1)
                 });
-            }
 
-            types.filter(t => t !== selected).forEach(s => {
-                d3.selectAll(`.${s}`)
-                    .classed('hover', false)
-                    .transition()
-                    .ease(d3.easeLinear)
-                    .duration(300)
-                    .style('opacity', 1)
+                vis.severitySelection.hover = '';
+                vis.updateVis()
+            })
+            .on('click', function() {
+                const types = ["Fatal", "Serious", "Minor"];
+                const selected = types.filter(t => this.parentNode.classList.contains(t))[0];
+
+                let bool = vis.severitySelection.click === selected;
+
+                if (bool) {
+                    types.forEach(s => {
+                        d3.selectAll(`.${s}`)
+                            .classed('inactive', false)
+                    });
+                } else {
+                    types.filter(t => t !== selected).forEach(s => {
+                        d3.selectAll(`.${s}`)
+                            .classed('inactive', true)
+                    });
+                }
+
+                vis.severitySelection.click = !!bool ? '' : selected;
+                vis.updateVis()
             });
-
-            vis.severitySelection.hover = '';
-            vis.updateVis()
-        })
-        .on('click', function() {
-            const types = ["Fatal", "Serious", "Minor"];
-            const selected = types.filter(t => this.parentNode.classList.contains(t))[0];
-
-            let bool;
-
-            types.filter(t => t !== selected).forEach(s => {
-                bool = !d3.selectAll(`.${s}`).classed('inactive');
-                d3.selectAll(`.${s}`)
-                    .classed('inactive', bool)
-            });
-
-            vis.severitySelection.click = !!bool ? selected : '';
-            vis.updateVis()
-        });
 
         rectangleEnter.exit().remove();
 
