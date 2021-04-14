@@ -12,7 +12,7 @@ class Controls {
         // this.height = this.width / 8
 
         this.width = window.innerWidth * 0.4
-        this.height = window.innerHeight * 0.1
+        this.height = window.innerHeight * 0.2
         this.padding = 20
         this.initVis()
     }
@@ -25,6 +25,8 @@ class Controls {
             .append("svg")
             .attr("width", vis.width + vis.padding)
             .attr("height", vis.height + vis.padding)
+
+        vis.colorScale = d3.scaleSequential(d3.interpolateCividis)
 
         // Append group element that will contain our actual chart
         // and position it according to the given padding config
@@ -40,13 +42,9 @@ class Controls {
         vis.yScale = d3.scaleLinear().range([vis.height - vis.padding, vis.padding])
 
         // axis
-// <<<<<<< HEAD
-//         vis.xAxis = d3.axisBottom(vis.xScale).tickFormat(d => d).tickSize(1).ticks()
-//         vis.yAxis = d3.axisLeft(vis.yScale).ticks(3)
-// =======
+
         vis.xAxis = d3.axisTop(vis.xScale).tickFormat(d => d).tickSize(1)
         vis.yAxis = d3.axisLeft(vis.yScale).ticks(4).tickSize(10).tickFormat('')
-// >>>>>>> origin/view1-bug-fixes
 
         // axis groups
         vis.xAxisGroup = vis.chartArea.append("g").attr("class", "axis x-axis")
@@ -87,6 +85,8 @@ class Controls {
                 smallest = ele[1]
         })
         vis.yScale.domain([smallest, largest])
+        vis.colorScale.domain([smallest, largest]);
+
         vis.renderVis()
     }
 
@@ -103,6 +103,9 @@ class Controls {
                 return vis.height + vis.padding - vis.yScale(d[1])
             })
             .attr('y', d => vis.yScale(d[1]))
+            .attr('fill', d => {
+                return vis.colorScale(d[1])
+            })
 
         // vis.bars.exit().remove()
         vis.chart.call(vis.brush)
