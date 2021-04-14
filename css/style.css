@@ -1,56 +1,58 @@
-/*todo, make text unselectable for control panel and bubble chart (cosmetic)*/
-
 * {
     font-family: "Source Sans Pro", sans-serif;
 }
 
-.control_panel {
-    /*position: absolute;*/
-    background-color: blue;
-    border: 10px solid black;
+
+svg text {
+    pointer-events: none;
 }
 
 html,
 body {
     min-height: 100%;
+    scroll-behavior: smooth;
 }
 
-body {
-    background-color: #2a2d2d;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: #fdf1e7;
-    /*margin: none;*/
+
+#dropdown-group{
+    margin-top: 30px;
+    margin-bottom: 10px;
+    margin-left: 100px;
 }
 
+#checkbox-group {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    margin-left: 100px;
+}
 svg {
-    background-color: #305555;
     /*box-shadow: 0px 3px 15px rgba(0,0,0,0.2); */
     /*border-radius: 5px; */
-    padding: 10px;
     border-radius: 5px;
 }
 
-#us-map {
-    min-height: 600px;
-    min-width: 950px;
-}
 
 /* Tooltip */
 #tooltip {
     position: absolute;
     display: none;
     background: #fff;
-    box-shadow: 3px 3px 3px 0px rgb(92 92 92 / 0.5);
+    box-shadow: 3px 3px 3px 0px rgb(92 92 92);
     border: 1px solid #ddd;
     font-size: 12px;
     font-weight: 500;
     padding: 8px;
     min-width: 160px;
     color: #333;
-    z-index: 10;
+    z-index: 999;
+    pointer-events: none;
+}
+
+.tooltip-window{
+    line-height: 15px;
+    background-color: white;
+    border-width: thin;
+    border-style: solid;
 }
 
 .tooltip-title {
@@ -64,22 +66,26 @@ svg {
     padding-left: 20px;
 }
 
-.geo-path {
-    stroke: #575657;
+.geo-boundary-path {
+    stroke: #2f2f2f;
+}
+
+.pie-container text {
+    font-size: 17px;
+}
+
+.pie-container text.Commercial {
+    fill: black !important;
 }
 
 g {
     color: #fdf1e7;
 }
 
-#tooltip {
-    visibility: hidden;
+.switchView{
+    width: 100px;
     height: auto;
-    width: auto;
-    margin-top: 2px;
-    color: #fdf1e7;
-    font-size: 24px;
-    margin-bottom: 5px;
+    alignment: left;
 }
 
 #legend {
@@ -92,12 +98,20 @@ g {
     margin-bottom: 40px;
 }
 
-#title {
+#chart-legend {
+    display: flex;
+    fill: beige;
+    margin-left: 110px;
+}
+
+#chart-legend g > g, rect.rectangle {
+    cursor: pointer;
+}
+
+#title, .title {
     font-size: 28px;
     color: #fdf1e7;
     text-transform: uppercase;
-    margin-top: 10px;
-    margin-bottom: 30px;
 }
 
 #description a {
@@ -106,22 +120,17 @@ g {
     text-align: center;
 }
 
-#container {
-    display: flex;
-    align-items: center;
-    width: 100%;
+.node-detail:hover{
+    cursor: pointer;
 }
 
-#rightSide {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-left: 50px;
+.node:hover circle {
+    stroke: black;
+    stroke-width: 3px;
+    cursor: pointer;
 }
 
-.circle-hover {
-    border: 2px solid black;
-}
+
 
 axis text {
     font-size: .7rem;
@@ -132,19 +141,323 @@ axis text {
     stroke: #888;
 }
 
+.tick text {
+    font-size: 17px;
+}
 
 rect {
     shape-rendering: crispEdges;
 }
 
-.Minor rect {
-    fill: coral;
+.Minor > rect{
+    mask: url(#minor-mask)
 }
 
-.Fatal rect {
-    fill: black;
+/*.Fatal rect {*/
+/*    mask: url(#fatal-mask)*/
+/*}*/
+
+.Serious > rect{
+    mask: url(#serious-mask)
 }
 
-.Serious rect {
-    fill: darkred;
+/* Flight Phase Container */
+#flight-phase-container {
+    position: relative;
+    display:flex;
+    flex-direction: column;
+    flex:1;
+    align-items: center;
+
+    width: 100%;
+    zoom: 0.9;
+
+    z-index: 1;
 }
+
+#flight-phase-container text {
+    fill: #fdf1e7;
+}
+
+#flight-phase {
+    position: absolute;
+    height: 5000px;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background-color: #2f2f2f;
+    box-shadow: rgba(49, 63, 93, 0.2) 0px 30px 60px 20px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+    width: 95%;
+    border-radius: 340px 340px 50px 50px;
+}
+
+#flight-phase svg {
+    background-color: transparent;
+}
+
+#top-views {
+    background-color: #2f2f2f;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 95vw;
+    margin-bottom: 20px;
+    border-radius: 340px 340px 50px 50px;
+    box-shadow: rgba(49, 63, 93, 0.25) 0px 30px 60px 20px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+.Personal {
+    fill: #004fff;
+}
+
+.Commercial {
+    /*fill: #0700db;*/
+    fill: #ffe061;
+}
+
+#flight-scroll{
+    position: sticky;
+    z-index: -99;
+    width: 100%;
+}
+
+#flight-scroll .scroll-stop:first-child {
+    height: 750px;
+}
+
+#flight-scroll .scroll-stop {
+    height: 500px;
+}
+
+
+
+
+#view1{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#heading{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.bubble-title{
+    font-size: 1.2em;
+}
+#views{
+ display: flex;
+    flex-direction: column;
+}
+.control_panel {
+    background-color: #1b1b1b;
+    width: fit-content;
+    border-radius: 150px 150px 50px 50px;
+    margin-top: 100px;
+    box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+}
+
+#overview{
+    float: left;
+    width: fit-content;
+    height: fit-content;
+    background-color: #2f2f2f;
+    border-radius: 50px 100px 100px 100px;
+    margin-right: 20px;
+    box-shadow: rgba(43, 63, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+.legend-label {
+    fill: white;
+}
+.legend-circle{
+    stroke: white;
+    opacity:.8;
+
+}
+.bubble-title {
+    fill: white;
+}
+
+#detail{
+    float: right;
+    width: fit-content;
+    height: fit-content;
+    background-image: linear-gradient( 171.8deg,  rgba(5,111,146,1) 13.5%, rgba(6,57,84,1) 78.6% );
+    border-radius: 100%;
+    box-shadow: rgba(42, 53, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+
+}
+
+
+
+
+body {
+    position: relative;
+    background-color: #1b1b1b;
+
+    color: #fdf1e7;
+    /*margin: 40px;*/
+}
+
+
+#bottom-views {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+/*#flight-scroll .scroll-stop:last-child {*/
+/*    height: 300px;*/
+/*}*/
+
+
+
+
+
+
+
+#summary-container {
+    z-index: 1;
+    height: 90vh;
+    display: flex;
+    justify-content: center;
+
+    margin-top: -20px;
+}
+
+#summary-container > .title-2 {
+    position: relative;
+    z-index: 2;
+    height: fit-content;
+}
+
+.title-2 {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+svg#patterns {
+    background-color: transparent;
+}
+
+svg text {
+    user-select: none;
+}
+
+svg#chart {
+    padding-top: 0;
+}
+
+.hover, .inactive {
+    filter: saturate(30%);
+}
+
+.inactive {
+    opacity: 0.3 !important;
+}
+
+.top-view {
+    width: 100%;
+    display: flex;
+}
+
+#view-desc {
+    position: sticky;
+    margin-top: 12vh;
+    margin-left: 7vw;
+    margin-right: 5vw;
+    width: 15vw;
+    pointer-events: none;
+}
+
+.stacked-barchart{
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+}
+
+#date_slider{
+    background-color: #131820;
+    border-radius: 20px 20px 20px 20px;
+    box-shadow: rgba(43, 63, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+.hist-rect{
+    fill: royalblue;
+}
+
+#view1 .switchView {
+    position: fixed;
+    right: 0;
+    bottom: 30px;
+    rotate: 180deg;
+    z-index: 1;
+}
+
+#view1 .viewTitle{
+    position: fixed;
+    right: 10px;
+    bottom: 5px;
+    z-index: 1;
+}
+
+#view2 {
+    min-width: 1200px;
+}
+
+#view2 .switchView {
+    right: 0;
+    position: fixed;
+    z-index: 1;
+}
+
+#view2 .viewTitle{
+    position: fixed;
+    right: 10px;
+    top: 80px;
+    z-index: 1;
+}
+
+.footer {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#footer-2 {
+    width: 100%;
+    position: fixed;
+    bottom: 10px;
+    text-align: center;
+}
+
+
+.stop-scrolling {
+    height: 100%;
+    overflow: hidden;
+}
+#map-legend {
+    position: absolute;
+    right: 30%;
+    top: 10%;
+}
+
+#map {
+    margin-top: 100px;
+}
+
+a {
+    color: royalblue;
+}
+
+
