@@ -10,8 +10,6 @@ class Overview {
         this.maxCircleSize = 75
         this.minCircleSize = 30
         this.padding = 5
-        this.groupBy = "Make_ac"
-        this.attribute = _attr
         this.maxElements = 30
         this.legendStep = [25,50,75,100]
         this.initVis()
@@ -37,6 +35,8 @@ class Overview {
         // scales
         vis.xScale = d3.scaleLinear()
         vis.radiusScale = d3.scaleSqrt().range([vis.minCircleSize, vis.maxCircleSize])
+        // vis.colorScale = d3.scaleSqrt().range(['coral','darkred'])
+        vis.colorScale = d3.scaleSequential(d3.interpolateCividis)
 
         // legend
         vis.legend = vis.chart
@@ -51,7 +51,7 @@ class Overview {
             .style("fill", "none")
             .attr("stroke", "black");
 
-
+        // view text title
         vis.title = vis.chart
             .append('text')
             .attr('x', 0)
@@ -64,8 +64,10 @@ class Overview {
 
     updateVis() {
         const vis = this
+        // change domain for scales based on new data and limit to max elements
         vis.dataAttributed = vis.data.slice(0, vis.maxElements)
         vis.radiusScale.domain([vis.dataAttributed[vis.maxElements - 1][1], vis.dataAttributed[0][1]])
+        vis.colorScale.domain([vis.dataAttributed[vis.maxElements - 1][1], vis.dataAttributed[0][1]])
         d3.selectAll(vis.title).text(`${secondary_selector} by Aircraft Make`)
         vis.renderVis()
     }
@@ -78,6 +80,7 @@ class Overview {
         d3.selectAll(vis.textlabels).remove()
         d3.selectAll(vis.circles).remove()
 
+        // update text labels for legend
         vis.textlabels = vis.chart
             .selectAll('#legend-overview')
             .data(vis.legendStep, d=>d)
@@ -89,6 +92,7 @@ class Overview {
                 let val = vis.radiusScale.invert((vis.maxCircleSize-vis.minCircleSize)*d/100 + vis.minCircleSize)
                 return val.toFixed(0)})
 
+        // setup nodes
         vis.node = vis.chart
             .selectAll('g')
             .data(vis.dataAttributed, function (d){
@@ -105,8 +109,8 @@ class Overview {
                 // tooltip for makes
                 d3.select('#tooltip')
                     .style('display', 'block')
-                    .style("left", event.pageX + 0 + "px")
-                    .style("top", event.pageY + 0 + "px")
+                    .style("left", event.pageX + "px")
+                    .style("top", event.pageY + "px")
                     .html(
                         `<div class="tooltip-window">
                         <p>${d[0]}</p> 
@@ -120,16 +124,15 @@ class Overview {
             })
 
 
+        // bubble chart circle sub elements
         vis.circles = vis.node
             .append('circle')
             .attr('r', d => vis.radiusScale(d[1]))
             .attr('fill', d => {
-                // TODO color if applicable for secondary selector (eg avg severity of accidents for num of accidents) (cosmetic)
-                return 'red'
+                return vis.colorScale(d[1])
             })
 
-
-
+        // text labels for bubbles
         vis.node
             .append('text')
             .attr("text-anchor", "middle")
@@ -142,6 +145,7 @@ class Overview {
                 return d[0]
             })
 
+        // setup force sim here
         vis.sim = d3.forceSimulation(vis.dataAttributed, function (d){
             return [d[0],vis.radiusScale(d[1])]
         })
@@ -161,7 +165,7 @@ class Overview {
                         let y = d.y
                         let rad = vis.radiusScale(d[1])
 
-                        //bounding box logic
+                        //bounding box logic (stay within padding area of box)
                         if (x > vis.width - vis.padding - rad) {
                             x = vis.width - vis.padding - rad
                         } else if (x - vis.padding - rad < 0) {
@@ -180,16 +184,15 @@ class Overview {
                         .on("end", d => vis.dragEnd(d, vis.sim)));
 
                 vis.node.exit().remove()
-
                 d3.selectAll(vis.circles).exit().remove()
             })
     }
 
-    dragStart(d, sim) {
+    dragStart(d, sim) { // restart movement of sim
         sim.alphaTarget(0.3).restart();
     }
 
-    drag(d) {
+    drag(d) { // remove tooltip and allow bubble to move by mouse
         d3.select('#tooltip')
             .style('display', 'none')
         d.subject.x = d.x;

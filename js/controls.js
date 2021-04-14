@@ -4,12 +4,16 @@ class Controls {
         this.data = _data // Data should only be changed based on filters besides date
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
-        this.width = window.innerWidth * 0.3
-        this.height = window.innerHeight * 0.2
-        // this.width = 400
-        this.padding = 10
+
+        // this.width = window.innerWidth * 0.3
+        // this.height = window.innerHeight * 0.2
+        // // this.width = 400
+        // this.padding = 10
         // this.height = this.width / 8
 
+        this.width = window.innerWidth * 0.4
+        this.height = window.innerHeight * 0.1
+        this.padding = 20
         this.initVis()
     }
 
@@ -36,8 +40,13 @@ class Controls {
         vis.yScale = d3.scaleLinear().range([vis.height - vis.padding, vis.padding])
 
         // axis
-        vis.xAxis = d3.axisBottom(vis.xScale).tickFormat(d => d).tickSize(1).ticks()
-        vis.yAxis = d3.axisLeft(vis.yScale).ticks(3)
+// <<<<<<< HEAD
+//         vis.xAxis = d3.axisBottom(vis.xScale).tickFormat(d => d).tickSize(1).ticks()
+//         vis.yAxis = d3.axisLeft(vis.yScale).ticks(3)
+// =======
+        vis.xAxis = d3.axisTop(vis.xScale).tickFormat(d => d).tickSize(1)
+        vis.yAxis = d3.axisLeft(vis.yScale).ticks(4).tickSize(10).tickFormat('')
+// >>>>>>> origin/view1-bug-fixes
 
         // axis groups
         vis.xAxisGroup = vis.chartArea.append("g").attr("class", "axis x-axis")
@@ -53,7 +62,6 @@ class Controls {
                 let high = Math.round(vis.xScale.invert(d3.brushSelection(this)[1]))
                 dates = [low, high]
             }
-            // Todo round and move selector (cosmetic)
 
             // call dispatcher to re-filter data
             control_panel_dispatcher.call('control_filter', {date: dates})
@@ -62,6 +70,7 @@ class Controls {
         vis.data_dates = d3.groups(vis.data, d => new Date(d['Event Date_ac']).getFullYear())
         vis.data_dates = controlFilter(vis.data,secondary_selector)
         vis.xScale.domain([d3.min(vis.data_dates, d => d[0]),d3.max(vis.data_dates, d => d[0]) ])
+        control_panel_dispatcher.call('control_filter', {date: [d3.min(vis.data_dates, d => d[0]),d3.max(vis.data_dates, d => d[0])]})
         this.updateVis()
     }
 
@@ -78,14 +87,13 @@ class Controls {
                 smallest = ele[1]
         })
         vis.yScale.domain([smallest, largest])
-
-
         vis.renderVis()
     }
 
     renderVis() {
         const vis = this
 
+        // generate bar histogram
         vis.bars = vis.chartArea.selectAll('rect')
             .data(vis.data_dates, d=>d[0])
             .join('rect')
@@ -94,9 +102,9 @@ class Controls {
             .attr('height', d => {
                 return vis.height + vis.padding - vis.yScale(d[1])
             })
-            .attr('y', d => vis.padding + vis.yScale(d[1]))
+            .attr('y', d => vis.yScale(d[1]))
 
-        vis.bars.exit().remove()
+        // vis.bars.exit().remove()
         vis.chart.call(vis.brush)
         vis.xAxisGroup.call(vis.xAxis).call((g) => g.select(".domain").remove());
         vis.yAxisGroup.call(vis.yAxis).call((g) => g.select(".domain").remove());

@@ -61,7 +61,6 @@ Promise.all([
     const overview = new Overview(overviewFilter(joined_data,secondary_selector), '#overview', control_panel_dispatcher, secondary_selector)
     visualizations_view_2.push(control_panel)
     visualizations_view_2.push(overview)
-    // const detail = new Detail(joined_data, '#detail', control_panel_dispatcher, secondary_selector)
     visualizations_view_2.push(usMap)
 
     const detail = new Detail(detailFilter(joined_data, secondary_selector, null), '#detail', control_panel_dispatcher, secondary_selector,plane_lookup )
