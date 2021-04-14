@@ -403,6 +403,13 @@ svg#chart {
     z-index: 1;
 }
 
+#view1 .viewTitle{
+    position: fixed;
+    right: 10px;
+    bottom: 5px;
+    z-index: 1;
+}
+
 #view2 {
     min-width: 1200px;
 }
@@ -410,6 +417,13 @@ svg#chart {
 #view2 .switchView {
     right: 0;
     position: fixed;
+    z-index: 1;
+}
+
+#view2 .viewTitle{
+    position: fixed;
+    right: 10px;
+    top: 80px;
     z-index: 1;
 }
 
@@ -443,3 +457,5 @@ svg#chart {
 a {
     color: royalblue;
 }
+
+
