@@ -4,14 +4,7 @@ class Controls {
         this.data = _data // Data should only be changed based on filters besides date
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
-
-        // this.width = window.innerWidth * 0.3
-        // this.height = window.innerHeight * 0.2
-        // // this.width = 400
-        // this.padding = 10
-        // this.height = this.width / 8
-
-        this.width = window.innerWidth * 0.4
+        this.width = window.innerWidth * 0.35
         this.height = window.innerHeight * 0.2
         this.padding = 20
         this.initVis()

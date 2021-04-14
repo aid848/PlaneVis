@@ -56,7 +56,7 @@ class Overview {
             .append('text')
             .attr('class','bubble-title')
             .attr('x', 0)
-            .attr('y', vis.padding*2)
+            .attr('y', vis.padding*6)
             .text(`${secondary_selector} by Aircraft Make`)
 
         vis.updateVis()

@@ -7,8 +7,8 @@ class UsMap {
     constructor(_config, _geoData, _data, _attr) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: 800,
-            containerHeight: 500,
+            containerWidth: window.innerWidth * 0.5,
+            containerHeight: window.innerHeight * 0.5,
             margin: _config.margin || {top: 0, right: 0, bottom: 0, left: 0},
             tooltipPadding: 10
         }

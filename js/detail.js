@@ -48,7 +48,7 @@ class Detail {
         vis.title = vis.chart
             .append('text')
             .attr('x', 0)
-            .attr('y', vis.padding*2)
+            .attr('y', vis.padding*6)
             .attr('class','bubble-title')
             .text(`${secondary_selector} by Aircraft Make (${vis.selected})`)
 
@@ -66,7 +66,7 @@ class Detail {
         vis.dataGrouped = vis.data.slice(0, vis.maxElements)
         vis.sizeScale.domain([vis.dataGrouped[vis.maxElements - 1][1], vis.dataGrouped[0][1]])
         vis.sizeScaleInverted.domain([vis.dataGrouped[0][1],vis.dataGrouped[vis.maxElements - 1][1]])
-        d3.selectAll(vis.title).text(`${secondary_selector} by Aircraft model (${vis.selected})`)
+        d3.selectAll(vis.title).text(`${secondary_selector} by Aircraft Model (${vis.selected})`)
         vis.renderVis()
     }
 

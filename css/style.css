@@ -232,8 +232,8 @@ rect {
 }
 
 
-.bubble-title span{
-    background-color: white;
+.bubble-title{
+    font-size: 1.2em;
 }
 #views{
  display: flex;
@@ -431,7 +431,7 @@ svg#chart {
 }
 #map-legend {
     position: absolute;
-    right: 40%;
+    right: 30%;
     top: 10%;
 }
 

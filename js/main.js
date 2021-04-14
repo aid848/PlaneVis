@@ -294,7 +294,7 @@ function groupFilter(data,attribute){
                 return [ele[0], ele[1].map(val => val[attribute]).reduce((acc, cur) => acc + cur)]
             })
             break;
-        case 'Most Destroyed craft':
+        case 'Most Destroyed Craft':
             dataAttributed = dataGrouped.map(ele => {
                 return [ele[0], ele[1].map(val => val['Aircraft Damage']).filter((cur) => cur.toLowerCase() === 'destroyed').length]
             })
