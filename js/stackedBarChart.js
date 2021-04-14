@@ -113,7 +113,6 @@ class StackedBarChart {
         let vis = this;
         vis.xScale.domain(["Personal", "Commercial"]);
 
-        // console.log(vis.data)
         vis.data = vis.data.filter(
             (d) => d["Purpose of Flight"] != "" || d["Purpose of Flight"] != "Unknown"
         );
@@ -144,19 +143,18 @@ class StackedBarChart {
                 }
             });
 
+        vis.stackedData = vis.stack(vis.groupedData);
+
         vis.yScale.domain([
             0,
-            d3.max(vis.groupedData, (d) => {
-                const total =
-                    d["Total Fatal Injuries"] +
-                    d["Total Serious Injuries"] +
-                    d["Total Fatal Injuries"];
-                const roundThousands = (parseInt(total / 1000) + 2) * 1000;
-                return roundThousands < 40000 ? roundThousands : 70000;
+            d3.max(vis.stackedData, (d) => {
+                if (d[1] !== undefined) {
+                    const max = d3.max([d[0][1], d[1][1]])
+                    const roundThousands = (parseInt(max / 1000) + 2) * 1000;
+                    return roundThousands < 40000 ? roundThousands : 70000;
+                }
             }),
         ]);
-
-        vis.stackedData = vis.stack(vis.groupedData);
 
         vis.renderVis();
     }
@@ -195,7 +193,6 @@ class StackedBarChart {
         // Exit
         categoryEnter.exit().remove();
 
-        // console.log(vis.stackedData)
         const rectangle = category
             .merge(categoryEnter)
             .selectAll(".rectangle")
