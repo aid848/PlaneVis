@@ -4,10 +4,10 @@ class Controls {
         this.data = _data // Data should only be changed based on filters besides date
         this.parent_element = _parent_element
         this.dispatcher = _dispatcher
-        this.width = window.innerWidth * 0.4
-        this.height = window.innerHeight * 0.1
+        this.width = window.innerWidth * 0.3
+        this.height = window.innerHeight * 0.2
         // this.width = 400
-        this.padding = 5
+        this.padding = 10
         // this.height = this.width / 8
 
         this.initVis()
@@ -36,8 +36,8 @@ class Controls {
         vis.yScale = d3.scaleLinear().range([vis.height - vis.padding, vis.padding])
 
         // axis
-        vis.xAxis = d3.axisBottom(vis.xScale).tickFormat(d => d).tickSize(1)
-        vis.yAxis = d3.axisLeft(vis.yScale)
+        vis.xAxis = d3.axisBottom(vis.xScale).tickFormat(d => d).tickSize(1).ticks()
+        vis.yAxis = d3.axisLeft(vis.yScale).ticks(3)
 
         // axis groups
         vis.xAxisGroup = vis.chartArea.append("g").attr("class", "axis x-axis")

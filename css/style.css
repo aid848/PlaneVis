@@ -4,10 +4,8 @@
 
 .control_panel {
     background-color: #3c3f41;
-    border: 5px solid black;
     width: fit-content;
-    border-radius: 10px;
-
+    border-radius: 100px;
 }
 
 svg text {
@@ -20,14 +18,18 @@ body {
     scroll-behavior: smooth;
 }
 
-body {
-    position: relative;
-    background-color: #2b2b2b;
 
-    color: #fdf1e7;
-    /*margin: 40px;*/
+#dropdown-group{
+    margin-top: 10px;
+    margin-bottom: 20px;
+    margin-left: 10px;
 }
 
+#checkbox-group {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
 svg {
     /*box-shadow: 0px 3px 15px rgba(0,0,0,0.2); */
     /*border-radius: 5px; */
@@ -217,21 +219,6 @@ rect {
 }
 
 
-#overview{
-    float: left;
-    width: fit-content;
-    height: fit-content;
-    background-color: #424242;
-
-
-}
-
-#detail{
-    float: right;
-    width: fit-content;
-    height: fit-content;
-    background-color: #424242;
-}
 
 
 #view1{
@@ -250,22 +237,56 @@ rect {
 
 
 
-.sub-view{
-}
 #views{
  display: flex;
     flex-direction: column;
 }
 
+
 #top-views {
-    background-color: #424242;
+    background-color: #2f2f2f;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-evenly;
-    margin-bottom: 30px;
+    width: 95vw;
+    margin-bottom: 20px;
+    border-radius: 500px 500px 50px 50px;
+    box-shadow: rgba(49, 63, 93, 0.25) 0px 30px 60px 20px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
 }
+
+#overview{
+    float: left;
+    width: fit-content;
+    height: fit-content;
+    background-color: #2f2f2f;
+    border-radius: 50px 100px 100px 100px;
+    margin-right: 20px;
+    box-shadow: rgba(43, 63, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+#detail{
+    float: right;
+    width: fit-content;
+    height: fit-content;
+    background-image: linear-gradient( 171.8deg,  rgba(5,111,146,1) 13.5%, rgba(6,57,84,1) 78.6% );
+    border-radius: 100%;
+    box-shadow: rgba(42, 53, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+
+}
+
+
+
+
+body {
+    position: relative;
+    background-color: #1b1b1b;
+
+    color: #fdf1e7;
+    /*margin: 40px;*/
+}
+
 
 #bottom-views {
     display: flex;

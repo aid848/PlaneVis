@@ -71,7 +71,7 @@ class UsMap {
             .map(d => (d.binMetric = d3.sum(d, d => d[vis.attribute]), d))
             .sort((a, b) => b.length - a.length);
 
-        vis.color = d3.scaleSequential(d3.extent(vis.hexData, d => d3.sum(d, d => d[vis.attribute])), d3.interpolateOrRd);
+        vis.color = d3.scaleSequential(d3.extent(vis.hexData, d => d3.sum(d, d => d[vis.attribute])), d3.interpolateCividis);
         vis.radius = d3.scaleSqrt([0, d3.max(vis.hexData, d => d.length)], [0, vis.hexbin.radius() * Math.SQRT2]);
 
         vis.renderVis(bubble);
