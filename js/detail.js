@@ -109,11 +109,19 @@ class Detail {
           .style("left", event.pageX + "px")
           .style("top", event.pageY + "px")
           .html(
-            `<div class="tooltip-window">
-                        <p>${vis.selected}</p>
-                        <p>Model: ${d[0]}</p> 
-                        <p>${secondary_selector} ${d[1].toFixed(0)}</p>
-                        </div>`
+            `
+            <div class="tooltip-window">
+                <p class="tooltip-title title-center">${vis.selected}</p>
+                <p>
+                    <span class="tooltip-secondary-title">Model:</span>
+                    <span> ${d[0]}</span>
+                </p>
+                <p>
+                    <span class="tooltip-secondary-title">${secondary_selector}:</span>
+                    <span> ${d[1].toFixed(0)}</span>
+                </p>
+            </div>
+            `
           );
       })
       .on("mouseout", function (event, d) {

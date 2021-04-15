@@ -53,12 +53,21 @@ svg {
     background-color: white;
     border-width: thin;
     border-style: solid;
+    padding: 5px;
 }
 
 .tooltip-title {
     color: #000;
     font-size: 14px;
     font-weight: 600;
+}
+
+.tooltip-secondary-title {
+    font-weight: bold;
+}
+
+.title-center {
+    text-align: center;
 }
 
 #tooltip ul {
