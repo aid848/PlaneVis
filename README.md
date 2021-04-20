@@ -1,5 +1,11 @@
-# CPSC 436V Project
+# CPSC 436V Data visualization Project
 ### Our visualization works best with a fullscreen window with an aspect ratio of 16:9 (16:10 is probably ok too)
+
+## Contributors:
+| <img src="https://avatars.githubusercontent.com/u/33972075?s=400&u=d3801ae66aa065bd3fd800d8afde3f4d9e565f03&v=4" width="144" /> | <img src="https://avatars.githubusercontent.com/u/42975030?v=4" width="144" /> | <img src="https://avatars.githubusercontent.com/u/45474496?v=4" width="144" /> |
+| --- | --- | --- |
+| [Aidan](https://github.com/aid848) | [Ramesh](https://github.com/4amramen) | [Jacqueline](https://github.com/qlnjq)
+
 
 ## Milestone 3
 ### stackedBarChart.js
