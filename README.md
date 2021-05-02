@@ -1,6 +1,9 @@
 # CPSC 436V Data visualization Project
 ### Our visualization works best with a fullscreen window with an aspect ratio of 16:9 (16:10 is probably ok too)
 
+Here is a preview of the two views:
+<img src="teaser.png" alt="A preview of the two visualization screens">
+
 ## Contributors:
 | <img src="https://avatars.githubusercontent.com/u/33972075?s=400&u=d3801ae66aa065bd3fd800d8afde3f4d9e565f03&v=4" width="144" /> | <img src="https://avatars.githubusercontent.com/u/42975030?v=4" width="144" /> | <img src="https://avatars.githubusercontent.com/u/45474496?v=4" width="144" /> |
 | --- | --- | --- |
